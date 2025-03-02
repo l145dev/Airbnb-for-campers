@@ -12,8 +12,10 @@ Here, I will document the entire process of me creating Airbnb for campers.
 #### Design theme
 Create reusable design components all in 1 file so that all styles stay consistent throughout all the pages.
 
-- Create logo with [Photopea](https://www.photopea.com/)
+- Create logo in [Photopea](https://www.photopea.com/)
 
 
 #### UI/UX
-- Design home page in Figma
+- Create Navbar
+- Design home
+- Design login
