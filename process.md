@@ -20,9 +20,11 @@ Here, I will document the entire process of me creating Airbnb for campers.
 
 #### UI/UX
 - Design Navbar
-- Design home
-- Design login
-- Design register
-- Design settings
-- Design support
-- Design forgot password
+- Design home page
+- Design login page
+- Design register page
+- Design settings page
+- Design support page
+- Design forgot password page(s)
+- Design searchlistings page
+- Design searchresults page

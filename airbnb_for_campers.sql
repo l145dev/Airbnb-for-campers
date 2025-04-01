@@ -60,6 +60,21 @@ CREATE TABLE property_details (
     safety_features TEXT
 );
 
+-- Create the user_saves table
+CREATE TABLE user_saves (
+    user_save_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    property_id INTEGER NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    -- Foreign key constraints
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (property_id) REFERENCES properties(property_id),
+
+    -- Prevent duplicate saves for the same user and property
+    UNIQUE (user_id, property_id)
+);
+
 -- Create Bookings table
 CREATE TABLE bookings (
     booking_id SERIAL PRIMARY KEY,
@@ -110,3 +125,5 @@ CREATE INDEX idx_property_id_images ON property_images (property_id);
 CREATE INDEX idx_property_id_reviews ON reviews (property_id);
 CREATE INDEX idx_guest_id_reviews ON reviews (guest_id);
 CREATE INDEX idx_user_id_notifications ON notifications (user_id);
+CREATE INDEX idx_user_saved_properties ON user_saves (user_id);
+CREATE INDEX idx_property_saved_by_users ON user_saves (property_id);
