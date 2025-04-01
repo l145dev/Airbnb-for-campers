@@ -16,6 +16,7 @@ Here, I will document the entire process of me creating Airbnb for campers.
 #### Design theme
 
 - Create logo variations in [Photopea](https://www.photopea.com/)
+- Create full design theme
 
 
 #### UI/UX
@@ -28,3 +29,4 @@ Here, I will document the entire process of me creating Airbnb for campers.
 - Design forgot password page(s)
 - Design searchlistings page
 - Design searchresults page
+- Designing propertydetails page (progress - 60/100)
