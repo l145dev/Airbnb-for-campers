@@ -29,4 +29,9 @@ Here, I will document the entire process of me creating Airbnb for campers.
 - Design forgot password page(s)
 - Design searchlistings page
 - Design searchresults page
-- Designing propertydetails page (progress - 60/100)
+- Design propertydetails page
+- Design bookproperty page
+- Design tripsdashboard page
+- Design notifications page
+- Design owner_listpropertyinfo page
+- Design owner_propertydashboard page

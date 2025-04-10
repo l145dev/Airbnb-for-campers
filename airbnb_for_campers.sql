@@ -42,7 +42,8 @@ CREATE TABLE properties (
     average_rating DECIMAL(3, 1),
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    note_from_owner TEXT
 );
 
 -- Create PropertyDetails table
