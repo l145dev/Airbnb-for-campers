@@ -15,9 +15,9 @@ Here, I will document the entire process of me creating Airbnb for campers.
 
 ### Create Database
 
-- Prompt Gemini with all necessities from the research phase, this gives initial SQL file.
-- Review SQL file and make changes to tables, columns and column details where needed.
-- Copy and paste SQL code in PostgreSQL query (pgAdmin 4) in new database called "airbnbdb".
+1. Prompt Gemini with all necessities from the research phase, this gives initial SQL file.
+2. Review SQL file and make changes to tables, columns and column details where needed.
+3. Copy and paste SQL code in PostgreSQL query (pgAdmin 4) in new database called "airbnbdb".
 
 ### Add (dummy) values
 
@@ -111,7 +111,8 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 ```
 
-### Test backend so far
+### Test backend API & DB connection
+
 - API is NOT functioning.
 - Prisma DB connection is NOT functioning.
 
@@ -120,3 +121,23 @@ const prisma = new PrismaClient();
 
 - API is functioning.
 - Prisma DB connection is functioning.
+
+### Test API twith dummy data from DB
+
+1. Use airbnb_for_campers.sql code as context for Gemini to generate dummy data
+2. Insert dummy data in DB (dummy data in airbnb_for_campers_dummy_data.sql)
+
+Fetching data works.
+
+### Login
+
+1. Request email and password from frontend in body
+2. check if username and password exists, if not throw error
+3. check if user exists with the email, if not throw error
+4. check if password matches (compare with bcrypt), if no match, throw error
+5. log in if all steps successful
+
+#### Added features
+
+- Rate limitation to prevent brute force attacks
+- Try catch to handle unexpected errors

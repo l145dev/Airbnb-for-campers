@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
+// probably gonna use this for homepage (if needed, probably not)
 const router = Router();
 
 /* GET home page. */
