@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bookings {
+  booking_id       Int        @id @default(autoincrement())
+  property_id      Int
+  guest_id         Int
+  check_in_date    DateTime   @db.Date
+  check_out_date   DateTime   @db.Date
+  number_of_guests Int
+  total_price      Decimal    @db.Decimal(10, 2)
+  booking_status   String?    @default("pending") @db.VarChar(50)
+  booking_date     DateTime?  @default(now()) @db.Timestamptz(6)
+  users            users      @relation(fields: [guest_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  properties       properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([guest_id], map: "idx_guest_id")
+  @@index([property_id], map: "idx_property_id_bookings")
+}
+
+model notifications {
+  notification_id      Int       @id @default(autoincrement())
+  user_id              Int
+  notification_type    String    @db.VarChar(100)
+  notification_message String
+  is_read              Boolean?  @default(false)
+  created_at           DateTime? @default(now()) @db.Timestamptz(6)
+  users                users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([user_id], map: "idx_user_id_notifications")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model properties {
+  property_id          Int               @id @default(autoincrement())
+  owner_id             Int
+  property_name        String            @db.VarChar(255)
+  property_description String?
+  location_name        String            @db.VarChar(255)
+  latitude             Decimal?          @db.Decimal(10, 8)
+  longitude            Decimal?          @db.Decimal(11, 8)
+  property_type        String?           @default("Tent") @db.VarChar(50)
+  amenities            String?
+  rules                String?
+  check_in_time        DateTime?         @db.Time(6)
+  check_out_time       DateTime?         @db.Time(6)
+  price_per_night      Decimal           @db.Decimal(10, 2)
+  capacity             Int?
+  number_of_reviews    Int?              @default(0)
+  average_rating       Decimal?          @db.Decimal(3, 1)
+  is_active            Boolean?          @default(true)
+  created_at           DateTime?         @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime?         @default(now()) @db.Timestamptz(6)
+  note_from_owner      String?
+  bookings             bookings[]
+  users                users             @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  property_details     property_details?
+  property_images      property_images[]
+  reviews              reviews[]
+  user_saves           user_saves[]
+
+  @@index([owner_id], map: "idx_owner_id")
+}
+
+model property_details {
+  property_detail_id       Int        @id @default(autoincrement())
+  property_id              Int        @unique
+  parking_available        Boolean?
+  pet_friendly             Boolean?
+  has_campfire_pit         Boolean?
+  has_personal_restroom    Boolean?
+  has_shared_restroom      Boolean?
+  has_personal_shower      Boolean?
+  has_shared_shower        Boolean?
+  has_personal_kitchen     Boolean?
+  has_shared_kitchen       Boolean?
+  has_sockets              Boolean?
+  has_views                Boolean?
+  has_picnic_table         Boolean?
+  has_grill                Boolean?
+  has_safety_features      Boolean?
+  has_personal_dryer       Boolean?
+  has_shared_dryer         Boolean?
+  has_wifi                 Boolean?
+  has_cell_service         Boolean?
+  has_swimming_lake        Boolean?
+  has_swimming_pool        Boolean?
+  has_hiking_trail         Boolean?
+  is_wheelchair_accessible Boolean?
+  has_fishing              Boolean?
+  properties               properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model property_images {
+  image_id    Int        @id @default(autoincrement())
+  property_id Int
+  image_url   String     @db.VarChar(255)
+  alt_text    String?    @db.VarChar(255)
+  is_main     Boolean?
+  properties  properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([property_id], map: "idx_property_id_images")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  review_id   Int        @id @default(autoincrement())
+  property_id Int
+  guest_id    Int
+  rating      Int
+  comment     String?
+  review_date DateTime?  @default(now()) @db.Timestamptz(6)
+  users       users      @relation(fields: [guest_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
+  properties  properties @relation(fields: [property_id], references: [property_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([guest_id], map: "idx_guest_id_reviews")
+  @@index([property_id], map: "idx_property_id_reviews")
+}
+
+model user_saves {
+  user_save_id Int        @id @default(autoincrement())
+  user_id      Int
+  property_id  Int
+  saved_at     DateTime?  @default(now()) @db.Timestamp(6)
+  properties   properties @relation(fields: [property_id], references: [property_id], onDelete: NoAction, onUpdate: NoAction)
+  users        users      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, property_id])
+  @@index([property_id], map: "idx_property_saved_by_users")
+  @@index([user_id], map: "idx_user_saved_properties")
+}
+
+model users {
+  user_id           Int             @id @default(autoincrement())
+  first_name        String          @db.VarChar(100)
+  last_name         String          @db.VarChar(100)
+  email             String          @unique @db.VarChar(255)
+  pwd               String          @db.VarChar(255)
+  phone_number      String?         @db.VarChar(20)
+  profile_picture   String?         @db.VarChar(255)
+  is_owner          Boolean?        @default(false)
+  registration_date DateTime?       @default(now()) @db.Timestamptz(6)
+  bookings          bookings[]
+  notifications     notifications[]
+  properties        properties[]
+  reviews           reviews[]
+  user_saves        user_saves[]
+}

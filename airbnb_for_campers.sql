@@ -53,12 +53,26 @@ CREATE TABLE property_details (
     parking_available BOOLEAN,
     pet_friendly BOOLEAN,
     has_campfire_pit BOOLEAN,
-    has_restrooms BOOLEAN,
-    has_showers BOOLEAN,
-    water_source VARCHAR(255),
-    electricity_available BOOLEAN,
-    views VARCHAR(255),
-    safety_features TEXT
+    has_personal_restroom BOOLEAN,
+    has_shared_restroom BOOLEAN,
+    has_personal_shower BOOLEAN,
+    has_shared_shower BOOLEAN,
+    has_personal_kitchen BOOLEAN,
+    has_shared_kitchen BOOLEAN,
+    has_sockets BOOLEAN,
+    has_views BOOLEAN,
+    has_picnic_table BOOLEAN,
+    has_grill BOOLEAN,
+    has_safety_features TEXT,
+    has_personal_dryer BOOLEAN,
+    has_shared_dryer BOOLEAN,
+    has_wifi BOOLEAN,
+    has_cell_service BOOLEAN,
+    has_swimming_lake BOOLEAN,
+    has_swimming_pool BOOLEAN,
+    has_hiking_trail BOOLEAN,
+    is_wheelchair_accessible BOOLEAN,
+    has_fishing BOOLEAN
 );
 
 -- Create the user_saves table
