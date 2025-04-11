@@ -2,10 +2,16 @@ import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import { rateLimit } from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
 const prisma = new PrismaClient();
 
 const router = Router();
+
+dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // rate limit options (to prevent brute force attacks)
 const limiter = rateLimit({
@@ -50,7 +56,18 @@ router.post('/', limiter, async (req, res, next) => {
         const pwdMatch = await bcrypt.compare(pwd, user.pwd);
 
         if (pwdMatch) {
-            return res.status(200).json({ message: "User successfully logged in!" });
+            // key to access locked pages so user doesnt have to log in all the time, good security measure
+            const token = jwt.sign(
+                { id: user.user_id, email: user.email }, // user details to add to signature
+                JWT_SECRET // server jwt password
+            );
+
+            return res.status(200).json(
+                {
+                    message: "User successfully logged in!",
+                    token: token
+                }
+            );
         }
 
         else {
@@ -62,11 +79,6 @@ router.post('/', limiter, async (req, res, next) => {
         // unexpected error, log error
         console.log(error);
         return res.status(500).json({ error: "An error occured, please try again." })
-    }
-
-    finally {
-        // disconnect for security
-        prisma.$disconnect();
     }
 });
 
