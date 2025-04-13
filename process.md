@@ -154,4 +154,4 @@ const prisma = new PrismaClient();
 
 - Try catch to handle unexpected errors.
 - Automatically log in on successful register.
-- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time.
+- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time
