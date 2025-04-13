@@ -21,7 +21,8 @@ Here, I will document the entire process of me creating Airbnb for campers.
 
 ### Add (dummy) values
 
-- to do
+1. Use airbnb_for_campers.sql code as context for Gemini to generate dummy data
+2. Insert dummy data in DB (dummy data in airbnb_for_campers_dummy_data.sql)
 
 ## Frontend (Wireframing & Design)
 
@@ -124,20 +125,33 @@ const prisma = new PrismaClient();
 
 ### Test API twith dummy data from DB
 
-1. Use airbnb_for_campers.sql code as context for Gemini to generate dummy data
-2. Insert dummy data in DB (dummy data in airbnb_for_campers_dummy_data.sql)
-
-Fetching data works.
+- Fetching data works.
 
 ### Login
 
-1. Request email and password from frontend in body
-2. check if username and password exists, if not throw error
-3. check if user exists with the email, if not throw error
-4. check if password matches (compare with bcrypt), if no match, throw error
-5. log in if all steps successful
+1. Request email and password from frontend in body.
+2. Check if email and password exist (not empty from frontend), if not throw error.
+3. Check if user exists with the email, if not throw error.
+4. Check if password matches (compare with bcrypt), if no match, throw error.
+5. Log in if all steps successful, send JWT token to frontend.
 
 #### Added features
 
-- Rate limitation to prevent brute force attacks
-- Try catch to handle unexpected errors
+- Rate limitation to prevent brute force attacks.
+- Try catch to handle unexpected errors.
+- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time. 
+
+### Register
+
+1. Request firstname, lastname, email and password from frontend in body.
+2. Check if firstname, lastname, email and password exist (not empty from frontend), if not throw error.
+2. Check if email already exists, if it does throw error. (redirect to login)
+3. Hash password with bcrypt.
+4. Create new user in database with received values and hashed password.
+5. Register if all steps successful, automatically log in, send JWT token to frontend.
+
+#### Added features
+
+- Try catch to handle unexpected errors.
+- Automatically log in on successful register.
+- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time.
