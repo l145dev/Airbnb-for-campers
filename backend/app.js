@@ -11,6 +11,7 @@ import indexRouter from './routes/index.js';
 import loginRouter from './routes/login.js';
 import registerRouter from './routes/register.js';
 import settingsRouter from './routes/settings.js';
+import listingsRouter from './routes/listings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -29,6 +30,7 @@ app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/settings', settingsRouter);
+app.use('/listings', listingsRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

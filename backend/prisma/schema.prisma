@@ -45,6 +45,8 @@ model properties {
   location_name        String            @db.VarChar(255)
   latitude             Decimal?          @db.Decimal(10, 8)
   longitude            Decimal?          @db.Decimal(11, 8)
+  city                 String?
+  country              String?
   property_type        String?           @default("Tent") @db.VarChar(50)
   amenities            String?
   rules                String?

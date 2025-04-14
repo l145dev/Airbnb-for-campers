@@ -31,6 +31,8 @@ CREATE TABLE properties (
     location_name VARCHAR(255) NOT NULL,
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
+    city TEXT,
+    country TEXT,
     property_type VARCHAR(50) DEFAULT 'Tent' CHECK (property_type IN ('Cabin', 'Tent', 'RV', 'Treehouse', 'Glamp', 'Farm', 'Yurt', 'Unique', 'Other')),
     amenities TEXT,
     rules TEXT,
