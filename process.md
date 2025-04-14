@@ -145,13 +145,32 @@ const prisma = new PrismaClient();
 
 1. Request firstname, lastname, email and password from frontend in body.
 2. Check if firstname, lastname, email and password exist (not empty from frontend), if not throw error.
-2. Check if email already exists, if it does throw error. (redirect to login)
-3. Hash password with bcrypt.
-4. Create new user in database with received values and hashed password.
-5. Register if all steps successful, automatically log in, send JWT token to frontend.
+3. Validate email and password format.
+4. Check if email already exists, if it does throw error. (redirect to login)
+5. Hash password with bcrypt.
+6. Create new user in database with received values and hashed password.
+7. Register if all steps successful, automatically log in, send JWT token to frontend.
 
 #### Added features
 
 - Try catch to handle unexpected errors.
+- Email and password validation.
 - Automatically log in on successful register.
-- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time
+- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time.
+
+### Settings
+
+**Get details**:
+1. Verify JWT token and get user.
+2. Get user details from DB with user_id.
+3. Return json containing all user details.
+
+**Update details**:
+1. Authorize user with token to update.
+2. Get (new) values from frontend.
+3. Check which values have changed and update if changed only.
+4. Return new user details
+
+#### Added features
+
+- Authentication before giving back user details.

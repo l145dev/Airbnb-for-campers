@@ -10,6 +10,7 @@ import cors from 'cors';
 import indexRouter from './routes/index.js';
 import loginRouter from './routes/login.js';
 import registerRouter from './routes/register.js';
+import settingsRouter from './routes/settings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -27,6 +28,7 @@ app.use(serveStatic(join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
+app.use('/settings', settingsRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

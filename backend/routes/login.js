@@ -58,7 +58,7 @@ router.post('/', limiter, async (req, res, next) => {
         if (pwdMatch) {
             // key to access locked pages so user doesnt have to log in all the time, good security measure
             const token = jwt.sign(
-                { id: user.user_id, email: user.email }, // user details to add to signature
+                { user_id: user.user_id, email: user.email }, // user details to add to signature
                 JWT_SECRET // server jwt password
             );
 

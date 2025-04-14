@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
-import { rateLimit } from 'express-rate-limit';
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
@@ -13,6 +12,9 @@ dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
+// for email validation
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 /* add user to db. */
 router.post('/', async (req, res, next) => {
     // get email and password
@@ -22,6 +24,16 @@ router.post('/', async (req, res, next) => {
         // checking for availability
         if (!email || !pwd || !fn || !ln) {
             return res.status(400).json({ error: "Missing details." });
+        }
+
+        // validate email
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({ error: "Invalid email format." });
+        }
+
+        // validate password 
+        if (pwd.length < 8) {
+            return res.status(400).json({ error: "Password must be at least 8 characters." });
         }
 
         // check if user is found (check for dupe, email is unique)
@@ -49,7 +61,7 @@ router.post('/', async (req, res, next) => {
         });
 
         const token = jwt.sign(
-            { id: newUser.user_id, email: newUser.email }, // user details to add to signature
+            { user_id: newUser.user_id, email: newUser.email }, // user details to add to signature
             JWT_SECRET // server jwt password
         );
 
