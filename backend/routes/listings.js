@@ -7,14 +7,14 @@ const router = Router();
 
 /* get listings. */
 router.get('/', async (req, res, next) => {
-    const { propType } = req.body;
+    const { propType } = req.query;
 
     try {
         let listings = {};
 
         // apply filters based on proptype
-        switch (propType) {
-            case "Cabins":
+        switch (propType.toLowerCase()) {
+            case "cabins":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Cabin"
@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Tents":
+            case "tents":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Tent"
@@ -30,7 +30,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "RV":
+            case "rv":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "RV"
@@ -38,7 +38,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Treehouses":
+            case "treehouses":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Treehouse"
@@ -46,7 +46,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Glamping":
+            case "glamping":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Glamp"
@@ -54,7 +54,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Unique":
+            case "unique":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Unique"
@@ -62,7 +62,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Farms":
+            case "farms":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Farm"
@@ -70,7 +70,7 @@ router.get('/', async (req, res, next) => {
                 })
                 break;
 
-            case "Yurts":
+            case "yurts":
                 listings = await prisma.properties.findMany({
                     where: {
                         property_type: "Yurt"
