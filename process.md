@@ -174,3 +174,16 @@ const prisma = new PrismaClient();
 #### Added features
 
 - Authentication before giving back user details.
+- Check if value changed before updating.
+
+### Listings
+1. Get all properties from db, based on filters.
+2. Loop through (map) all properties and save information which is needed.
+3. In each loop, make an object of required information, get owner asynchronously through promise.
+4. Once all promises resolved, return required listing information.
+
+#### Added features
+
+- Filter property type.
+- Use of promise to get owner of property asynchronously.
+- Use of map to directly store objects in the variable when looped over.

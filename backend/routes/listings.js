@@ -7,8 +7,83 @@ const router = Router();
 
 /* get listings. */
 router.get('/', async (req, res, next) => {
+    const { propType } = req.body;
+
     try {
-        const listings = await prisma.properties.findMany();
+        let listings = {};
+
+        // apply filters based on proptype
+        switch (propType) {
+            case "Cabins":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Cabin"
+                    }
+                })
+                break;
+
+            case "Tents":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Tent"
+                    }
+                })
+                break;
+
+            case "RV":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "RV"
+                    }
+                })
+                break;
+
+            case "Treehouses":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Treehouse"
+                    }
+                })
+                break;
+
+            case "Glamping":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Glamp"
+                    }
+                })
+                break;
+
+            case "Unique":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Unique"
+                    }
+                })
+                break;
+
+            case "Farms":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Farm"
+                    }
+                })
+                break;
+
+            case "Yurts":
+                listings = await prisma.properties.findMany({
+                    where: {
+                        property_type: "Yurt"
+                    }
+                })
+                break;
+
+            default:
+                // no filters
+                listings = await prisma.properties.findMany()
+                break;
+        }
+
 
         // loop through all listings, promises will register all listings as objects in an array
         const promises = listings.map(async (item) => {
