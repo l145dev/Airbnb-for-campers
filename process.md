@@ -193,4 +193,4 @@ const prisma = new PrismaClient();
 - Use `map` to efficiently create an array of listing objects during the iteration.
 
 > [!NOTE]
-> Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs! 👍 
+> Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs (AI was useless and i have no idea how it works now)! 👍

@@ -24,15 +24,6 @@ const app = express();
 // session store for postgresql
 const PgStore = connectPgSimple(session);
 
-// PostgreSQL Pool instance
-const pgPool = new Pool({
-  user: process.env.DATABASE_USER,
-  host: process.env.DATABASE_HOST,
-  database: process.env.DATABASE_NAME,
-  password: process.env.DATABASE_PASSWORD,
-  port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 5432, // safer in case of environment variable int failing
-});
-
 app.use(cors());
 app.use(logger('dev'));
 app.use(json());
