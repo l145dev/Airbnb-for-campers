@@ -1,22 +1,26 @@
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import dotenv from 'dotenv';
 
 const prisma = new PrismaClient();
 
 const router = Router();
 
-dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
 // for email validation
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/* add user to db. */
+/* registration process. */
 router.post('/', async (req, res, next) => {
+    // Check if a session already exists
+    if (req.session && req.session.loggedIn && req.session.userId) {
+        return res.status(200).json({
+            message: "You are already logged in.",
+            user_id: req.session.userId,
+            email: req.session.email
+        });
+    }
+
+
     // get email and password
     const { fn, ln, email, pwd } = req.body;
 
@@ -60,15 +64,14 @@ router.post('/', async (req, res, next) => {
             }
         });
 
-        const token = jwt.sign(
-            { user_id: newUser.user_id, email: newUser.email }, // user details to add to signature
-            JWT_SECRET // server jwt password
-        );
+        // store details in session, toggle session logged in state
+        req.session.userId = newUser.user_id;
+        req.session.email = newUser.email;
+        req.session.loggedIn = true;
 
         return res.status(200).json(
             {
                 message: "User successfully registered!",
-                token: token
             }
         );
     }

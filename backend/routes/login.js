@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import bcrypt from 'bcrypt';
 import { rateLimit } from 'express-rate-limit';
-import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 
 const prisma = new PrismaClient();
@@ -10,8 +9,6 @@ const prisma = new PrismaClient();
 const router = Router();
 
 dotenv.config();
-
-const JWT_SECRET = process.env.JWT_SECRET;
 
 // rate limit options (to prevent brute force attacks)
 const limiter = rateLimit({
@@ -24,6 +21,16 @@ const limiter = rateLimit({
 
 /* check if login details are correct. */
 router.post('/', limiter, async (req, res, next) => {
+    // Check if a session already exists
+    if (req.session && req.session.loggedIn && req.session.userId) {
+        return res.status(200).json({
+            message: "You are already logged in.",
+            userId: req.session.userId,
+            email: req.session.email
+        });
+    }
+
+
     // get email and password
     const { email, pwd } = req.body;
 
@@ -56,16 +63,14 @@ router.post('/', limiter, async (req, res, next) => {
         const pwdMatch = await bcrypt.compare(pwd, user.pwd);
 
         if (pwdMatch) {
-            // key to access locked pages so user doesnt have to log in all the time, good security measure
-            const token = jwt.sign(
-                { user_id: user.user_id, email: user.email }, // user details to add to signature
-                JWT_SECRET // server jwt password
-            );
+            // store details in session, toggle session logged in state
+            req.session.userId = user.user_id;
+            req.session.email = user.email;
+            req.session.loggedIn = true;
 
             return res.status(200).json(
                 {
                     message: "User successfully logged in!",
-                    token: token
                 }
             );
         }

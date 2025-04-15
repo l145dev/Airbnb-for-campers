@@ -7,7 +7,12 @@ const router = Router();
 
 /* get listings. */
 router.get('/', async (req, res, next) => {
-    const { propType } = req.query;
+    let { propType } = req.query;
+
+    // proptype all if no filters are selected
+    if (!propType) {
+        propType = "all";
+    }
 
     try {
         let listings = {};

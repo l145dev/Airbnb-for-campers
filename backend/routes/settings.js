@@ -1,6 +1,6 @@
 import { json, Router } from 'express';
 import { PrismaClient } from "@prisma/client";
-import verifyToken from '../middleware/auth.js';
+import isAuthenticated from '../middleware/auth.js';
 
 const prisma = new PrismaClient();
 
@@ -18,8 +18,8 @@ function convertISOToLocal(isoString) {
 }
 
 /* get account details with auth token. */
-router.get('/', verifyToken, async (req, res, next) => {
-    // req.user (contains user_id and email) already defined by verifyToken
+router.get('/', isAuthenticated, async (req, res, next) => {
+    // req.user (contains user_id and email) already defined by isAuthenticated
 
     try {
         const user = await prisma.users.findUnique({
@@ -51,7 +51,7 @@ router.get('/', verifyToken, async (req, res, next) => {
 });
 
 // when user presses update, update profile details
-router.post('/update', verifyToken, async (req, res, next) => {
+router.post('/update', isAuthenticated, async (req, res, next) => {
     // get (new) values from frontend
     const { fn, ln, phone, pfp } = req.body;
 
@@ -122,6 +122,13 @@ router.post('/update', verifyToken, async (req, res, next) => {
         const updatedUser = await prisma.users.findUnique({
             where: {
                 user_id: req.user.user_id
+            },
+
+            select: {
+                first_name: true,
+                last_name: true,
+                phone_number: true,
+                profile_picture: true,
             }
         });
 

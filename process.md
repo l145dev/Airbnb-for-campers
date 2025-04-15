@@ -129,61 +129,68 @@ const prisma = new PrismaClient();
 
 ### Login
 
-1. Request email and password from frontend in body.
-2. Check if email and password exist (not empty from frontend), if not throw error.
-3. Check if user exists with the email, if not throw error.
-4. Check if password matches (compare with bcrypt), if no match, throw error.
-5. Log in if all steps successful, send JWT token to frontend.
+1. Request email and password from frontend in the request body.
+2. Check if email and password exist (not empty from frontend). If not, return a 400 error with a descriptive message.
+3. Check if a user exists in the database with the provided email. If not, return a 401 error indicating invalid credentials.
+4. Check if the provided password matches the hashed password stored in the database using bcrypt. If no match, return a 401 error indicating invalid credentials.
+5. If all steps are successful, establish a session for the user. This typically involves setting a session cookie in the user's browser. Return a 200 success message, potentially with basic user information (excluding sensitive details like the password hash).
 
 #### Added features
 
 - Rate limitation to prevent brute force attacks.
-- Try catch to handle unexpected errors.
-- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time. 
+- Try-catch block to handle unexpected errors and return a 500 error with a generic message.
+- Session cookie-based authentication to allow users to stay logged in across requests without sending tokens.
 
 ### Register
 
-1. Request firstname, lastname, email and password from frontend in body.
-2. Check if firstname, lastname, email and password exist (not empty from frontend), if not throw error.
-3. Validate email and password format.
-4. Check if email already exists, if it does throw error. (redirect to login)
-5. Hash password with bcrypt.
-6. Create new user in database with received values and hashed password.
-7. Register if all steps successful, automatically log in, send JWT token to frontend.
+1. Request firstname, lastname, email, and password from frontend in the request body.
+2. Check if firstname, lastname, email, and password exist (not empty from frontend). If not, return a 400 error with a descriptive message.
+3. Validate the format of the email and password (e.g., using regular expressions or validation libraries). Return a 400 error if the format is invalid.
+4. Check if a user with the provided email already exists in the database. If so, return a 400 error indicating that the email is already registered (potentially suggesting a login).
+5. Hash the provided password using bcrypt with a suitable salt.
+6. Create a new user record in the database with the received firstname, lastname, email, and the hashed password.
+7. If registration is successful, automatically establish a session for the newly registered user (similar to the login process). Return a 201 Created status with a success message and potentially basic user information.
 
 #### Added features
 
-- Try catch to handle unexpected errors.
-- Email and password validation.
-- Automatically log in on successful register.
-- JWT middleware to allow users to stay logged and have authorization to access locked pages, make bookings, etc without having to log in every time.
+- Try-catch block to handle unexpected errors and return a 500 error with a generic message.
+- Email and password format validation.
+- Automatically log in the user upon successful registration by creating a session.
+- Session cookie-based authentication for maintaining user sessions.
 
 ### Settings
 
 **Get details**:
-1. Verify JWT token and get user.
-2. Get user details from DB with user_id.
-3. Return json containing all user details.
+1. Check if a valid session exists for the user making the request. If not, return a 401 Unauthorized error.
+2. Retrieve the user details from the database using the `user_id` stored in the session.
+3. Return a JSON response containing the requested user details.
 
 **Update details**:
-1. Authorize user with token to update.
-2. Get (new) values from frontend.
-3. Check which values have changed and update if changed only.
-4. Return new user details
+1. Check if a valid session exists for the user making the request. If not, return a 401 Unauthorized error.
+2. Retrieve the `user_id` from the session.
+3. Get the new values for user details from the request body.
+4. Compare the new values with the existing user details fetched from the database. Update only the fields that have changed in the database.
+5. After a successful update, fetch the updated user details from the database and return them in a JSON response.
 
 #### Added features
 
-- Authentication before giving back user details.
-- Check if value changed before updating.
+- Session-based authentication to protect access to user details and the update functionality.
+- Check if a value has changed before attempting to update it in the database for efficiency.
 
 ### Listings
-1. Get all properties from db, based on filters.
-2. Loop through (map) all properties and save information which is needed.
-3. In each loop, make an object of required information, get owner asynchronously through promise.
-4. Once all promises resolved, return required listing information.
+
+1. Retrieve all properties from the database, applying any filters specified in the request query parameters (e.g., `propType`).
+2. Iterate over the retrieved properties using `map`. For each property:
+   - Create an object containing the necessary listing information (e.g., city, country, price per night, rating).
+   - Asynchronously fetch the owner's details from the database using the `owner_id` associated with the property (using `Promise`).
+   - Add the owner's name to the listing information object once the promise resolves.
+3. After all the asynchronous owner lookups (promises) have resolved, return an array of the formatted listing information objects in a JSON response.
 
 #### Added features
 
-- Filter property type.
-- Use of promise to get owner of property asynchronously.
-- Use of map to directly store objects in the variable when looped over.
+- Filter properties based on the `propType` query parameter.
+- Asynchronously fetch the owner's name for each property using Promises to avoid blocking the main thread.
+- Use `map` to efficiently create an array of listing objects during the iteration.
+
+> [!NOTE]
+> Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs! 👍 
