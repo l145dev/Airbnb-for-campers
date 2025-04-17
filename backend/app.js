@@ -16,6 +16,7 @@ import loginRouter from './routes/login.js';
 import registerRouter from './routes/register.js';
 import settingsRouter from './routes/settings.js';
 import listingsRouter from './routes/listings.js';
+import autocompleteRouter from './routes/autocomplete.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,7 +32,7 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(serveStatic(join(__dirname, 'public')));
 
-// session middleware
+// session middleware (stored as browser cookies and validated with DB session store)
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -46,7 +47,7 @@ app.use(session({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production' // conditionally secure, insecure in development (for speed)
   },
-  rolling: true, // when user makes request to backend, maxAge resets
+  rolling: true, // when user makes request to backend, maxAge resets (keeps user logged in if active in the past 24 hours, for UX)
 }));
 
 // paths to routes
@@ -55,6 +56,7 @@ app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/settings', settingsRouter);
 app.use('/listings', listingsRouter);
+app.use('/autocomplete', autocompleteRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

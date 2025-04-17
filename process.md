@@ -194,3 +194,31 @@ const prisma = new PrismaClient();
 
 > [!NOTE]
 > Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs (AI was useless and i have no idea how it works now)! 👍
+
+### Autocomplete
+
+**Owner - listing property (country selection)**:
+1. Get unfinished country query (is sent every 3 letters typed).
+2. Use [GeoDB API](http://geodb-cities-api.wirefreethought.com/) to fetch results, max 5, sorted by country name, with axios.
+3. Post process data into object of country codes and country names.
+
+**Owner - listing property (city selection - before/after country selected)**:
+1. Get unfinished city query (is sent every 3 letters typed).
+2. Conditionally modify API URL, if country is selected, use country code to narrow down city search result, if not, don't modify API URL.
+3. Use [GeoDB API](http://geodb-cities-api.wirefreethought.com/) to fetch results, max 5, sorted by descending city population, with axios.
+4. Post process data into array of cities.
+
+**User - main search**:
+1. Get unfinished query (is sent every 3 letters typed).
+2. Use [GeoDB API](http://geodb-cities-api.wirefreethought.com/) to fetch COUNTRY results, max 2, sorted by country name, with axios.
+3. Post process country data into array of necessary data only. (country)
+4. Use [GeoDB API](http://geodb-cities-api.wirefreethought.com/) to fetch CITY results, max 3, sorted by descending city population, with axios.
+5. Post process city data into array of necessary data only. (city, country)
+6. Combine country and city results into 1 object {countries: [], cities: []}.
+
+#### Added features
+
+- Uses Axios for increased code readability. (was using https fetching, which was faster but a lot more code, went from ~250 lines of code with https to ~110 lines with axios)
+- Streamlined city and country selections to 1 data source for consistency.
+- Main search uses a 2-3 split, first 2 results are countries and last 3 are cities, totaling to 5 results.
+- Rate limitation workaround by adding 1 second delay before fetching the 2nd time from API because i'm too broke to afford a subscription.
