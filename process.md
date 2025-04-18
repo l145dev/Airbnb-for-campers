@@ -221,4 +221,4 @@ const prisma = new PrismaClient();
 - Uses Axios for increased code readability. (was using https fetching, which was faster but a lot more code, went from ~250 lines of code with https to ~110 lines with axios)
 - Streamlined city and country selections to 1 data source for consistency.
 - Main search uses a 2-3 split, first 2 results are countries and last 3 are cities, totaling to 5 results.
-- Rate limitation workaround by adding 1 second delay before fetching the 2nd time from API because i'm too broke to afford a subscription.
+- Rate limitation workaround by using 2 api keys for GeoDB, 1 for city search and 1 for country search, i'm too broke to afford a subscription. (previously had 1 second delay on fetch to avoid rate limitation, cut down fetch time from ~1.5s to ~0.5s with this new method)

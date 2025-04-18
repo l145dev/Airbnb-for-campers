@@ -107,13 +107,16 @@ router.get('/search', async (req, res, next) => {
             method: 'GET',
             url: `https://wft-geo-db.p.rapidapi.com/v1/geo/countries?namePrefix=${query}&limit=2&sort=name`,
             headers: {
-                'x-rapidapi-key': process.env.GEODB_API_KEY,
+                'x-rapidapi-key': process.env.FALLBACK_GEODB_API_KEY, // use fallback api key to avoid rate limitation (probably goes against TOS, but this isn't commercial so its fine (probably?))
                 'x-rapidapi-host': 'wft-geo-db.p.rapidapi.com'
             }
         };
 
         // wait 1 second before continuing execution (api basic plan rate limit)
-        await new Promise(resolve => setTimeout(resolve, 1100));
+        // await new Promise((resolve) => {
+        //     setTimeout(resolve, 1100);
+        // });
+
 
         // fetch countries (2)
         const countryResponse = await axios.request(countryOptions);
