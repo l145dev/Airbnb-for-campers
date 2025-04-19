@@ -60,6 +60,80 @@ Here, I will document the entire process of me creating Airbnb for campers.
 
 Go through each page in Figma and note down routes needed for each page.
 
+#### Organized routes
+default URL in dev: localhost:3000
+
+**Login**:
+- POST /login → (body: email, pwd) → (return: session cookie, prev page with react router (back))
+- (optional) POST /auth/google
+- (optional) POST /auth/microsoft
+
+**Register**:
+- POST /register → (body: fn, ln, email, pwd) → (return: session cookie, prev page with react router (back))
+- (optional) POST /auth/google
+- (optional) POST /auth/microsoft
+
+**Settings**:
+- GET /settings → (body: none, auth with cookie) → (return: fn, ln, email, phone, pfp, is_owner, registration_date)
+- PATCH /settings/update → (body: first_name, last_name, phone_number, profile_picture) → (return: first_name, last_name, phone_number, profile_picture)
+
+**Support**:
+- POST /support → (body: message) → (redirect: none)
+
+**ResetPassword**:
+- POST /resetpassword/code → (body: email) → (return: email with code)
+- POST /resetpassword/email → (body: email, code) → (return: step 2 - change pwd)
+- POST /resetpassword/change → (body: pwd) → (return: email confirming pwd change, go to login)
+
+**SearchListings**:
+- GET /listings → (body: propType?) → (return: all listings (with type))
+- GET /autocomplete/search → (body: query) autocomplete when typing location (return: location results)
+- GET /listings/search → (body: location, checkin date, checkout date, # guests) → (return: url with filters applied in url query, sent to searchresults)
+- GET /property → (url query: property_id) → (return: go to PropertyListingDetails and display ALL property details)
+
+**SearchResults**:
+- GET /listings → (body: propType?) → (return: all listings (with type))
+- GET /autocomplete/search → (body: query) autocomplete when typing location (return: location results)
+- GET /listings/search → (body: location, checkin date, checkout date, # guests) → (return: url with filters applied in url query)
+- GET /property → (url query: property_id; body: checkin date?, checkout date?, guests?) → (return: go to PropertyListingDetails and display ALL property details)
+
+**PropertyListingDetails**:
+- GET /property → (url query: property_id; body: checkin date?, checkout date?, guests?) → (return: ALL property details)
+- POST /property/save → (body: property_id) → (return: saved boolean (success flag))
+- POST /property/unsave → (body: property_id) → (return: unsaved boolean (success flag))
+
+**BookProperty**:
+- GET /booking → (return: authenticated boolean)
+- All login/register routes in case need to log in/register
+- NOTE FOR PAYMENT: use STRIPE for POST /booking/pay/card (optional: embed) 
+- POST /booking/pay/card → (body: check in date, check out date, property_id; user_id in session, card number, card expiration, cvv, street address, appartment number?, city, country, zip code)
+- (optional) POST /booking/pay/paypal → (body: check in date, check out date, property_id; user_id in session, card number, card expiration, cvv, street address, appartment number?, city, country, zip code)
+- (optional) POST /booking/pay/googlepay → (body: check in date, check out date, property_id; user_id in session, card number, card expiration, cvv, street address, appartment number?, city, country, zip code)
+
+**TripsDashboard**:
+- GET /trips → (body: user_id in cookie) → (return: object of objects with: property_id, property image, property owner, property rating, property reviews count, booking id, check in date, check out date, number of guests, total price, booking status)
+- POST /trips/review → (body: property_id, rating, comment; user_id in cookie) → (return: success boolean)
+- GET /trips/review → (body: none; review_id in params) → (return: review message, property name, review rating)
+- PATCH /trips/review/:review_id → (body: review_id in params, review message, review rating) → (return: success boolean)
+- DELETE /trips/:booking_id → (body: none, booking_id in params) → (return: success boolean)
+
+**Notifications**:
+- GET /notifications → (body: user_id in cookie) → (return: notification id, notification type, notification message, is_read, created at)
+- DELETE /notifications → (body: notification id; user_id in cookie) → (return: success boolean)
+
+**Owner_ListPropertyIntro**:
+- GET /host → (body: city?, nights?, propType?) → (return: user city (ip geolocation), average price per night in city, total price, properties object {property type, city, property name, rating, cover image only, price, guests} (to display on map))
+
+**Owner_PropertyDashboard**:
+- GET /hostdashboard → (body: user_id in cookie) → (return: object of objects: property_id, property name, property city, property country, property review count, property review id, property rating, next booking checkin/checkout?, sum property revenue, count property bookings, ADR, is_active)
+- GET /hostdashboard/:property_id → (body: none; property id in params) → (return: name, description, street address, postcode, city, country, property type, checkin time, checkout time, price  per night, guests,  {has_parking: false, pet_friendly: false, etc}, note from owner)
+- PATCH /listings/:property_id/update → (body: name, description, street address, postcode, city, country, property type, checkin time, checkout time, price  per night, guests,  {has_parking: false, pet_friendly: false, etc}, note from owner) → (return: modified listing details)
+- PATCH /hostdashboard/:property_id/publish → (body: is_active; property_id in params) → (return: toggled boolean)
+- POST /listing/add → (body: is_active (bool to check if instant publish or save for later), name, description, street address, postcode, city, country, property type, checkin time, checkout time, price per night, guests, {has_parking: false, pet_friendly: false, etc}, note_from_owner) → (return: is_active, success boolean)
+
+**Owner_ListPropertySteps**:
+- Moved as modal in owner_propertydashboard
+
 ### Create backend (NodeJS - ExpressJS)
 
 - Set up backend with NodeJS (ExpressJS).
