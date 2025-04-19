@@ -51,88 +51,67 @@ router.get('/', isAuthenticated, async (req, res, next) => {
 });
 
 // when user presses update, update profile details
-router.post('/update', isAuthenticated, async (req, res, next) => {
+router.patch('/update', isAuthenticated, async (req, res, next) => {
     // get (new) values from frontend
-    const { fn, ln, phone, pfp } = req.body;
+    const updates = req.body; // { first_name, last_name, phone_number, profile_picture }
 
-    // get user
-    const user = await prisma.users.findUnique({
+    // get existing user
+    const oldUser = await prisma.users.findUnique({
         where: {
             user_id: req.user.user_id
+        },
+
+        select: {
+            first_name: true,
+            last_name: true,
+            phone_number: true,
+            profile_picture: true
         }
     })
 
-    if (!user) {
+    if (!oldUser) {
         return res.status(404).json({ error: "User not found" });
     }
 
     try {
-        // update firstname
-        if (fn !== user.first_name) {
-            await prisma.users.update({
-                where: {
-                    user_id: req.user.user_id
-                },
+        // new user details storage
+        const newUser = {};
 
-                data: {
-                    first_name: fn
+        // iterate through values
+        for (const item in oldUser) {
+            // ignore prototypes in object (preventing unwanted JS behavior)
+            if (updates.hasOwnProperty(item)) {
+                // check if exists and update needed
+                if (oldUser[item] !== undefined && oldUser[item] !== updates[item]) {
+                    newUser[item] = updates[item];
                 }
-            })
+            }
         }
 
-        // update lastname
-        if (ln !== user.last_name) {
-            await prisma.users.update({
-                where: {
-                    user_id: req.user.user_id
-                },
-
-                data: {
-                    last_name: ln
-                }
-            })
+        // check if nothing is updated
+        if (Object.keys(newUser).length === 0) {
+            // no db operation needed because nothing was updated
+            return res.status(200).json(oldUser);
         }
 
-        // update phone number
-        if (phone !== user.phone_number) {
-            await prisma.users.update({
-                where: {
-                    user_id: req.user.user_id
-                },
-
-                data: {
-                    phone_number: phone
-                }
-            })
-        }
-
-        // update profile picture
-        if (pfp !== user.profile_picture) {
-            await prisma.users.update({
-                where: {
-                    user_id: req.user.user_id
-                },
-
-                data: {
-                    profile_picture: pfp
-                }
-            })
-        }
-
-        const updatedUser = await prisma.users.findUnique({
+        // update user with new details
+        const updated = await prisma.users.update({
             where: {
                 user_id: req.user.user_id
             },
+
+            data: newUser,
 
             select: {
                 first_name: true,
                 last_name: true,
                 phone_number: true,
-                profile_picture: true,
+                profile_picture: true
             }
-        });
+        })
 
-        return res.status(200).json({ message: "Profile updated successfully", user: updatedUser })
+        // return success with updated details
+        return res.status(200).json(updated);
     }
 
     catch (error) {

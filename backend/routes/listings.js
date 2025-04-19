@@ -94,6 +94,7 @@ router.get('/', async (req, res, next) => {
         const promises = listings.map(async (item) => {
             // object with all listing data needed
             const tempObj = {
+                property_id: item.property_id,
                 city: item.city,
                 country: item.country,
                 owner: "",

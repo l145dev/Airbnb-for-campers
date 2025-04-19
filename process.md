@@ -56,6 +56,10 @@ Here, I will document the entire process of me creating Airbnb for campers.
 
 ## Backend
 
+### Design backend structure
+
+Go through each page in Figma and note down routes needed for each page.
+
 ### Create backend (NodeJS - ExpressJS)
 
 - Set up backend with NodeJS (ExpressJS).
