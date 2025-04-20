@@ -134,7 +134,17 @@ CREATE TABLE notifications (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Add indexes for foreign keys and frequently queried columns
+-- Create support table
+CREATE TABLE support (
+    support_id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    subject_line VARCHAR(255) NOT NULL,
+    message_line TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    request_status VARCHAR(50) DEFAULT 'pending' -- pending, in_progress, resolved, closed
+);
+
+-- Add indexes for foreign keys and frequently queried columns (optional)
 CREATE INDEX idx_owner_id ON properties (owner_id);
 CREATE INDEX idx_guest_id ON bookings (guest_id);
 CREATE INDEX idx_property_id_bookings ON bookings (property_id);

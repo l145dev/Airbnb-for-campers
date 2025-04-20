@@ -18,6 +18,7 @@ import settingsRouter from './routes/settings.js';
 import listingsRouter from './routes/listings.js';
 import autocompleteRouter from './routes/autocomplete.js';
 import logoutRouter from './routes/logout.js';
+import supportRouter from './routes/support.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -59,6 +60,7 @@ app.use('/settings', settingsRouter);
 app.use('/listings', listingsRouter);
 app.use('/autocomplete', autocompleteRouter);
 app.use('/logout', logoutRouter);
+app.use('/support', supportRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {

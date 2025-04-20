@@ -45,8 +45,6 @@ model properties {
   location_name        String            @db.VarChar(255)
   latitude             Decimal?          @db.Decimal(10, 8)
   longitude            Decimal?          @db.Decimal(11, 8)
-  city                 String?
-  country              String?
   property_type        String?           @default("Tent") @db.VarChar(50)
   amenities            String?
   rules                String?
@@ -60,6 +58,8 @@ model properties {
   created_at           DateTime?         @default(now()) @db.Timestamptz(6)
   updated_at           DateTime?         @default(now()) @db.Timestamptz(6)
   note_from_owner      String?
+  city                 String?
+  country              String?
   bookings             bookings[]
   users                users             @relation(fields: [owner_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
   property_details     property_details?
@@ -153,4 +153,21 @@ model users {
   properties        properties[]
   reviews           reviews[]
   user_saves        user_saves[]
+}
+
+model support {
+  support_id     Int       @id @default(autoincrement())
+  user_id        Int?
+  subject_line   String    @db.VarChar(255)
+  message_line   String
+  created_at     DateTime? @default(now()) @db.Timestamptz(6)
+  request_status String?   @default("pending") @db.VarChar(50)
+}
+
+model user_sessions {
+  sid    String   @id(map: "session_pkey") @db.VarChar(255)
+  sess   Json     @db.Json
+  expire DateTime @db.Timestamp(6)
+
+  @@index([expire], map: "idx_session_expire")
 }

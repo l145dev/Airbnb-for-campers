@@ -154,44 +154,11 @@ npm install
 
 ### Prisma setup
 
-1. Install prisma as devDependency
-``` bash
-npm install prisma --save-dev
-```
+> [!CAUTION]
+> Using Prisma for this project is overkill, most SQL statements aren't complicated enough for Prisma to have any benefits, would just create additional server load in this case, using it for learning purposes (and extra points) only.
 
-2. Install prisma client
-``` bash
-npm install @prisma/client
-```
-
-3. initialize prisma in folder 
-``` bash
-npx prisma init
-```
-
-3. Make .env file with database url in prisma folder
-``` env
-DATABASE_URL="postgresql://username:password@localhost:5432/airbnbdb"
-```
-
-4. import the database from mysql server (will add db structure in schema.prisma)
-``` bash
-npx prisma db pull
-```
-
-5. If error, make sure DATABASE_URL is correct in .env
-
-6. Generate prisma client
-``` bash
-npx prisma generate
-```
-
-7. now u can use prisma in your routes like this 
-``` js
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-```
+Prisma setup in this markdown file:
+[Prisma Setup](prisma_setup.md)
 
 ### Test backend API & DB connection
 
@@ -303,3 +270,21 @@ const prisma = new PrismaClient();
 - Streamlined city and country selections to 1 data source for consistency.
 - Main search uses a 2-3 split, first 2 results are countries and last 3 are cities, totaling to 5 results.
 - Rate limitation workaround by using 2 api keys for GeoDB, 1 for city search and 1 for country search, i'm too broke to afford a subscription. (previously had 1 second delay on fetch to avoid rate limitation, cut down fetch time from ~1.5s to ~0.5s with this new method)
+
+### Support
+
+1. Authenticate user
+2. Check rate limit
+3. Get message, check if available
+4. Use Groq AI (llama-3.3-70b-versatile) to process message and make a subject line
+5. If AI fails, use generic subject line
+6. Send mail to support email
+
+#### Added features
+
+- User authentication (avoiding unauthorized support messages from randoms)
+- Rate limitation (avoiding spam support messages)
+- AI subject line creation, smart way to summarize hard to understand messages typed by people to make support more efficient.
+- AI failsafe, if AI fails, generic subject line gets used.
+- Sending mails through nodemailer and Combell SMTP.
+- Save support details in database for history and reference. 
