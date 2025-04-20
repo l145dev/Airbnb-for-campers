@@ -61,6 +61,7 @@ Here, I will document the entire process of me creating Airbnb for campers.
 Go through each page in Figma and note down routes needed for each page.
 
 #### Organized routes
+This section is messy because I wrote this quickly while designing it, to view a better documented version (summarized by Gemini) go here: [api_structure](./api_structure.md) <br><br>
 default URL in dev: localhost:3000
 
 **Login**:
@@ -76,6 +77,8 @@ default URL in dev: localhost:3000
 **Settings**:
 - GET /settings → (body: none, auth with cookie) → (return: fn, ln, email, phone, pfp, is_owner, registration_date)
 - PATCH /settings/update → (body: first_name, last_name, phone_number, profile_picture) → (return: first_name, last_name, phone_number, profile_picture)
+- DELETE /settings/delete → (body: none; user_id in cookie) → (return: success boolean)
+- POST /logout → (body: none; user_id in cookie) → (return: success boolean)
 
 **Support**:
 - POST /support → (body: message) → (redirect: none)
@@ -146,7 +149,7 @@ express
 ```bash
 npm install
 ```
-- Remove views (backend as API only)
+- Remove views (backend as API (server) only)
 - Update ES5 code to ES6+
 
 ### Prisma setup

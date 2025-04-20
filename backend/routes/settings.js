@@ -120,4 +120,37 @@ router.patch('/update', isAuthenticated, async (req, res, next) => {
     }
 })
 
+// delete user
+router.delete("/delete", isAuthenticated, async (req, res, next) => {
+    try {
+        // delete the user
+        const deletedUser = await prisma.users.delete({
+            where: {
+                user_id: req.user.user_id
+            }
+        })
+
+        // end session
+        req.session.destroy((err) => {
+            if (err) {
+                console.error("Error destroying session:", err);
+                return res.status(500).json({ error: "Failed to destroy session." });
+            }
+
+            // clear cookie
+            res.clearCookie('connect.sid');
+
+            return res.status(200).json({
+                success: true,
+                deletedUser
+            });
+        });
+    }
+
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." });
+    }
+})
+
 export default router;

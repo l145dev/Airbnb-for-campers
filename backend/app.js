@@ -7,8 +7,8 @@ import logger from 'morgan';
 import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
-import pkg from 'pg';
-const { Pool } = pkg;
+// import pkg from 'pg';
+// const { Pool } = pkg;
 
 // routes
 import indexRouter from './routes/index.js';
@@ -17,6 +17,7 @@ import registerRouter from './routes/register.js';
 import settingsRouter from './routes/settings.js';
 import listingsRouter from './routes/listings.js';
 import autocompleteRouter from './routes/autocomplete.js';
+import logoutRouter from './routes/logout.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -57,6 +58,7 @@ app.use('/register', registerRouter);
 app.use('/settings', settingsRouter);
 app.use('/listings', listingsRouter);
 app.use('/autocomplete', autocompleteRouter);
+app.use('/logout', logoutRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
