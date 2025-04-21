@@ -278,7 +278,9 @@ Prisma setup in this markdown file:
 3. Get message, check if available
 4. Use Groq AI (llama-3.3-70b-versatile) to process message and make a subject line
 5. If AI fails, use generic subject line
-6. Send mail to support email
+6. Create support record in DB.
+7. Send mail to support email.
+8. Send confirmation mail to user.
 
 #### Added features
 
@@ -288,3 +290,32 @@ Prisma setup in this markdown file:
 - AI failsafe, if AI fails, generic subject line gets used.
 - Sending mails through nodemailer and Combell SMTP.
 - Save support details in database for history and reference. 
+- Confirmation mail.
+
+### Reset Password
+
+1. Check if already authenticated
+2. not authenticated, go to normal process -> reset code || already authenticated, directly change password (from step 17)
+3. check if email exists
+4. get user with email
+5. get random integer (6 digit code)
+6. create a database row with the code and user_id, set expity within 10 mins from now.
+7. send code to user on noreply email
+8. get email and code
+9. check if email and code is provided
+10. get user with email from db
+11. find reset codes from db where user_id and code not used
+12. check if any reset codes match criteria
+13. check if code expired
+14. check if code matches db code
+15. authenticate user (log in with new session)
+16. update all reset password table "used" values of that user to true (not reusable)
+17. authenticate user
+18. get new password
+19. validate password
+20. hash password
+21. update user's password
+
+#### Added features
+
+- nothing special (nothing new at least)

@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { rateLimit } from 'express-rate-limit';
+import isAuthenticated from "../middleware/auth.js";
+import bcrypt from 'bcrypt';
 
 const router = Router();
 
@@ -34,6 +36,16 @@ const getRandomNumber = (min, max) => {
     // min is inclusive, max is exclusive
     return Math.round(Math.random() * (max - min) + min);
 }
+
+// check if already loggedin
+router.get("/", (req, res, next) => {
+    // already logged in means instant redirect to change password (skip code part)
+    if (req.session && req.session.loggedIn && req.session.userId) {
+        return res.status(200).json({ success: true, message: "Already authenticated, skip to change password." });
+    }
+
+    return res.status(401).json({ success: false, message: "Not authenticated, go through code process." });
+})
 
 // send the code to user's email
 router.post("/code", limiter, async (req, res, next) => {
@@ -93,15 +105,131 @@ router.post("/code", limiter, async (req, res, next) => {
     }
 })
 
+// check if code is correct
 router.post("/email", async (req, res, next) => {
     const { email, code } = req.body;
 
-    try {
+    if (!email) {
+        return res.status(400).json({ error: "Email not provided." })
+    }
 
+    if (!code) {
+        return res.status(400).json({ error: "Code not provided." })
+    }
+
+    try {
+        // get used id
+        const user = await prisma.users.findUnique({
+            where: {
+                email: email
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ error: "Email not found." })
+        }
+
+        // get all reset rows
+        const reset_code = await prisma.reset_password.findMany({
+            where: {
+                user_id: user.user_id,
+                AND: {
+                    used: false, // dont want to use used codes
+                },
+            }
+        })
+
+        // check if reset code exists
+        if (reset_code.length === 0) {
+            return res.status(400).json({ error: "No reset code found, request a reset code." })
+        }
+
+        // get last sent code
+        const last_reset_code = reset_code[reset_code.length - 1];
+
+        // details from reset table
+        const dbcode = last_reset_code.code;
+        const expiryDate = last_reset_code.expires_at;
+
+        // now
+        const now = new Date();
+
+        // code expired
+        if (now > expiryDate) {
+            return res.status(400).json({ error: "Code expired, please request a new code." })
+        }
+
+        // incorrect code
+        if (dbcode !== code) {
+            return res.status(400).json({ error: "Code is not correct." })
+        }
+
+        // Check if user is already logged in
+        if (!req.session.loggedIn) {
+            // start session for the user (authenticate)
+            req.session.userId = user.user_id;
+            req.session.email = user.email;
+            req.session.loggedIn = true;
+        }
+
+        // mark code as used
+        await prisma.reset_password.updateMany({
+            where: {
+                user_id: user.user_id,
+                // code: dbcode -> mark all as used (design choice)
+            },
+
+            data: {
+                used: true
+            }
+        })
+
+        return res.status(200).json({ success: true });
     }
 
     catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
 
+router.patch("/change", isAuthenticated, async (req, res, next) => {
+    const { pwd } = req.body;
+
+    if (!pwd) {
+        return res.status(400).json({ error: "Email not provided." })
+    }
+
+    try {
+        // validate password 
+        if (pwd.length < 8) {
+            return res.status(400).json({ error: "Password must be at least 8 characters." });
+        }
+
+        // hash password with bcrypt (passwords are hashed with bcrypt, salt 12)
+        const pwdHashed = await bcrypt.hash(pwd, 12);
+
+        // change password
+        const user = await prisma.users.update({
+            where: {
+                user_id: req.user.user_id
+            },
+
+            data: {
+                pwd: pwdHashed
+            }
+        })
+
+        if (!user) {
+            return res.status(400).json({ error: "Could not change password, try again." })
+        }
+
+        return res.status(200).json({ success: true });
+    }
+
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
     }
 })
 
