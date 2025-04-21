@@ -227,18 +227,20 @@ Prisma setup in this markdown file:
 
 ### Listings
 
-1. Retrieve all properties from the database, applying any filters specified in the request query parameters (e.g., `propType`).
-2. Iterate over the retrieved properties using `map`. For each property:
-   - Create an object containing the necessary listing information (e.g., city, country, price per night, rating).
-   - Asynchronously fetch the owner's details from the database using the `owner_id` associated with the property (using `Promise`).
-   - Add the owner's name to the listing information object once the promise resolves.
-3. After all the asynchronous owner lookups (promises) have resolved, return an array of the formatted listing information objects in a JSON response.
+1. get query
+2. fix propType for filter usage
+3. add filters to where clause
+4. reinforce checkin and checkout to prevent unwanted behavior (i regret not using typescript, why did my 5's turn into 8's just because i didn't parse it into an int 😭 (bug hunting was killing me))
+5. get all properties with where clause filters applied and select necessary fields
+6. create promise which maps every object in the listings object to have owners
+7. also add to the promise, checkin checkout filters, nullify if not available
+8. resolve promises and filter out null values from the promise.
 
 #### Added features
 
-- Filter properties based on the `propType` query parameter.
-- Asynchronously fetch the owner's name for each property using Promises to avoid blocking the main thread.
-- Use `map` to efficiently create an array of listing objects during the iteration.
+- a ton of logic (rewrote the code more times than ronaldo's total goals in his career -> i lied)
+- a ton of bugs (probably many more that i have yet to discover)
+- i hate working with dates
 
 > [!NOTE]
 > Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs (AI was useless and i have no idea how it works now)! 👍
