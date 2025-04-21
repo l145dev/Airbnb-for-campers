@@ -27,7 +27,7 @@ const transporter = nodemailer.createTransport({
     port: process.env.COMBELL_SMTP_PORT || 465,
     secure: true,
     auth: {
-        user: process.env.COMBELL_SMTP_USER,
+        user: process.env.COMBELL_SMTP_USER_SUPPORT,
         pass: process.env.COMBELL_SMTP_PASSWORD,
     }
 });
@@ -36,7 +36,7 @@ const transporter = nodemailer.createTransport({
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 // support logic
-router.post("/", isAuthenticated, async (req, res, next) => {
+router.post("/", isAuthenticated, limiter, async (req, res, next) => {
     const { message } = req.body;
 
     // return if no message provided
@@ -60,21 +60,41 @@ router.post("/", isAuthenticated, async (req, res, next) => {
         // save subject from AI, if not available, make generic subject line
         const subject = completion.choices[0]?.message?.content || `Support Request from User ID: ${user.user_id}`;
 
-        // send mail to self
-        await transporter.sendMail({
-            from: process.env.COMBELL_SMTP_USER,
-            to: process.env.COMBELL_SMTP_USER,
-            subject: subject,
-            text: message
-        })
-
         // create database entry of support
-        await prisma.support.create({
+        const supportReq = await prisma.support.create({
             data: {
                 user_id: req.user.user_id,
                 subject_line: subject,
                 message_line: message
             }
+        })
+
+        // send mail to support
+        await transporter.sendMail({
+            from: process.env.COMBELL_SMTP_USER_SUPPORT,
+            to: process.env.COMBELL_SMTP_USER_SUPPORT,
+            subject: `Support Request #${supportReq.support_id}: ${subject}`,
+            text: message
+        })
+
+        // get user info
+        const user = await prisma.users.findUnique({
+            where: {
+                user_id: req.user.user_id
+            }
+        })
+
+        // send confirmation mail to user
+        await transporter.sendMail({
+            from: process.env.COMBELL_SMTP_USER_NOREPLY,
+            to: user.email,
+            subject: `Support Request #${supportReq.support_id}: ${subject}`,
+            html: `<p>Hi ${user.first_name} ${user.last_name},</p>
+            <p>We have received your support request and will get back to you as soon as possible.</p>
+            <p>Thank you for contacting our support page.</p>
+            <p>Kind regards,</p>
+            <p>Airbnb Camping</p>`,
+            text: `Hi ${user.first_name} ${user.last_name}, We have received your support request and will get back to you as soon as possible. Thank you for contacting our support page. Kind regards, Airbnb Camping` // Fallback for non-HTML email clients
         })
 
         // add support info to database

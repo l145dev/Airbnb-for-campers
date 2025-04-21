@@ -1,5 +1,8 @@
 # Organized API Routes
 
+> [!CAUTION]
+> Actual body/return may not be the same.
+
 **Default URL (Development):** `localhost:3000`
 
 ## Authentication
@@ -54,7 +57,7 @@
 - **POST /resetpassword/email**:
     - **Body:** `{ email, code }`
     - **Response:** Indicates success and guides user to password change step
-- **POST /resetpassword/change**:
+- **PATCH /resetpassword/change**:
     - **Body:** `{ pwd }`
     - **Response:** Sends email confirming password change, directs user to login
 

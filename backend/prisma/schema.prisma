@@ -139,18 +139,19 @@ model user_saves {
 }
 
 model users {
-  user_id           Int             @id @default(autoincrement())
-  first_name        String          @db.VarChar(100)
-  last_name         String          @db.VarChar(100)
-  email             String          @unique @db.VarChar(255)
-  pwd               String          @db.VarChar(255)
-  phone_number      String?         @db.VarChar(20)
-  profile_picture   String?         @db.VarChar(255)
-  is_owner          Boolean?        @default(false)
-  registration_date DateTime?       @default(now()) @db.Timestamptz(6)
+  user_id           Int              @id @default(autoincrement())
+  first_name        String           @db.VarChar(100)
+  last_name         String           @db.VarChar(100)
+  email             String           @unique @db.VarChar(255)
+  pwd               String           @db.VarChar(255)
+  phone_number      String?          @db.VarChar(20)
+  profile_picture   String?          @db.VarChar(255)
+  is_owner          Boolean?         @default(false)
+  registration_date DateTime?        @default(now()) @db.Timestamptz(6)
   bookings          bookings[]
   notifications     notifications[]
   properties        properties[]
+  reset_password    reset_password[]
   reviews           reviews[]
   user_saves        user_saves[]
 }
@@ -170,4 +171,14 @@ model user_sessions {
   expire DateTime @db.Timestamp(6)
 
   @@index([expire], map: "idx_session_expire")
+}
+
+model reset_password {
+  reset_id   Int       @id @default(autoincrement())
+  user_id    Int
+  code       Int
+  created_at DateTime? @default(now()) @db.Timestamptz(6)
+  expires_at DateTime? @default(dbgenerated("(CURRENT_TIMESTAMP + '00:10:00'::interval)")) @db.Timestamptz(6)
+  used       Boolean?  @default(false)
+  users      users     @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction)
 }

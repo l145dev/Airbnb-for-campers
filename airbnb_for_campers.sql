@@ -137,12 +137,22 @@ CREATE TABLE notifications (
 -- Create support table
 CREATE TABLE support (
     support_id SERIAL PRIMARY KEY,
-    user_id INTEGER,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     subject_line VARCHAR(255) NOT NULL,
     message_line TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     request_status VARCHAR(50) DEFAULT 'pending' -- pending, in_progress, resolved, closed
 );
+
+-- Create reset_password table
+CREATE TABLE reset_password (
+    reset_id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    code INTEGER NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP + INTERVAL '10 minutes',
+    used BOOLEAN DEFAULT FALSE
+)
 
 -- Add indexes for foreign keys and frequently queried columns (optional)
 CREATE INDEX idx_owner_id ON properties (owner_id);
