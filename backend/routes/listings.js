@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
+import checkPropertyAvailability from '../utils/availability.js';
 
 const prisma = new PrismaClient();
 
@@ -125,8 +126,8 @@ router.get('/', async (req, res, next) => {
             // object with all listing data needed
             const tempObj = {
                 ...item,
-                owner: "Unknown",
-                property_image: "Unknown"
+                owner: "N/A",
+                property_image: "N/A",
             }
 
             // get owner
@@ -167,84 +168,7 @@ router.get('/', async (req, res, next) => {
             // filter booking checkin/checkout
 
             // available by default
-            let available = true;
-
-            try {
-                // check if checkin or checkout exists
-                if (checkin || checkout) {
-                    // get bookings of property
-                    const property_bookings = await prisma.bookings.findMany({
-                        where: {
-                            property_id: item.property_id
-                        },
-
-                        orderBy: {
-                            check_out_date: "desc"
-                        },
-                    })
-
-                    // if record of booking found
-                    if (property_bookings.length > 0) {
-                        // checkin filter
-                        if (checkin) {
-                            const [year, month, date] = checkin.split("-"); // eg 2024-9-18
-
-                            // create checkinDate object, normalize hours
-                            const checkinDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(date)); // month - 1 because monthhs are 0 indexed in JS
-                            checkinDate.setHours(0, 0, 0, 0);
-
-                            // checkin needs to happen after booking checkout
-                            // additionally, check if another checkin isnt already in place
-                            // NOT booking checkin <= checkin < booking checkout
-
-                            // check if user check-in date overlaps with any existing booking (looping over property_bookings, checking if SOMETHING returns true) -> becomes opposite implying that its available
-                            available = !property_bookings.some(booking => {
-                                // create checkinDate booking object, normalize hours
-                                const bookingCheckIn = new Date(booking.check_in_date);
-                                bookingCheckIn.setHours(0, 0, 0, 0);
-
-                                // create checkoutDate booking object, normalize hours
-                                const bookingCheckOut = new Date(booking.check_out_date);
-                                bookingCheckOut.setHours(0, 0, 0, 0);
-
-                                // user check-in is within an existing booking (available becomes false if this return is true)
-                                return checkinDate >= bookingCheckIn && checkinDate < bookingCheckOut;
-                            });
-                        }
-
-                        // checkout filter, must have checkin and the checkin must return available true
-                        if (checkout && checkin && available) {
-                            // chheckout date
-                            const [year, month, date] = checkout.split("-"); // eg 2024-9-19
-
-                            const checkoutDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(date)); // JS month is 0 indexed so minus 1
-                            checkoutDate.setHours(0, 0, 0, 0);
-
-                            // checkout needs to happen before booking checkin
-                            // NOT booking checkin < checkout <= booking checkout
-
-                            // check if user check-out date overlaps with any existing booking (looping over property_bookings, checking if SOMETHING returns true) -> becomes opposite implying that its available
-                            available = !property_bookings.some(booking => {
-                                // create checkin booking object, normalize hours
-                                const bookingCheckIn = new Date(booking.check_in_date);
-                                bookingCheckIn.setHours(0, 0, 0, 0);
-
-                                // create checkout booking object, normalize hours
-                                const bookingCheckOut = new Date(booking.check_out_date);
-                                bookingCheckOut.setHours(0, 0, 0, 0);
-
-                                // user check-out is within an existing booking (available becomes false if this return is true)
-                                return checkoutDate > bookingCheckIn && checkoutDate <= bookingCheckOut;
-                            });
-                        }
-                    }
-                }
-
-            }
-
-            catch (error) {
-                console.log("error: " + error);
-            }
+            let available = await checkPropertyAvailability(item.property_id, checkin, checkout, prisma);
 
             if (available) {
                 // return object (gets stored in promises array because of map usage)

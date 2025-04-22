@@ -137,6 +137,10 @@ default URL in dev: localhost:3000
 **Owner_ListPropertySteps**:
 - Moved as modal in owner_propertydashboard
 
+### Postman
+
+To test the endpoints, i will use Postman's handy collection feature in which i can save endpoints and continuously test them to make sure every endpoint keeps working as intended when adding code to identify any bugs created in the process.
+
 ### Create backend (NodeJS - ExpressJS)
 
 - Set up backend with NodeJS (ExpressJS).
@@ -241,6 +245,7 @@ Prisma setup in this markdown file:
 - a ton of logic (rewrote the code more times than ronaldo's total goals in his career -> i lied)
 - a ton of bugs (probably many more that i have yet to discover)
 - i hate working with dates
+- option to directly enter filters details through url query to get all properties available
 
 > [!NOTE]
 > Transitioned from JWT authentication flow to session-based authentication flow (using cookies and postgresql session store), enhancing security and taking away 6 hours of my life because change doesn't come without absolutely random bugs (AI was useless and i have no idea how it works now)! 👍
@@ -321,3 +326,26 @@ Prisma setup in this markdown file:
 #### Added features
 
 - nothing special (nothing new at least)
+
+### Property
+
+**Getting property**:
+1. get property_id and other filters
+2. validate checkin and checkout
+3. check if dates are available
+4. check if guest limit isnt being exceeded for the property capacity
+5. collect all property information
+6. get owner
+7. make 1 big object to store all information retrieved
+
+
+**Saving/unsaving property**:
+1. get property_id
+2. check if save exists in table
+3. if it doesnt exist, add the save (save)
+4. if it does exist, remove the save (unsave)
+
+#### Added features
+
+- moved availibility checking to util folder so that it can be used in listings.js and in property.js to check availability (reusable)
+- option to directly enter filters details through url query to get propertydetails
