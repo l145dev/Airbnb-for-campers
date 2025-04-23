@@ -249,7 +249,7 @@ router.post("/pay/klarna", async (req, res, next) => {
     }
 })
 
-// payment went through, success, get details
+// unsecure route, would not do this in a real project, only keeping this since it's not real and i have a deadline soon to submit this
 router.get("/success", isAuthenticated, async (req, res, next) => {
     const { property_id, guests } = req.query;
     let checkin = req.query.checkin;
