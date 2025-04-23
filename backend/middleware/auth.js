@@ -7,7 +7,7 @@ const isAuthenticated = (req, res, next) => {
         };
         next();
     } else {
-        return res.status(401).json({ error: "Not authenticated, please log in." });
+        return res.status(401).json({ success: false, error: "Not authenticated, please log in." });
     }
 };
 

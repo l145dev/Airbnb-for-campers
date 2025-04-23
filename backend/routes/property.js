@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import isAuthenticated from '../middleware/auth.js';
 import checkPropertyAvailability from '../utils/availability.js';
-import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +25,7 @@ router.get("/", async (req, res, next) => {
         const checkoutDate = new Date(parseInt(coyear), parseInt(comonth) - 1, parseInt(codate));
 
         if (checkinDate > checkoutDate) {
-            return res.status(400).json({ error: "Check out date much be bigger than, or equal to check in date." })
+            return res.status(400).json({ error: "Check out date must be bigger than check in date." })
         }
     }
 
@@ -59,12 +58,13 @@ router.get("/", async (req, res, next) => {
         // get main property info
         const property = await prisma.properties.findUnique({
             where: {
-                property_id: parseInt(property_id)
+                property_id: parseInt(property_id),
+                is_active: true
             }
         })
 
         if (!property) {
-            res.status(404).json({ error: "Property not found!" });
+            return res.status(404).json({ error: "Property not found!" });
         }
 
         // check guest capacity
@@ -106,6 +106,13 @@ router.get("/", async (req, res, next) => {
 
         const owner_full_name = owner.first_name + " " + owner.last_name;
 
+        // get property reviews
+        const reviews = await prisma.reviews.findMany({
+            where: {
+                property_id: parseInt(property_id)
+            }
+        })
+
         let property_saved = false;
 
         // check if user saved this property
@@ -135,8 +142,10 @@ router.get("/", async (req, res, next) => {
             guests,
             owner_full_name,
             property_saved,
+            reviews_count: reviews.length,
             details: property_details,
-            images: [...property_images]
+            images: [...property_images],
+            reviews: [...reviews]
         }
 
         return res.status(200).json({ success: true, allDetails })

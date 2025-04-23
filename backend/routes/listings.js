@@ -18,6 +18,9 @@ router.get('/', async (req, res, next) => {
         let listings = [];
         const where_clause = {};
 
+        // only list properties thatt ar eactive
+        where_clause.is_active = true;
+
         // transform data to correct capitalization and spelling
         if (propType) {
             // apply filters based on proptype

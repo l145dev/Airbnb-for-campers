@@ -349,3 +349,6 @@ Prisma setup in this markdown file:
 
 - moved availibility checking to util folder so that it can be used in listings.js and in property.js to check availability (reusable)
 - option to directly enter filters details through url query to get propertydetails
+
+> [!NOTE]
+> I will stop docuumenting the process here because i'm running out of tiime 

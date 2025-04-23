@@ -1,0 +1,377 @@
+import { Router } from 'express';
+import { PrismaClient } from "@prisma/client";
+import isAuthenticated from '../middleware/auth.js';
+import checkPropertyAvailability from '../utils/availability.js';
+import Stripe from 'stripe';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const stripe = new Stripe(process.env.STRIPE_TEST_KEY);
+
+const prisma = new PrismaClient();
+
+const router = Router();
+
+const calcNights = (checkinDate, checkoutDate) => {
+    // Calculate the difference in milliseconds
+    const differenceInMilliseconds = checkoutDate.getTime() - checkinDate.getTime();
+
+    // Convert milliseconds to days
+    const differenceInDays = Math.ceil(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+
+    // The number of nights is one less than the number of days between check-in and check-out
+    return differenceInDays - 1;
+}
+
+// check if login/register needs to be shown or directly the payment info
+router.get("/", isAuthenticated, (req, res, next) => {
+    res.status(200).json({ success: true, message: "User is authenticated" });
+})
+
+// if user updates dates
+router.post("/update/dates", async (req, res, next) => {
+    const { property_id } = req.body;
+    let checkin = req.body.checkin;
+    let checkout = req.body.checkout;
+
+    if (!property_id || !checkin || !checkout) {
+        return res.status(400).json({ error: "Missing parameter." });
+    }
+
+    // checkin checkout validation
+    if (checkin && checkout) {
+        const [ciyear, cimonth, cidate] = checkin.split("-");
+        const checkinDate = new Date(parseInt(ciyear), parseInt(cimonth) - 1, parseInt(cidate));
+        const [coyear, comonth, codate] = checkout.split("-");
+        const checkoutDate = new Date(parseInt(coyear), parseInt(comonth) - 1, parseInt(codate));
+
+        if (checkinDate > checkoutDate) {
+            return res.status(400).json({ error: "Check out date must be bigger than check in date." })
+        }
+    }
+
+    // checkin date provided but no checkout
+    if (checkin && !checkout) {
+        const [ciyear, cimonth, cidate] = checkin.split("-");
+
+        // create checkin date obj, add 1 day
+        const checkoutDate = new Date(parseInt(ciyear), parseInt(cimonth) - 1, parseInt(cidate) + 1);
+
+        // assign checkout
+        checkout = `${checkoutDate.getFullYear()}-${checkoutDate.getMonth() + 1}-${checkoutDate.getDate()}`
+    }
+
+    // checkout date provided but no checkin
+    if (checkout && !checkin) {
+        const [coyear, comonth, codate] = checkout.split("-");
+
+        // create checkindate which is 1 day before checkout (should already be done by fronted)
+        const checkinDate = new Date(parseInt(coyear), parseInt(comonth) - 1, parseInt(codate) - 1);
+
+        // assign checkin
+        checkin = `${checkinDate.getFullYear()}-${checkinDate.getMonth() + 1}-${checkinDate.getDate()}`
+    }
+
+    // check availability 
+    let dates_available = await checkPropertyAvailability(parseInt(property_id), checkin, checkout, prisma);
+
+    try {
+        if (!dates_available) {
+            return res.status(400).json({ success: false, error: "Dates not available." });
+        }
+
+        return res.status(200).json({ success: true, message: "Dates available" });
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+router.post("/update/guests", async (req, res, next) => {
+    const { property_id, guests } = req.body;
+
+    if (!guests) {
+        return res.status(400).json({ error: "Missing parameter." });
+    }
+
+    try {
+        // get main property info
+        const property = await prisma.properties.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            },
+
+            select: {
+                capacity: true
+            }
+        })
+
+        if (!property) {
+            return res.status(404).json({ error: "Property not found!" });
+        }
+
+        // check guest capacity
+        const capacity = property.capacity;
+
+        if (guests) {
+            if (capacity < guests) {
+                return res.status(400).json({ success: false, error: "Too many guests" });
+            }
+
+            return res.status(200).json({ success: true, message: "Within guest limit" });
+        }
+
+        return res.status(400).json({ success: false, error: "Property capacity not found." });
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+// payment gateway (normal)
+router.post("/pay", isAuthenticated, async (req, res, next) => {
+    const { property_id, checkin, checkout, guests } = req.body;
+
+    if (!property_id || !checkin || !checkout || !guests) {
+        return res.status(400).json({ error: "Missing parameter." });
+    }
+
+    try {
+        // get property details
+        const property = await prisma.properties.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            },
+
+            select: {
+                property_name: true,
+                price_per_night: true
+            }
+        })
+
+        // nights calculcation
+        // process checkin and checkout
+        const [ciyear, cimonth, cidate] = checkin.split("-");
+        const checkinDate = new Date(ciyear, cimonth - 1, cidate);
+
+        const [coyear, comonth, codate] = checkout.split("-");
+        const checkoutDate = new Date(coyear, comonth - 1, codate);
+
+        const numberOfNights = calcNights(checkinDate, checkoutDate);
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card', 'bancontact', 'paypal'],
+            mode: 'payment',
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'eur',
+                        unit_amount: property.price_per_night * numberOfNights * 100, // convert amount eg 200 eur into cents -> 200000
+                        product_data: {
+                            name: property.property_name,
+                        },
+                    },
+                    quantity: 1
+                }
+            ],
+            success_url: `http://localhost:3000/booking/success?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`, //success page (booking confirmed page)
+            cancel_url: `http://localhost:3000/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+        })
+
+        return res.status(200).json({ success: true, url: session.url });
+    } catch (error) {
+        console.error("Stripe payment error:", error);
+        return res.status(500).json({ error: "Payment failed. Please try again." });
+    }
+});
+
+// payyement gateway (klarna)
+router.post("/pay/klarna", async (req, res, next) => {
+    const { property_id, checkin, checkout, guests } = req.body;
+
+    if (!property_id || !checkin || !checkout || !guests) {
+        return res.status(400).json({ error: "Missing parameter." });
+    }
+
+    try {
+        // get property details
+        const property = await prisma.properties.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            },
+
+            select: {
+                property_name: true,
+                price_per_night: true
+            }
+        })
+
+        // nights calculcation
+        // process checkin and checkout
+        const [ciyear, cimonth, cidate] = checkin.split("-");
+        const checkinDate = new Date(ciyear, cimonth - 1, cidate);
+
+        const [coyear, comonth, codate] = checkout.split("-");
+        const checkoutDate = new Date(coyear, comonth - 1, codate);
+
+        const numberOfNights = calcNights(checkinDate, checkoutDate);
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['klarna'],
+            mode: 'payment',
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'eur',
+                        unit_amount: property.price_per_night * numberOfNights * 100, // convert amount eg 200 eur into cents -> 200000
+                        product_data: {
+                            name: property.property_name,
+                        },
+                    },
+                    quantity: 1
+                }
+            ],
+            success_url: `http://localhost:3000/booking/success?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`, //success page (booking confirmed page)
+            cancel_url: `http://localhost:3000/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+        })
+
+        return res.status(200).json({ success: true, url: session.url });
+    } catch (error) {
+        console.error("Stripe payment error:", error);
+        return res.status(500).json({ error: "Payment failed. Please try again." });
+    }
+})
+
+// payment went through, success, get details
+router.get("/success", isAuthenticated, async (req, res, next) => {
+    const { property_id, guests } = req.query;
+    let checkin = req.query.checkin;
+    let checkout = req.query.checkout;
+
+    if (!property_id || !guests || !checkin || !checkout) {
+        return res.status(400).json({ error: "Missing parameter." });
+    }
+
+    try {
+        // get property details
+        const property = await prisma.properties.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            },
+            select: {
+                property_name: true,
+                property_type: true,
+                price_per_night: true,
+                note_from_owner: true,
+                reviews: true,
+                average_rating: true,
+                owner_id: true,
+            }
+        })
+
+        // get owner details
+        const owner = await prisma.users.findUnique({
+            where: {
+                user_id: property.owner_id
+            },
+
+            select: {
+                user_id: true,
+                first_name: true,
+                last_name: true
+            }
+        })
+
+        const owner_full_name = owner.first_name + " " + owner.last_name;
+        const owner_id = owner.user_id;
+
+        // get user details
+        const user = await prisma.users.findUnique({
+            where: {
+                user_id: req.user.user_id
+            },
+
+            select: {
+                user_id: true,
+                email: true
+            }
+        })
+
+        const user_id = user.user_id;
+        const user_email = user.email;
+
+        // process checkin and checkout
+        const [ciyear, cimonth, cidate] = checkin.split("-");
+        const checkinDate = new Date(ciyear, cimonth - 1, cidate);
+
+        const [coyear, comonth, codate] = checkout.split("-");
+        const checkoutDate = new Date(coyear, comonth - 1, codate);
+
+        const numberOfNights = calcNights(checkinDate, checkoutDate);
+
+        // Check for existing overlapping bookings for the same property and user
+        const overlappingBooking = await prisma.bookings.findFirst({
+            where: {
+                property_id: parseInt(property_id),
+                guest_id: user_id,
+                OR: [
+                    {
+                        check_in_date: { lte: checkoutDate },
+                        check_out_date: { gt: checkinDate },
+                    },
+                    // Optional: Consider bookings that start exactly on the requested checkout or end exactly on the requested checkin as non-overlapping. Remove these conditions if you want to strictly disallow even these edge cases.
+                    // {
+                    //     check_in_date: checkinDate,
+                    //     check_out_date: checkoutDate
+                    // }
+                ],
+            },
+        });
+
+        if (overlappingBooking) {
+            return res.status(409).json({ success: false, error: "You already made this booking." })
+        }
+
+        // create booking
+        const booking = await prisma.bookings.create({
+            data: {
+                property_id: parseInt(property_id),
+                guest_id: user_id,
+                check_in_date: checkinDate,
+                check_out_date: checkoutDate,
+                total_price: numberOfNights * property.price_per_night,
+                booking_status: "confirmed",
+                number_of_guests: parseInt(guests)
+            }
+        })
+
+        const booking_id = booking.booking_id;
+
+        // object which will be returned in case success
+        const returnObj = {
+            ...property,
+            owner_full_name,
+            owner_id,
+            user_id,
+            user_email,
+            booking_id
+        };
+
+        res.status(200).json({ success: true, returnObj })
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+export default router;
