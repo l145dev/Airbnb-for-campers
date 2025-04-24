@@ -20,6 +20,7 @@ import supportRouter from './routes/support.js';
 import resetPasswordRouter from './routes/resetpassword.js';
 import propertyRouter from './routes/property.js';
 import bookingRouter from './routes/booking.js';
+import tripsRouter from './routes/trips.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,6 +66,7 @@ app.use('/support', supportRouter);
 app.use('/resetpassword', resetPasswordRouter);
 app.use('/property', propertyRouter);
 app.use('/booking', bookingRouter);
+app.use('/trips', tripsRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
