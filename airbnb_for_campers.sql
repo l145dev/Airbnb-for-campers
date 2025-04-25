@@ -128,7 +128,7 @@ CREATE TABLE reviews (
 CREATE TABLE notifications (
     notification_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    notification_type VARCHAR(100) NOT NULL,
+    notification_type VARCHAR(100) NOT NULL, -- booking_confirmation, new_review, booking_reminder, property_saved
     notification_message TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

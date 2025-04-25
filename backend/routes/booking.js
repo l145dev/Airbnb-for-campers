@@ -4,6 +4,7 @@ import isAuthenticated from '../middleware/auth.js';
 import checkPropertyAvailability from '../utils/availability.js';
 import Stripe from 'stripe';
 import dotenv from 'dotenv';
+import createNotification from '../utils/createNotification.js';
 
 dotenv.config();
 
@@ -363,6 +364,22 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
             user_email,
             booking_id
         };
+
+        const formatDate = (date) => {
+            const options = { day: 'numeric', month: 'long' };
+            return date.toLocaleDateString('en-US', options);
+        };
+
+        const formattedCheckinDate = formatDate(checkinDate);
+        const formattedCheckoutDate = formatDate(checkoutDate);
+
+        // example usage of create notification (will only use it here to not complicate things, due to time limit)
+        createNotification(
+            "booking_confirmation",
+            `Your booking at ${property.property_name} from ${formattedCheckinDate} to ${formattedCheckoutDate} has been confirmed.`,
+            user_id,
+            prisma
+        );
 
         res.status(200).json({ success: true, returnObj })
     }
