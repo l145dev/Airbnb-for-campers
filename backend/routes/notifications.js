@@ -37,7 +37,8 @@ router.get("/", isAuthenticated, async (req, res, next) => {
     }
 })
 
-// add notifications (moved to util for accessibility accross files)
+// (moved to util for accessibility accross files)
+// add notifications 
 // router.post("/", isAuthenticated, async (req, res, next) => {
 //     // booking_confirmation, new_review, booking_reminder, property_saved (notification_type)
 //     const { notification_type, notification_message, } = req.body;
@@ -82,10 +83,12 @@ router.delete("/", isAuthenticated, async (req, res, next) => {
             }
         })
 
+        // check if notif exists
         if (!notification) {
             return res.status(400).json({ success: false, error: "Notification could not be deleted." });
         }
 
+        // delete notification
         const deleted_notification = await prisma.notifications.delete({
             where: {
                 user_id: parseInt(req.user.user_id),
@@ -93,6 +96,7 @@ router.delete("/", isAuthenticated, async (req, res, next) => {
             }
         })
 
+        // check if deleted
         if (!deleted_notification) {
             return res.status(400).json({ success: false, error: "Notification could not be deleted." });
         }
