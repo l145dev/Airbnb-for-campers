@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 // import isAuthenticated from "../middleware/auth.js"; // probably dont need auth for this
+import isHost from "../utils/isHost.js";
 
 const router = Router();
 
@@ -69,11 +70,19 @@ router.get("/", async (req, res, next) => {
 
         const totalNightsValue = averageNightPrice * parseInt(nights);
 
+        let is_owner = false;
+
+        // check if user is already a host
+        if (req.session && req.session.loggedIn && req.session.userId) {
+            is_owner = await isHost(parseInt(req.session.userId), prisma);
+        }
+
         // create return object with all info
         const returnObj = {
             properties: properties,
             averageNightPrice: averageNightPrice,
             totalNightsValue: totalNightsValue,
+            is_owner: is_owner
         }
 
         return res.status(200).json({ success: true, returnObj })

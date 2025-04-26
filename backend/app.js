@@ -23,6 +23,7 @@ import bookingRouter from './routes/booking.js';
 import tripsRouter from './routes/trips.js';
 import notificationsRouter from './routes/notifications.js';
 import hostRouter from './routes/host.js';
+import hostDashboardRouter from './routes/hostdashboard.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -71,6 +72,7 @@ app.use('/booking', bookingRouter);
 app.use('/trips', tripsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/host', hostRouter);
+app.use('/hostdashboard', hostDashboardRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
