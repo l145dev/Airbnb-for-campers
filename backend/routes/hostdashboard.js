@@ -123,7 +123,7 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 
             // calculate ADR if both constants exist
             if (totalRevenue && totalBookings) {
-                const adr = totalRevenue / totalBookings;
+                const adr = Math.round(totalRevenue / totalBookings);
 
                 tempObj.adr = adr;
             }
