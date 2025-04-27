@@ -333,7 +333,8 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
 
         let updateNeededProperty = true;
         let updateNeededAmenities = true;
-        console.log(newProperty);
+
+        // console.log(newProperty); // uncomment this to see the bug (javascript thinks these variables are different from DB because of incorrect assumption of datatypes -> mismatch between JS and PostgreSQL)
 
         // check if nothing is updated
         if (Object.keys(newProperty).length === 0) {
