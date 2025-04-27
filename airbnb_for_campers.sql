@@ -65,7 +65,7 @@ CREATE TABLE property_details (
     has_views BOOLEAN,
     has_picnic_table BOOLEAN,
     has_grill BOOLEAN,
-    has_safety_features TEXT,
+    has_safety_features BOOLEAN,
     has_personal_dryer BOOLEAN,
     has_shared_dryer BOOLEAN,
     has_wifi BOOLEAN,

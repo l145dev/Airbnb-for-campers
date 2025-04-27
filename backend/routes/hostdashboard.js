@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { json, Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import isAuthenticated from "../middleware/auth.js";
 import isHost from "../utils/isHost.js";
@@ -226,6 +226,7 @@ router.get("/modify", isAuthenticated, async (req, res, next) => {
 // get details to modifying property details
 router.patch("/modify", isAuthenticated, async (req, res, next) => {
     const { property_id, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner } = req.body;
+    const amenities_updates = req.body.amenities;
 
     if (!property_id) {
         return res.status(400).json({ success: false, error: "No property_id provided" });
@@ -305,22 +306,113 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
             }
         }
 
+        // get existing property details
+        const oldAmenities = await prisma.property_details.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            }
+        })
+
+        if (!oldAmenities) {
+            return res.status(404).json({ error: "Property details (facilities & amenities) not found" });
+        }
+
+        // update property details
+        const newAmenities = {};
+
+        // iterate through values
+        for (const item in oldAmenities) {
+            // ignore prototypes in object (preventing unwanted JS behavior)
+            if (updates.hasOwnProperty(item)) {
+                // check if exists and update needed
+                if (oldAmenities[item] !== undefined && oldAmenities[item] !== updates[item]) {
+                    newAmenities[item] = updates[item];
+                }
+            }
+        }
+
+        let updateNeededProperty = true;
+        let updateNeededAmenities = true;
+
         // check if nothing is updated
         if (Object.keys(newProperty).length === 0) {
             // no db operation needed because nothing was updated
-            return res.status(200).json(oldProperty);
+            updateNeededProperty = false;
         }
 
-        // update property with new details
-        const updated = await prisma.properties.update({
-            where: {
-                property_id: parseInt(property_id)
-            },
+        // check if nothing is updated
+        if (Object.keys(newAmenities).length === 0) {
+            // no db operation needed because nothing was updated
+            updateNeededAmenities = false;
+        }
 
-            data: newProperty,
-        })
+        // both updated
+        if (updateNeededAmenities && updateNeededProperty) {
+            // update property with new details
+            const updatedProperty = await prisma.properties.update({
+                where: {
+                    property_id: parseInt(property_id)
+                },
 
-        return res.status(200).json({ success: true, updated })
+                data: newProperty,
+            })
+
+            // update property details with new details
+            const updatedAmenities = await prisma.property_details.update({
+                where: {
+                    property_id: parseInt(property_id)
+                },
+
+                data: newAmenities,
+            })
+
+            const returnObj = {
+                ...updatedProperty,
+                amenities: updatedAmenities
+            }
+
+            return res.status(200).json({ success: true, returnObj })
+        }
+
+        // property details updated
+        else if (updateNeededAmenities && !updateNeededProperty) {
+            // update property details with new details
+            const updatedAmenities = await prisma.property_details.update({
+                where: {
+                    property_id: parseInt(property_id)
+                },
+
+                data: newAmenities,
+            })
+
+            const returnObj = {
+                ...oldProperty,
+                amenities: updatedAmenities
+            }
+
+            return res.status(200).json({ success: true, returnObj })
+        }
+
+        // property updated
+        else if (!updateNeededAmenities && updateNeededProperty) {
+            // update property with new details
+            const updatedProperty = await prisma.properties.update({
+                where: {
+                    property_id: parseInt(property_id)
+                },
+
+                data: newProperty,
+            })
+
+            const returnObj = {
+                ...updatedProperty,
+                amenities: oldAmenities
+            }
+
+            return res.status(200).json({ success: true, returnObj })
+        }
+
+        return res.status(200).json({ success: true, message: "No updates made." })
     }
 
     catch (error) {
