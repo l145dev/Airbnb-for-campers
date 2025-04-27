@@ -182,7 +182,7 @@ router.get("/modify", isAuthenticated, async (req, res, next) => {
                 capacity: true,
                 note_from_owner: true,
                 longitude: true,
-                latitude: true
+                latitude: true,
             }
         })
 
@@ -206,8 +206,16 @@ router.get("/modify", isAuthenticated, async (req, res, next) => {
         // get postcode
         const postcode = location.data.address.postcode;
 
+        // get property details
+        const amenities = await prisma.property_details.findUnique({
+            where: {
+                property_id: parseInt(property_id)
+            }
+        })
+
         const returnObj = {
             ...property,
+            amenities: amenities,
             streetAddress,
             postcode
         }

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import checkPropertyAvailability from '../utils/availability.js';
+import isAuthenticated from '../middleware/auth.js';
 
 const prisma = new PrismaClient();
 
@@ -196,5 +197,10 @@ router.get('/', async (req, res, next) => {
         return res.status(500).json({ error: "An error occured, please try again." })
     }
 });
+
+// add listing
+router.post("/", isAuthenticated, async (req, res, next) => {
+
+})
 
 export default router;
