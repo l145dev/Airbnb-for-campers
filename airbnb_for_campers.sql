@@ -28,7 +28,7 @@ CREATE TABLE properties (
     owner_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     property_name VARCHAR(255) NOT NULL,
     property_description TEXT,
-    location_name VARCHAR(255) NOT NULL,
+    location_name VARCHAR(255),
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
     city TEXT,

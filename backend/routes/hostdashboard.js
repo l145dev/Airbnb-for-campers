@@ -252,9 +252,9 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
         }
 
         // find exact address to put into long/lat, implicit location validation
-        const cleanedAddress = street_address.replace(" ", "+");
-        const cleanedCity = city.replace(" ", "+");
-        const cleanedCountry = country.replace(" ", "+")
+        const cleanedAddress = street_address.replaceAll(" ", "+");
+        const cleanedCity = city.replaceAll(" ", "+");
+        const cleanedCountry = country.replaceAll(" ", "+")
         const url = `https://nominatim.openstreetmap.org/search.php?street=${cleanedAddress}&city=${cleanedCity}&country=${cleanedCountry}&postalcode=${parseInt(postcode)}&format=jsonv2`;
         const locations = await axios.get(url);
 

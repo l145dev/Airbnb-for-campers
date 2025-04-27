@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import checkPropertyAvailability from '../utils/availability.js';
 import isAuthenticated from '../middleware/auth.js';
+import isHost from '../utils/isHost.js';
+import axios from 'axios';
 
 const prisma = new PrismaClient();
 
@@ -200,7 +202,158 @@ router.get('/', async (req, res, next) => {
 
 // add listing
 router.post("/", isAuthenticated, async (req, res, next) => {
+    const { is_active, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner } = req.body;
+    const amenities_add = req.body.amenities; // object of booleans
+    const images_add = req.body.images; // array of images
 
+    try {
+        // save host id
+        const owner_id = parseInt(req.user.user_id);
+
+        // check if host
+        const is_owner = await isHost(owner_id, prisma);
+
+        if (!is_owner) {
+            return res.status(401).json({ success: false, error: "You are not registered as a host" });
+        }
+
+        // find exact address to put into long/lat, implicit location validation
+        const cleanedAddress = street_address.replaceAll(" ", "+");
+        const cleanedCity = city.replaceAll(" ", "+");
+        const cleanedCountry = country.replaceAll(" ", "+")
+        const url = `https://nominatim.openstreetmap.org/search.php?street=${cleanedAddress}&city=${cleanedCity}&country=${cleanedCountry}&postalcode=${parseInt(postcode)}&format=jsonv2`;
+        console.log(url);
+        const locations = await axios.get(url);
+
+        if (locations.data.length <= 0) {
+            return res.status(400).json({ success: false, error: "Location not found, maybe it's the street address? Correct street address format: 110 Broadway" });
+        }
+
+        // get first (most accurate location)
+        const location = locations.data[0];
+
+        // get long/lat
+        const longitude = location.lon;
+        const latitude = location.lat;
+
+        // check if property with this long/lat already exists -> dupe!
+        const dupe = await prisma.properties.findFirst({
+            where: {
+                longitude: parseFloat(longitude),
+                latitude: parseFloat(latitude)
+            }
+        })
+
+        if (dupe) {
+            return res.status(409).json({ success: false, error: "Property at this location already exists." });
+        }
+
+        // checkin and checkout formatting -> logic accross codebase can be improved a lot for accuracy & consistency, no time to do that for now, this is also the reason why i hate working with dates in code
+        const check_in_time = new Date(Date.UTC(1970, 0, 1, parseInt(check_in_time_raw), 0, 0));
+        const check_out_time = new Date(Date.UTC(1970, 0, 1, parseInt(check_out_time_raw), 0, 0));
+
+        // object with all values to add
+        const property_data = {
+            property_name,
+            property_description,
+            owner_id,
+            longitude,
+            latitude,
+            check_in_time,
+            check_out_time,
+            city,
+            country,
+            property_type,
+            price_per_night,
+            capacity,
+            note_from_owner,
+            is_active // if true, instantly publish, if not, save for later
+        }
+
+        // add values
+        const property = await prisma.properties.create({
+            data: property_data
+        })
+
+        if (!property) {
+            return res.status(400).json({ success: false, error: "Could not create property. Issue: Adding property" });
+        }
+
+        // object with values to add for property details
+        const amenities_data = {
+            property_id: parseInt(property.property_id),
+            ...amenities_add
+        }
+
+        // add values
+        const amenties = await prisma.property_details.create({
+            data: amenities_data
+        })
+
+        if (!amenties) {
+            return res.status(400).json({ success: false, error: "Could not create property. Issue: Adding amenities & facilities" });
+        }
+
+        // check if images have been provided
+        if (images_add.length > 0) {
+            // first image is main
+            const image = await prisma.property_images.create({
+                data: {
+                    property_id: parseInt(property.property_id),
+                    image_url: images_add[0],
+                    is_main: true
+                }
+            })
+
+            if (!image) {
+                res.status(400).json({ success: false, error: "Something went wrong while uploading images." });
+            }
+
+            // add rest of the images if there are more
+            if (images_add.length > 1) {
+                // add rest of the images
+                for (let i = 1; i < images_add.length; i++) {
+                    const image = await prisma.property_images.create({
+                        data: {
+                            property_id: parseInt(property.property_id),
+                            image_url: images_add[i],
+                            is_main: false
+                        }
+                    })
+
+                    if (!image) {
+                        res.status(400).json({ success: false, error: "Something went wrong while uploading images." });
+                    }
+                }
+            }
+        }
+
+        else {
+            return res.status(400).json({ success: false, error: "Must at least provide 1 image of property." })
+        }
+
+        // get images which have been created (cannot access because of scope so need to call it here, could optimize this but im lazy)
+        const images = await prisma.property_images.findMany({
+            where: {
+                property_id: parseInt(property.property_id)
+            }
+        })
+
+        // create an object with all data together
+        const returnObj = {
+            ...property,
+            amenities: amenties,
+            images: [...images]
+        }
+
+        return res.status(200).json({ success: true, returnObj });
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
 })
 
 export default router;

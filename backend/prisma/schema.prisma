@@ -42,7 +42,7 @@ model properties {
   owner_id             Int
   property_name        String            @db.VarChar(255)
   property_description String?
-  location_name        String            @db.VarChar(255)
+  location_name        String?           @db.VarChar(255)
   latitude             Decimal?          @db.Decimal(10, 8)
   longitude            Decimal?          @db.Decimal(11, 8)
   property_type        String?           @default("Tent") @db.VarChar(50)
