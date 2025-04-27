@@ -333,6 +333,7 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
 
         let updateNeededProperty = true;
         let updateNeededAmenities = true;
+        console.log(newProperty);
 
         // check if nothing is updated
         if (Object.keys(newProperty).length === 0) {
