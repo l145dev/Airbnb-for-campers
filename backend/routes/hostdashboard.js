@@ -285,7 +285,7 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
         const oldProperty = await prisma.properties.findUnique({
             where: {
                 property_id: parseInt(property_id)
-            }
+            },
         })
 
         if (!oldProperty) {
@@ -323,10 +323,10 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
         // iterate through values
         for (const item in oldAmenities) {
             // ignore prototypes in object (preventing unwanted JS behavior)
-            if (updates.hasOwnProperty(item)) {
+            if (amenities_updates.hasOwnProperty(item)) {
                 // check if exists and update needed
-                if (oldAmenities[item] !== undefined && oldAmenities[item] !== updates[item]) {
-                    newAmenities[item] = updates[item];
+                if (oldAmenities[item] !== undefined && oldAmenities[item] !== amenities_updates[item]) {
+                    newAmenities[item] = amenities_updates[item];
                 }
             }
         }
@@ -371,7 +371,7 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
                 amenities: updatedAmenities
             }
 
-            return res.status(200).json({ success: true, returnObj })
+            return res.status(200).json({ success: true, returnObj, message: "amenities and property updated" })
         }
 
         // property details updated
@@ -390,7 +390,7 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
                 amenities: updatedAmenities
             }
 
-            return res.status(200).json({ success: true, returnObj })
+            return res.status(200).json({ success: true, returnObj, message: "amenities updated" })
         }
 
         // property updated
@@ -409,7 +409,7 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
                 amenities: oldAmenities
             }
 
-            return res.status(200).json({ success: true, returnObj })
+            return res.status(200).json({ success: true, returnObj, message: "property updated" })
         }
 
         return res.status(200).json({ success: true, message: "No updates made." })
