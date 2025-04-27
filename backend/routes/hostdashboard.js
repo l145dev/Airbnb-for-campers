@@ -1,4 +1,4 @@
-import { json, Router } from "express";
+import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import isAuthenticated from "../middleware/auth.js";
 import isHost from "../utils/isHost.js";
@@ -415,6 +415,46 @@ router.patch("/modify", isAuthenticated, async (req, res, next) => {
         }
 
         return res.status(200).json({ success: true, message: "No updates made." })
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+// publish/unpublish property 
+router.patch("/publish", isAuthenticated, async (req, res, next) => {
+    const { property_id, published } = req.body;
+
+    if (!property_id) {
+        return res.status(400).json({ success: false, error: "No property_id provided" });
+    }
+
+    try {
+        // save host id
+        const host_id = parseInt(req.user.user_id);
+
+        // check if host
+        const is_owner = await isHost(host_id, prisma);
+
+        if (!is_owner) {
+            return res.status(401).json({ success: false, error: "You are not registered as a host" });
+        }
+
+        // update activity state of property
+        const property = await prisma.properties.update({
+            where: {
+                property_id: parseInt(property_id)
+            },
+
+            data: {
+                is_active: !published // opposite of current state (toggle)
+            }
+        })
+
+        return res.status(200).json({ success: true, property });
     }
 
     catch (error) {
