@@ -7,6 +7,9 @@ import logger from 'morgan';
 import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
 
 // routes
 import indexRouter from './routes/index.js';
@@ -24,6 +27,7 @@ import tripsRouter from './routes/trips.js';
 import notificationsRouter from './routes/notifications.js';
 import hostRouter from './routes/host.js';
 import hostDashboardRouter from './routes/hostdashboard.js';
+import authRouter from './routes/auth.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -57,6 +61,36 @@ app.use(session({
   rolling: true, // when user makes request to backend, maxAge resets (keeps user logged in if active in the past 24 hours, for UX)
 }));
 
+// Configure Passport.js
+// passport.use(new GoogleStrategy({
+//   clientID: process.env.GOOGLE_CLIENT_ID,
+//   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//   callbackURL: '/auth/google/callback',
+// }, (accessToken, refreshToken, profile, done) => {
+//   // Handle user profile here
+//   done(null, profile);
+// }));
+
+// passport.use(new MicrosoftStrategy({
+//   clientID: process.env.MICROSOFT_CLIENT_ID,
+//   clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+//   callbackURL: '/auth/microsoft/callback',
+// }, (accessToken, refreshToken, profile, done) => {
+//   // Handle user profile here
+//   done(null, profile);
+// }));
+
+// passport.serializeUser((user, done) => {
+//   done(null, user);
+// });
+
+// passport.deserializeUser((user, done) => {
+//   done(null, user);
+// });
+
+// app.use(passport.initialize());
+// app.use(passport.session());
+
 // paths to routes
 app.use('/', indexRouter);
 app.use('/login', loginRouter);
@@ -73,6 +107,7 @@ app.use('/trips', tripsRouter);
 app.use('/notifications', notificationsRouter);
 app.use('/host', hostRouter);
 app.use('/hostdashboard', hostDashboardRouter);
+app.use('/auth', authRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
