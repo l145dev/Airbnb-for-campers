@@ -1,4 +1,5 @@
 // FOR FUTURE (maybe)
+// not for production
 
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";

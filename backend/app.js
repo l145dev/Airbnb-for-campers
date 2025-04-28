@@ -7,9 +7,9 @@ import logger from 'morgan';
 import cors from 'cors';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
+// import passport from 'passport';
+// import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+// import { Strategy as MicrosoftStrategy } from 'passport-microsoft';
 
 // routes
 import indexRouter from './routes/index.js';
