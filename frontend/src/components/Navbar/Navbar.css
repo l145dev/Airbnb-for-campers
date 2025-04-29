@@ -1,0 +1,30 @@
+/* .nav a {
+    color: white;
+} */
+
+.nav ul {
+    list-style: none;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    height: 80px;
+}
+
+.nav .to-airbnbcamping {
+    height: 100%;
+    width: auto;
+}
+
+.nav .to-airbnbcamping img {
+    height: 100%;
+}
+
+.nav .right-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
