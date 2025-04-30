@@ -12,17 +12,11 @@ import { useState } from 'react';
 import greenLogo from '../../assets/images/airbnbcampinglogoFull_green.png';
 import whiteLogo from '../../assets/images/airbnbcampinglogoFull_white.png';
 import { Menu, Globe } from 'lucide-react';
+import SearchBar from '../SearchBar/SearchBar.tsx';
 
 const Navbar = () => {
     // logged in state
     const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
-
-    // ham menu toggle
-    const [isActive, setIsActive] = useState(false);
-
-    const toggleNav = () => {
-        setIsActive(!isActive);
-    };
 
     // location (query)
     const location = useLocation();
@@ -34,19 +28,37 @@ const Navbar = () => {
             <Link to={"/"} className='to-airbnbcamping'>
                 {/* white logo when on home (contrast) */}
                 {isHomePage ? (
-                    <img src={greenLogo} alt="Airbnb Camping Logo" />
+                    <img src={whiteLogo} alt="Airbnb Camping Logo" />
                 ) : (
                     <img src={greenLogo} alt="Airbnb Camping Logo" />
                 )}
             </Link>
 
             {/* searchbar */}
+            {isHomePage ? (
+                <>
+                </>
+            ) : (
+                <>
+                    <div className='search-container'>
+                        <SearchBar />
+                    </div>
+                </>
+            )}
 
             <div className='right-controls'>
                 {/* dropdown menu for not logged in */}
                 <DropdownMenu>
                     <DropdownMenuTrigger>
-                        <Globe size={16} />
+                        {isHomePage ? (
+                            <>
+                                <Globe size={16} color='white' />
+                            </>
+                        ) : (
+                            <>
+                                <Globe size={16} />
+                            </>
+                        )}
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align='end'>
                         <DropdownMenuItem>
@@ -107,7 +119,9 @@ const Navbar = () => {
                                         Support
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>Log out</DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    Log out
+                                </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </>

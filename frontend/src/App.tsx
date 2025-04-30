@@ -24,7 +24,7 @@ function App() {
       {/* navbar */}
       <Navbar />
 
-      <div className='container'>
+      <div className='custom-container'>
         {/* Navigation, in order flow / hierarchical*/}
         <Routes>
           {/* 404, not found */}

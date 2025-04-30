@@ -1,17 +1,12 @@
-/* .nav a {
-    color: white;
-} */
-
-.nav ul {
-    list-style: none;
-}
-
 .nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
     height: 80px;
+    width: 100%;
+    position: fixed;
+    z-index: 999;
 }
 
 .nav .to-airbnbcamping {
@@ -27,4 +22,11 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.nav .search-container {
+    width: 50%;
+    height: auto;
+    background-color: #fff;
+    border-radius: 50px;
 }
