@@ -4,7 +4,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Command, CommandInput, CommandItem } from "@/components/ui/command"
 import { format } from "date-fns"
 import { SearchIcon, MinusIcon, PlusIcon } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
 import { useState } from "react"
 
 export default function SearchBar() {

@@ -8,7 +8,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import greenLogo from '../../assets/images/airbnbcampinglogoFull_green.png';
 import whiteLogo from '../../assets/images/airbnbcampinglogoFull_white.png';
 import { Menu, Globe } from 'lucide-react';
@@ -22,12 +22,24 @@ const Navbar = () => {
     const location = useLocation();
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
 
+    // scroll control
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 0);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     return (
-        <nav className='nav'>
+        <nav className={`nav ${scrolled ? 'scrolled-nav' : ''}`}>
             {/* logo */}
             <Link to={"/"} className='to-airbnbcamping'>
                 {/* white logo when on home (contrast) */}
-                {isHomePage ? (
+                {isHomePage && !scrolled ? (
                     <img src={whiteLogo} alt="Airbnb Camping Logo" />
                 ) : (
                     <img src={greenLogo} alt="Airbnb Camping Logo" />
@@ -48,9 +60,9 @@ const Navbar = () => {
 
             <div className='right-controls'>
                 {/* dropdown menu for not logged in */}
-                <DropdownMenu>
+                <DropdownMenu modal={false}>
                     <DropdownMenuTrigger>
-                        {isHomePage ? (
+                        {isHomePage && !scrolled ? (
                             <>
                                 <Globe size={16} color='white' />
                             </>
@@ -80,7 +92,7 @@ const Navbar = () => {
                 {isLoggedIn ? (
                     <>
                         {/* dropdown menu for logged in */}
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button variant={"outline"}>
                                     <Menu />
@@ -128,7 +140,7 @@ const Navbar = () => {
                 ) : (
                     <>
                         {/* dropdown menu for not logged in */}
-                        <DropdownMenu>
+                        <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button variant={"outline"}>
                                     <Menu />

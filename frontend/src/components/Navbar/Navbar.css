@@ -6,7 +6,13 @@
     height: 80px;
     width: 100%;
     position: fixed;
-    z-index: 999;
+    z-index: 1;
+}
+
+.nav.scrolled-nav {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease-out, border-bottom 0.3s ease-out;
 }
 
 .nav .to-airbnbcamping {

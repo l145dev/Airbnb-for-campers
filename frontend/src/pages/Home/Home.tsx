@@ -180,6 +180,10 @@ const Home = () => {
                         </Button>
                     </div>
                 </div>
+
+                <div className='content-container'>
+
+                </div>
             </div>
         </>
     )
