@@ -2,9 +2,9 @@
 IN DEVELOPMENT
 
 **Development phases**:
-- ~~Design~~
-- ~~Database~~
-- ~~Backend~~
-- **[Current] Frontend**
-- Final touches & Testing
-- Deploy
+1. ~~Design~~
+2. ~~Database~~
+3. ~~Backend~~
+4. **[Current] Frontend**
+5. Final touches & Testing
+6. Deploy
