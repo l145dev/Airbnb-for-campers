@@ -3,6 +3,7 @@ import './Home.css';
 import homebackground from '../../assets/images/homebackground.jpg';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/SearchBar/SearchBar';
+import { Footer } from '@/components/Footer/Footer';
 // icons
 import cabinIcon from '../../assets/images/icons8-log-cabin-100.png';
 import tentIcon from '../../assets/images/icons8-tent-100.png';
@@ -236,6 +237,8 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
+
+                <Footer />
             </div>
         </>
     )
