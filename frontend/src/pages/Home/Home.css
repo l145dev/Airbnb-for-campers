@@ -75,4 +75,83 @@
 .home .content-container {
     width: 100%;
     height: 600px;
+    padding-right: 3rem;
+    padding-bottom: 3rem;
+}
+
+.home .content-container-right {
+    width: 100%;
+    height: 600px;
+    padding-left: 3rem;
+    padding-bottom: 3rem;
+    display: flex;
+    justify-content: right;
+}
+
+.home .inner-content-container {
+    height: 100%;
+    width: 60vw;
+    background-color: #3D8B40;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 2rem 0;
+    padding-right: 2rem;
+    display: flex;
+    gap: 2rem;
+}
+
+.home .inner-content-container-right {
+    height: 100%;
+    width: 60vw;
+    background-color: #3D8B40;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding: 2rem 0;
+    padding-left: 2rem;
+    display: flex;
+    justify-content: right;
+    gap: 2rem;
+}
+
+.home .image-content-container {
+    height: 100%;
+    /* i have no clue why css is being weird about the width here too */
+    width: 200%;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    overflow: hidden;
+}
+
+.home .image-content-container-right {
+    height: 100%;
+    /* i have no clue why css is being weird about the width here too */
+    width: 200%;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    overflow: hidden;
+}
+
+.home .image-content-container img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.home .image-content-container-right img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+}
+
+.home .text-content-container {
+    color: #fff;
+}
+
+.home .text-content-container h2 {
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.home .text-content-container p {
+    margin-top: 1rem;
 }

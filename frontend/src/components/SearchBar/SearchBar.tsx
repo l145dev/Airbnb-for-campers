@@ -12,7 +12,7 @@ export default function SearchBar() {
     const [fromDate, setFromDate] = useState<Date | undefined>()
     const [toDate, setToDate] = useState<Date | undefined>()
     const [location, setLocation] = useState("")
-    const [guests, setGuests] = useState(1)
+    const [guests, setGuests] = useState(0)
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-2 p-1 bg-white rounded-full shadow-sm border max-w-full">
