@@ -1,4 +1,10 @@
 # Airbnb for campers
 IN DEVELOPMENT
 
-**Current development phase**: Frontend
+**Development phases**:
+- ~~Design~~
+- ~~Database~~
+- ~~Backend~~
+- **[Current] Frontend**
+- Final touches & Testing
+- Deploy
