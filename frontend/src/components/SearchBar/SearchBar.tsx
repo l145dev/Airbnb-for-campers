@@ -1,3 +1,5 @@
+// AI made most of the styling for the searchbar, dont blame me if it sucks, i didnt have enough time to make it myself, unfortunately
+
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -65,7 +67,7 @@ export default function SearchBar() {
                     {guests > 0 ? `${guests} Guest${guests > 1 ? "s" : ""}` : "Anyone"}
                 </PopoverTrigger>
                 <PopoverContent className="w-48">
-                    <div className="flex items-center justify-between p-2">
+                    <div className="flex items-center justify-between p-2 gap-2">
                         <span>Guests</span>
                         <div className="flex items-center gap-2">
                             <Button variant="ghost" size="icon" onClick={() => setGuests(Math.max(1, guests - 1))}>

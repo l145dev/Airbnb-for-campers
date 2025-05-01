@@ -1,3 +1,7 @@
+* {
+    scroll-behavior: smooth;
+}
+
 /* class styles */
 .custom-container {
     /* padding: 1rem; */

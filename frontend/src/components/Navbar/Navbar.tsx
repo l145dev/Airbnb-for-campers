@@ -42,7 +42,7 @@ const Navbar = () => {
                 {isHomePage && !scrolled ? (
                     <img src={whiteLogo} alt="Airbnb Camping Logo" />
                 ) : (
-                    <img src={greenLogo} alt="Airbnb Camping Logo" />
+                    <img src={greenLogo} alt="Airbnb Camping Logo" onClick={() => window.scrollTo(0, 0)} />
                 )}
             </Link>
 
