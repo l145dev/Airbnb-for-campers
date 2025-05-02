@@ -89,7 +89,7 @@ export const Footer = (): JSX.Element => {
                 {/* Footer bottom section */}
                 <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
                     <div className="text-sm md:text-base text-black text-center md:text-left">
-                        © 2025 Airbnb, Inc. · Terms · Sitemap · Privacy · Your Privacy
+                        © 2025 Airbnb Camping · Terms · Sitemap · Privacy · Your Privacy
                         Choices ✅/❌
                     </div>
 
