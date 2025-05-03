@@ -16,6 +16,7 @@ import yurtIcon from '../../assets/images/icons8-yurt-100.png';
 // why and what airbnb section iimages
 import whatIsAirbnb from '../../assets/images/whatisairbnb.jpg';
 import whyAirbnb from '../../assets/images/whyairbnb.jpg';
+import { Link } from 'react-router-dom';
 
 
 const Home = () => {
@@ -29,8 +30,10 @@ const Home = () => {
                             Explore Nature
                         </h1>
                         <div className='button-wrapper'>
-                            <Button variant={"secondary"}>
-                                Discover
+                            <Button variant={"secondary"} asChild>
+                                <Link to="/listings">
+                                    Discover
+                                </Link>
                             </Button>
                         </div>
 

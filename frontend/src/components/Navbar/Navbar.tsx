@@ -16,7 +16,7 @@ import SearchBar from '../SearchBar/SearchBar.tsx';
 
 const Navbar = () => {
     // logged in state
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
+    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
     // location (query)
     const location = useLocation();
