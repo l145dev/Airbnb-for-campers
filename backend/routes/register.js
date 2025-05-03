@@ -27,17 +27,17 @@ router.post('/', async (req, res, next) => {
     try {
         // checking for availability
         if (!email || !pwd || !fn || !ln) {
-            return res.status(400).json({ error: "Missing details." });
+            return res.status(400).json({ error: "Missing details.", errorType: "All" });
         }
 
         // validate email
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ error: "Invalid email format." });
+            return res.status(400).json({ error: "Invalid email format.", errorType: "Email" });
         }
 
         // validate password 
         if (pwd.length < 8) {
-            return res.status(400).json({ error: "Password must be at least 8 characters." });
+            return res.status(400).json({ error: "Password must be at least 8 characters.", errorType: "Password" });
         }
 
         // check if user is found (check for dupe, email is unique)
@@ -48,7 +48,7 @@ router.post('/', async (req, res, next) => {
         });
 
         if (user) {
-            return res.status(400).json({ error: "Email already exists, try logging in" });
+            return res.status(400).json({ error: "Email already exists, try logging in", errorType: "Email" });
         }
 
         // hash password with bcrypt (passwords are hashed with bcrypt, salt 12)
