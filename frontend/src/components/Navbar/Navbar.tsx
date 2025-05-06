@@ -13,11 +13,14 @@ import greenLogo from '../../assets/images/airbnbcampinglogoFull_green.png';
 import whiteLogo from '../../assets/images/airbnbcampinglogoFull_white.png';
 import { Menu, Globe } from 'lucide-react';
 import SearchBar from '../SearchBar/SearchBar.tsx';
+import axios from 'axios';
 
-const Navbar = () => {
-    // logged in state
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+interface NavbarProps {
+    loggedIn: boolean;
+    onLogoutSuccess: () => void;
+}
 
+const Navbar: React.FC<NavbarProps> = ({ loggedIn, onLogoutSuccess }) => {
     // location (query)
     const location = useLocation();
     const isHomePage = location.pathname === '/' || location.pathname === '/home';
@@ -33,6 +36,30 @@ const Navbar = () => {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const tryLogout = async () => {
+        try {
+            const response = await axios.post(
+                'http://localhost:3000/logout',
+                {},
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    withCredentials: true,
+                }
+            );
+            if (response.status === 200) {
+                onLogoutSuccess();
+            }
+            else {
+                console.error('Logout failed');
+            }
+        }
+        catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     return (
         <nav className={`nav ${scrolled ? 'scrolled-nav' : ''}`}>
@@ -89,7 +116,7 @@ const Navbar = () => {
                 </DropdownMenu>
 
                 {/* pages navigation */}
-                {isLoggedIn ? (
+                {loggedIn ? (
                     <>
                         {/* dropdown menu for logged in */}
                         <DropdownMenu modal={false}>
@@ -131,7 +158,7 @@ const Navbar = () => {
                                         Support
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={tryLogout}>
                                     Log out
                                 </DropdownMenuItem>
                             </DropdownMenuContent>

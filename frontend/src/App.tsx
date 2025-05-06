@@ -1,6 +1,6 @@
 import './App.css'
 import Navbar from './components/Navbar/Navbar.tsx';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import Home from './pages/Home/Home.tsx';
 import Book from './pages/Book/Book.tsx';
 import Host from './pages/Host/Host.tsx';
@@ -17,12 +17,51 @@ import Support from './pages/Support/Support.tsx';
 import Trips from './pages/Trips/Trips.tsx';
 import NotFound from './pages/NotFound/NotFound.tsx';
 import Saved from './pages/Saved/Saved.tsx';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  // Function to update login state with callbacks in login and register page
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+    navigate(-1);
+  };
+
+  const handleLogoutSuccess = () => {
+    setIsLoggedIn(false);
+  };
+
+  useEffect(() => {
+    // on mount, check if user has a session and is logged in
+    const checkSession = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/auth/session', {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+        if (response.status === 200) {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+
   return (
     <>
       {/* navbar */}
-      <Navbar />
+      <Navbar loggedIn={isLoggedIn} onLogoutSuccess={handleLogoutSuccess} />
 
       <div className='custom-container'>
         {/* Navigation, in order flow / hierarchical*/}
@@ -32,8 +71,8 @@ function App() {
           {/* core */}
           <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+          <Route path="/register" element={<Register onRegisterSuccess={handleLoginSuccess} />} />
           <Route path="/settings" element={<Settings />} />
           {/* airbnb camping specific */}
           {/* user & owner */}

@@ -12,14 +12,17 @@ import { Label } from "@/components/ui/label"
 import { Link } from "react-router-dom"
 import { useState } from "react"
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+
+interface RegisterFormProps {
+  className?: string;
+  onRegisterSuccess: () => void; // Add the onRegisterSuccess prop
+}
 
 export function RegisterForm({
   className,
+  onRegisterSuccess, // Receive the onLoginSuccess prop
   ...props
-}: React.ComponentProps<"div">) {
-  // react router navigation
-  const navigate = useNavigate();
+}: RegisterFormProps) {
 
   // input variables
   const [fn, setFn] = useState<string>("");
@@ -53,9 +56,6 @@ export function RegisterForm({
         {
           headers: {
             'Content-Type': 'application/json',
-            // You might try explicitly including the Cookie header, 
-            // but the browser should usually handle this automatically
-            // 'Cookie': document.cookie 
           },
           withCredentials: true // Ensure credentials (like cookies) are sent
         }
@@ -64,8 +64,8 @@ export function RegisterForm({
           // successfully created user
           // navigate back to previous page
           if (response.status === 200) {
-            console.log(response.data)
-            // navigate(-1);
+            // console.log(response.data)
+            onRegisterSuccess(); // pass on register success
           }
         })
         .catch(error => {

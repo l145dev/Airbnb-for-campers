@@ -12,6 +12,15 @@ const router = Router();
 
 dotenv.config();
 
+router.get('/session', (req, res, next) => {
+    if (req.session && req.session.loggedIn && req.session.userId) {
+        // user is logged in
+        return res.status(200).json({ loggedIn: true, message: "User is logged in" })
+    } else {
+        return res.status(400).json({ loggedIn: false, error: "User is not logged in" });
+    }
+})
+
 // // Google OAuth route
 // router.get('/google', passport.authenticate('google', {
 //     scope: ['profile', 'email']

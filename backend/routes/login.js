@@ -37,15 +37,15 @@ router.post('/', limiter, async (req, res, next) => {
     try {
         // checking for pwd and email availability
         if (!email && !pwd) {
-            return res.status(400).json({ error: "No email or password provided" });
+            return res.status(400).json({ error: "No email or password provided", errorType: "All" });
         }
 
         else if (!email) {
-            return res.status(400).json({ error: "No email provided" });
+            return res.status(400).json({ error: "No email provided", errorType: "Email" });
         }
 
         else if (!pwd) {
-            return res.status(400).json({ error: "No password provided" });
+            return res.status(400).json({ error: "No password provided", errorType: "Email" });
         }
 
         // check if user is found
@@ -56,7 +56,7 @@ router.post('/', limiter, async (req, res, next) => {
         });
 
         if (!user) {
-            return res.status(401).json({ error: "Email not found" });
+            return res.status(401).json({ error: "Email not found", errorType: "Email" });
         }
 
         // match passwords with bcrypt (passwords are hashed with bcrypt, salt 12)
@@ -76,7 +76,7 @@ router.post('/', limiter, async (req, res, next) => {
         }
 
         else {
-            return res.status(401).json({ error: "Password incorrect" });
+            return res.status(401).json({ error: "Password incorrect", errorType: "Password" });
         }
     }
 
