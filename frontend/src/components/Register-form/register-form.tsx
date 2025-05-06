@@ -42,17 +42,30 @@ export function RegisterForm({
       }
 
       // create the user
-      axios.post('http://localhost:3000/register', {
-        fn: fn,
-        ln: ln,
-        email: email,
-        pwd: pwd
-      })
+      axios.post(
+        'http://localhost:3000/register',
+        {
+          fn: fn,
+          ln: ln,
+          email: email,
+          pwd: pwd
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            // You might try explicitly including the Cookie header, 
+            // but the browser should usually handle this automatically
+            // 'Cookie': document.cookie 
+          },
+          withCredentials: true // Ensure credentials (like cookies) are sent
+        }
+      )
         .then(response => {
           // successfully created user
           // navigate back to previous page
           if (response.status === 200) {
-            navigate(-1);
+            console.log(response.data)
+            // navigate(-1);
           }
         })
         .catch(error => {

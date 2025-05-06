@@ -1,6 +1,6 @@
 // AI made most of the styling for the footer, only changed a few things, dont blame me if it sucks, i didnt have enough time to make it myself properly, unfortunately
 
-import { Github, GlobeIcon, Instagram, Linkedin } from "lucide-react";
+import { Github, GlobeIcon, Linkedin, Mail } from "lucide-react";
 import React, { JSX, useState } from "react";
 import { Separator } from "../../components/ui/separator";
 import { Link } from 'react-router-dom';
@@ -125,8 +125,8 @@ export const Footer = (): JSX.Element => {
                             <a href="https://www.linkedin.com/in/aryan-shah-l145/" target="_blank" className="text-black hover:text-gray-600">
                                 <Linkedin className="w-5 h-5" />
                             </a>
-                            <a href="https://www.instagram.com/l.egelf/" target="_blank" className="text-black hover:text-gray-600">
-                                <Instagram className="w-5 h-5" />
+                            <a href="mailto:aryan.shah@l145.be" target="_blank" className="text-black hover:text-gray-600">
+                                <Mail className="w-5 h-5" />
                             </a>
                         </div>
                     </div>

@@ -18,7 +18,6 @@ import whatIsAirbnb from '../../assets/images/whatisairbnb.jpg';
 import whyAirbnb from '../../assets/images/whyairbnb.jpg';
 import { Link } from 'react-router-dom';
 
-
 const Home = () => {
     return (
         <>

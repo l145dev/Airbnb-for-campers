@@ -36,7 +36,11 @@ const app = express();
 // session store for postgresql
 const PgStore = connectPgSimple(session);
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true, // Allow cookies to be sent
+}));
+
 app.use(logger('dev'));
 app.use(json());
 app.use(urlencoded({ extended: false }));
@@ -56,7 +60,8 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production' // conditionally secure, insecure in development (for speed)
+    secure: process.env.NODE_ENV === 'production', // conditionally secure, insecure in development (for speed)
+    domain: process.env.NODE_ENV === 'development' ? 'localhost' : '.l145.be' // in development -> localhost, in production -> .l145.be
   },
   rolling: true, // when user makes request to backend, maxAge resets (keeps user logged in if active in the past 24 hours, for UX)
 }));
