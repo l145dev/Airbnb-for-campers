@@ -15,12 +15,12 @@ import axios from "axios";
 
 interface RegisterFormProps {
   className?: string;
-  onRegisterSuccess: () => void; // Add the onRegisterSuccess prop
+  onRegisterSuccess: () => void; // callback to register.tsx
 }
 
 export function RegisterForm({
   className,
-  onRegisterSuccess, // Receive the onLoginSuccess prop
+  onRegisterSuccess,
   ...props
 }: RegisterFormProps) {
 

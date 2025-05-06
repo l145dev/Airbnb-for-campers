@@ -2,7 +2,7 @@ import './Register.css';
 import { RegisterForm } from '@/components/Register-form/register-form.tsx';
 
 interface RegisterFormPropsFromPage {
-    onRegisterSuccess: () => void;
+    onRegisterSuccess: () => void; // calback to app.tsx
 }
 
 const Register: React.FC<RegisterFormPropsFromPage> = ({ onRegisterSuccess }) => {

@@ -16,7 +16,7 @@ import axios from "axios"
 
 interface LoginFormProps {
   className?: string;
-  onLoginSuccess: () => void;
+  onLoginSuccess: () => void; // calback to login.tsx
 }
 
 export function LoginForm({
