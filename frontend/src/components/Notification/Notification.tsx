@@ -11,6 +11,11 @@ interface NotificationProps {
     onDelete: (id: number) => void;
 }
 
+const isoStringToDate = (date: string) => {
+    const dateObj = new Date(date);
+    return dateObj.toLocaleString();
+}
+
 const Notification: React.FC<NotificationProps> = ({ notification_id, message, time, is_read, type, onDelete }) => {
     const handleDelete = () => {
         onDelete(notification_id); // callback to notifications.tsx
@@ -19,6 +24,16 @@ const Notification: React.FC<NotificationProps> = ({ notification_id, message, t
     return (
         <div className='notification' key={notification_id}>
             <div className='main-notification-content'>
+                {!is_read ? (
+                    <>
+                        <div className='status'>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                    </>
+                )}
+
                 <div className={`icon-container ${type}`}>
                     {type === 'booking_confirmation' ? (
                         <>
@@ -53,7 +68,7 @@ const Notification: React.FC<NotificationProps> = ({ notification_id, message, t
                     </h4>
 
                     <p>
-                        {time}
+                        {isoStringToDate(time)}
                     </p>
                 </div>
             </div>

@@ -1,66 +1,75 @@
 import './Notifications.css';
-import { Check, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import Notification from '@/components/Notification/Notification';
-import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import axios from 'axios';
 
+interface Notification {
+    notification_id: number;
+    user_id: number;
+    notification_type: string;
+    notification_message: string;
+    is_read: boolean;
+    created_at: string;
+}
+
+const fetchNotifications = async () => {
+    const response = await axios.get('http://localhost:3000/notifications', {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true
+    });
+    return response.data.notification;
+};
+
+const deleteNotification = async (notificationId: number) => {
+    return axios.delete(`http://localhost:3000/notifications`, {
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: {
+            notification_id: notificationId
+        },
+        withCredentials: true,
+    });
+};
+
 const Notifications = () => {
-    interface Notification {
-        notification_id: number;
-        user_id: number;
-        notification_type: string;
-        notification_message: string;
-        is_read: boolean;
-        created_at: string;
-    }
+    const queryClient = useQueryClient();
 
-    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const { data: notifications = [], isLoading, error } = useQuery<Notification[]>({
+        queryKey: ['notifications'],
+        queryFn: fetchNotifications,
+    });
 
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const response = await axios.get('http://localhost:3000/notifications', {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    withCredentials: true
-                });
-                setNotifications(response.data.notification);
-            } catch (error) {
-                console.error('Error fetching notifications:', error);
-            }
-        };
+    const deleteMutation = useMutation({
+        mutationFn: deleteNotification,
+        onSuccess: (_, deletedId) => {
+            queryClient.setQueryData(['notifications'], (oldData: Notification[] | undefined) =>
+                oldData?.filter(notification => notification.notification_id !== deletedId)
+            );
+        },
+    });
 
-        fetchNotifications();
-    }, []);
-
-    const handleDeleteNotification = async (notificationId: number) => {
-        try {
-            await axios.delete(`http://localhost:3000/notifications`, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    notification_id: notificationId
-                },
-                withCredentials: true,
-            });
-            setNotifications(notifications.filter(notification => notification.notification_id !== notificationId));
-        } catch (error) {
-            console.error('Error deleting notification:', error);
-        }
-    };
-
-    return (
+    if (error) return (
         <>
             <div className='notifications'>
-                <h1>
-                    Notifications
-                </h1>
-
+                <h1>Notifications</h1>
                 <div className='notifications-container'>
-                    {notifications && notifications.length > 0 ? notifications.map((notification) => (
+                    <p>Error fetching notifications</p>
+                </div>
+            </div>
+        </>
+    );
+
+    return (
+        <div className='notifications'>
+            <h1>Notifications</h1>
+            <div className='notifications-container'>
+                {isLoading ? (
+                    <p>Loading...</p>
+                ) : notifications?.length > 0 ? (
+                    notifications.map((notification) => (
                         <Notification
                             key={notification.notification_id}
                             notification_id={notification.notification_id}
@@ -68,13 +77,15 @@ const Notifications = () => {
                             time={notification.created_at}
                             is_read={notification.is_read}
                             type={notification.notification_type}
-                            onDelete={handleDeleteNotification}
+                            onDelete={() => deleteMutation.mutate(notification.notification_id)}
                         />
-                    )) : <p>No notifications found</p>}
-                </div>
+                    ))
+                ) : (
+                    <p>No notifications found</p>
+                )}
             </div>
-        </>
-    )
-}
+        </div>
+    );
+};
 
 export default Notifications;
