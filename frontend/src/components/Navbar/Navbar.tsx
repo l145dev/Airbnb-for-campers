@@ -136,6 +136,11 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, onLogoutSuccess }) => {
                                         Saved
                                     </Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem asChild>
+                                    <Link to={"/notifications"}>
+                                        Notifications
+                                    </Link>
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
                                     <Link to={"/host-dashboard"}>

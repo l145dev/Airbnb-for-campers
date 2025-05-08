@@ -84,7 +84,7 @@ export const Footer = (): JSX.Element => {
                     </div>
                 </div>
 
-                <Separator className="my-8 bg-gray-200 w-full" orientation="horizontal" />
+                <Separator className="my-8 bg-[var(--border)] w-full" orientation="horizontal" />
 
                 {/* Footer bottom section */}
                 <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">

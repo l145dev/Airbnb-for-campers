@@ -27,7 +27,7 @@ router.get("/", isAuthenticated, async (req, res, next) => {
             }
         });
 
-        return res.status(200).json({ success: true, notification });
+        return res.status(200).json({ notification });
     }
 
     catch (error) {

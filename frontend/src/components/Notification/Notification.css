@@ -1,0 +1,56 @@
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.notification .main-notification-content {
+    display: flex;
+    gap: 1rem;
+}
+
+.notification .icon-container {
+    height: 48px;
+    width: 48px;
+    border-radius: 50px;
+    display: flex;
+    background-color: var(--ring);
+    /*placeholder*/
+    justify-content: center;
+    align-items: center;
+}
+
+.notification .booking_confirmation {
+    background-color: #3D8B40;
+}
+
+.notification .booking_confirmation {
+    background-color: #3D8B40;
+}
+
+.notification .new_review {
+    background-color: #24a5d8;
+}
+
+.notification .booking_reminder {
+    background-color: #DAA520;
+}
+
+.notification .property_saved {
+    background-color: #FF5A5F;
+}
+
+.notification .text-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.notification .text-container h4 {
+    font-weight: 600;
+}
+
+.notification .text-container p {
+    font-size: 12px;
+}
