@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -13,7 +12,7 @@ import { Link } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axios from "axios";
 import { useNavigate } from "react-router-dom"
-import { Query, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Toaster, toast } from "sonner"
 import {
   AlertDialog,
@@ -27,11 +26,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+// has callback prop
 interface SettingsComponentProps {
   className?: string;
   onLogoutSuccess: () => void; // callback to Settings.tsx
 }
 
+// user details retrieved/stored in this format
 interface UserSettings {
   fn: string;
   ln: string;
@@ -42,6 +43,7 @@ interface UserSettings {
   registration_date: string;
 }
 
+// get the user details
 const fetchSettings = async () => {
   const response = await axios.get('http://localhost:3000/settings', {
     headers: {
@@ -57,7 +59,7 @@ export function SettingsComponent({
   onLogoutSuccess,
   ...props
 }: SettingsComponentProps) {
-
+  // set up navigation and (tanstack) query
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -70,13 +72,14 @@ export function SettingsComponent({
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [profilePicture, setProfilePicture] = useState<string>("");
 
-
-  const { data, isLoading, error } = useQuery<UserSettings>({
+  // react queryy data retrieval, caching, set loading state
+  const { data, isLoading } = useQuery<UserSettings>({
     queryKey: ['settings'],
     queryFn: fetchSettings,
     enabled: true
   });
 
+  // trigger on change of data
   useEffect(() => {
     if (data) {
       setFn(data.fn);
@@ -88,6 +91,7 @@ export function SettingsComponent({
     }
   }, [data]);
 
+  // update the user details
   const saveChanges = async () => {
     try {
       const response = await axios.patch(
@@ -107,10 +111,9 @@ export function SettingsComponent({
       );
 
       if (response.status === 200) {
-        // Update the cache with new data
-        // queryClient.setQueryData(['settings'], response.data);
         // Invalidate the query to trigger a refetch
         queryClient.invalidateQueries({ queryKey: ['settings'] });
+        // create a toast to confirm the update to the user
         toast("Settings updated", {
           description: new Date().toLocaleString()
         })
@@ -120,6 +123,7 @@ export function SettingsComponent({
     }
   }
 
+  // logout user
   const handleLogout = async () => {
     try {
       const response = await axios.post(
@@ -133,6 +137,7 @@ export function SettingsComponent({
         }
       );
       if (response.status === 200) {
+        // trigger callback to logout and navigate back home
         onLogoutSuccess();
         navigate("/home");
       }
@@ -145,6 +150,7 @@ export function SettingsComponent({
     }
   };
 
+  // delete user
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
@@ -157,6 +163,7 @@ export function SettingsComponent({
         }
       );
       if (response.status === 200) {
+        // trigger callback to "logout" (delete), navigate to home
         onLogoutSuccess();
         navigate("/home");
       }
@@ -171,6 +178,7 @@ export function SettingsComponent({
 
   return (
     <>
+      {/* allow toasts to appear on page, with closing btn */}
       <Toaster closeButton />
       <div className={cn("flex flex-col gap-6", className)} {...props}>
         <Card>
@@ -178,33 +186,31 @@ export function SettingsComponent({
             <CardTitle>Settings</CardTitle>
           </CardHeader>
           <CardContent>
+            {/* save the changes that user may have made on submit */}
+            {/* inputs have disabled state when loading */}
             <form onSubmit={(e) => { e.preventDefault(); saveChanges(); }}>
               <div className="flex flex-col gap-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-3">
                     <Label htmlFor="first-name">First name</Label>
                     <Input
-                      // className={`${isAllError ? "border-red-500" : ""}`}
                       id="first-name"
                       placeholder="Lee"
                       required
                       value={fn}
                       onChange={(e) => setFn(e.target.value)}
                       disabled={isLoading}
-                    // onClick={() => resetErrors()} 
                     />
                   </div>
                   <div className="space-y-3">
                     <Label htmlFor="last-name">Last name</Label>
                     <Input
-                      // className={`${isAllError ? "border-red-500" : ""}`}
                       id="last-name"
                       placeholder="Robinson"
                       required
                       value={ln}
                       onChange={(e) => setLn(e.target.value)}
                       disabled={isLoading}
-                    // onClick={() => resetErrors()} 
                     />
                   </div>
                 </div>
@@ -213,7 +219,6 @@ export function SettingsComponent({
                   <div className="space-y-3">
                     <Label htmlFor="email">Email</Label>
                     <Input
-                      // className={`${isEmailError || isAllError ? "border-red-500" : ""}`}
                       id="email"
                       disabled
                       type="email"
@@ -221,19 +226,16 @@ export function SettingsComponent({
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                    // onClick={() => resetErrors()}
                     />
                   </div>
                   <div className="space-y-3">
                     <Label htmlFor="phone">Phone</Label>
                     <Input
-                      // className={`${isAllError ? "border-red-500" : ""}`}
                       id="phone"
                       placeholder="+32 611 73 14 40"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       disabled={isLoading}
-                    // onClick={() => resetErrors()} 
                     />
                   </div>
                 </div>
@@ -254,10 +256,10 @@ export function SettingsComponent({
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
+                      // set the profile picture to send url to backend (not production ready, but it will do for the scope of this project)
                       const file = e.target.files?.[0];
                       if (file) {
                         const imageUrl = URL.createObjectURL(file);
-                        console.log(imageUrl)
                         setProfilePicture(imageUrl);
                       }
                     }}
@@ -265,12 +267,14 @@ export function SettingsComponent({
                 </div>
 
                 <div className="mt-3 flex flex-col gap-3">
+                  {/* triggers saveChanges() to update user details */}
                   <Button type="submit" className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
                     Save changes
                   </Button>
 
                   {!isOwner && !isLoading && (
                     <>
+                      {/* redirects to becoming a host page */}
                       <Button type="button" variant={"outline"} asChild>
                         <Link to={"/host"}>
                           Become a host
@@ -281,12 +285,15 @@ export function SettingsComponent({
 
 
                   <div className="flex gap-3 w-full">
+                    {/* logs user out and sends callback */}
                     <Button type="button" variant={"destructive"} className="flex-1" onClick={handleLogout}>
                       Log out
                     </Button>
 
+                    {/* alert dialog opens to confirm the user's choice to delete the account */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
+                        {/* open the alert dialog to confirm or cancel the account deletion */}
                         <Button type="button" variant={"destructive"} className="flex-1 bg-transparant text-[var(--destructive)] border-[var(--destructive)] border-2 hover:text-white">
                           Delete account
                         </Button>
@@ -300,6 +307,7 @@ export function SettingsComponent({
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
+                          {/* delete when continue is clicked, stop deletion if cancel is clicked */}
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
                         </AlertDialogFooter>
