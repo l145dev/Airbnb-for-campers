@@ -51,6 +51,7 @@ const Notifications = () => {
         },
     });
 
+
     if (error) return (
         <>
             <div className='notifications'>

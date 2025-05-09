@@ -73,7 +73,7 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
           <Route path="/register" element={<Register onRegisterSuccess={handleLoginSuccess} />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/settings" element={<Settings onLogoutSuccess={handleLogoutSuccess} />} />
           {/* airbnb camping specific */}
           {/* user & owner */}
           <Route path="/listings" element={<Listings />} />
