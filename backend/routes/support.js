@@ -17,6 +17,7 @@ const limiter = rateLimit({
     windowMs: 5 * 60 * 1000, // 5 mins interval
     max: 1, // 1 attempt
     message: "Please wait 5 minutes to send another support request.",
+    statusCode: 429,
     standardHeaders: true,
     legacyHeaders: false
 })
@@ -58,7 +59,7 @@ router.post("/", isAuthenticated, limiter, async (req, res, next) => {
             })
 
         // save subject from AI, if not available, make generic subject line
-        const subject = completion.choices[0]?.message?.content || `Support Request from User ID: ${user.user_id}`;
+        const subject = completion.choices[0]?.message?.content || `Support Request from User ID: ${req.user.user_id}`;
 
         // create database entry of support
         const supportReq = await prisma.support.create({
@@ -97,8 +98,10 @@ router.post("/", isAuthenticated, limiter, async (req, res, next) => {
             text: `Hi ${user.first_name} ${user.last_name}, We have received your support request and will get back to you as soon as possible. Thank you for contacting our support page. Kind regards, Airbnb Camping` // Fallback for non-HTML email clients
         })
 
-        // add support info to database
-        return res.status(200).json({ success: true, subject: subject })
+        return res.status(200).json({
+            subject: subject,
+            support_request_id: supportReq.support_id
+        })
     }
 
     catch (error) {

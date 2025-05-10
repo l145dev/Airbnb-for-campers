@@ -8,7 +8,7 @@ interface SettingsProps {
 const Settings: React.FC<SettingsProps> = ({ onLogoutSuccess }) => {
     return (
         <>
-            <div className='settings register flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
+            <div className='settings flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
                 <SettingsComponent className='min-w-[600px]' onLogoutSuccess={onLogoutSuccess} />
             </div>
         </>

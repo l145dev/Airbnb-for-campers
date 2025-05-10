@@ -1,9 +1,12 @@
 import './Support.css';
+import { SupportComponent } from '@/components/SupportComponent/support-component';
 
 const Support = () => {
     return (
         <>
-            <h1>Support</h1>
+            <div className='support flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
+                <SupportComponent className='min-w-[400px]' />
+            </div>
         </>
     )
 }
