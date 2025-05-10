@@ -38,17 +38,32 @@ const getRandomNumber = (min, max) => {
 }
 
 // check if already loggedin
-router.get("/", (req, res, next) => {
-    // already logged in means instant redirect to change password (skip code part)
+router.get("/", async (req, res, next) => {
+    // check if logged in
     if (req.session && req.session.loggedIn && req.session.userId) {
-        return res.status(200).json({ success: true, message: "Already authenticated, skip to change password." });
+        const email = await prisma.users.findUnique({
+            where: {
+                user_id: parseInt(req.session.userId)
+            },
+
+            select: {
+                email: true
+            }
+        })
+
+        if (email) {
+            return res.status(200).json({ email: email.email }); // lol, there is probably a better way to write this without the confusion
+        }
+
+        return res.status(400).json({ error: "Could not fetch email." });
     }
 
-    return res.status(401).json({ success: false, message: "Not authenticated, go through code process." });
+    return res.status(200).json({ error: "Not logged in." });
 })
 
 // send the code to user's email
-router.post("/code", limiter, async (req, res, next) => {
+// IMPORTANT: PUT LIMITER BACK ON AFTER TESTING
+router.post("/code", async (req, res, next) => {
     const { email } = req.body;
 
     if (!email) {
@@ -96,7 +111,7 @@ router.post("/code", limiter, async (req, res, next) => {
             return res.status(500).json({ error: "Code could not be sent." })
         }
 
-        return res.status(200).json({ success: true });
+        return res.status(200).json({});
     }
 
     catch (error) {

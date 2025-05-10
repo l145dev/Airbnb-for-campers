@@ -10,11 +10,15 @@ import { useState } from "react"
 import axios from "axios";
 import { Toaster, toast } from "sonner"
 import { Textarea } from "@/components/ui/textarea"
+import { useNavigate } from "react-router-dom";
 
 export function SupportComponent({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
+  // controls
+  const navigate = useNavigate();
+
   // input variables
   const [supportMessage, setSupportMessage] = useState<string>("");
 
@@ -62,7 +66,19 @@ export function SupportComponent({
         toast(`Max 1 support ticket every 5 minutes!`, {
           description: new Date().toLocaleString(),
         });
-      } else {
+      }
+
+      else if (error.response && error.response.status === 401) {
+        toast(`Please log in to request support.`, {
+          description: new Date().toLocaleString(),
+          action: {
+            label: "Login",
+            onClick: () => navigate("/login")
+          }
+        });
+      }
+
+      else {
         toast(`Failed to create support ticket: ${error.message}`, {
           description: new Date().toLocaleString(),
         });

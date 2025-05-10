@@ -72,7 +72,7 @@ export function SettingsComponent({
   const [isOwner, setIsOwner] = useState<boolean>(false);
   const [profilePicture, setProfilePicture] = useState<string>("");
 
-  // react queryy data retrieval, caching, set loading state
+  // react query data retrieval, caching, set loading state
   const { data, isLoading } = useQuery<UserSettings>({
     queryKey: ['settings'],
     queryFn: fetchSettings,
