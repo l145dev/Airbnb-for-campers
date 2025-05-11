@@ -3,10 +3,18 @@ import './ResetPassword.css';
 import { EmailCodeComponent } from '@/components/EmailCodeComponent/EmailCodeComponent';
 import { EnterCodeComponent } from '@/components/EnterCodeComponent/EnterCodeComponent';
 import { ResetPasswordComponent } from '@/components/ResetPasswordComponent/ResetPasswordComponent';
+import { useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
-    const [step, setStep] = useState<number>(1);
+    const [step, setStep] = useState<number>(3);
     const [email, setEmail] = useState<string>("");
+    const navigate = useNavigate();
+
+    const handleResetSuccess = () => {
+        alert("reset password!");
+        // navigate back 
+        navigate(-1);
+    }
 
     const renderStep = () => {
         switch (step) {
@@ -19,13 +27,13 @@ const ResetPassword = () => {
             case 2:
                 return (
                     <>
-                        <EnterCodeComponent email={email} onCodeInput={() => setStep(3)} />
+                        <EnterCodeComponent email={email} onCodeInput={() => setStep(3)} onStepBack={() => setStep(1)} />
                     </>
                 )
             case 3:
                 return (
                     <>
-                        <ResetPasswordComponent />
+                        <ResetPasswordComponent onResetPassword={handleResetSuccess} onStepBack={() => setStep(2)} />
                     </>
                 )
 

@@ -106,7 +106,6 @@ export function EmailCodeComponent({
                         </div>
                     </CardHeader>
                     <CardContent>
-                        {/* save the changes that user may have made on submit */}
                         {/* inputs have disabled state when loading */}
                         <form onSubmit={(e) => { e.preventDefault(); sendCode(); }}>
                             <div className="flex flex-col gap-6">
@@ -123,7 +122,7 @@ export function EmailCodeComponent({
                                     />
                                 </div>
 
-                                {/* triggers saveChanges() to update user details */}
+                                {/* triggers sendCode() to send code to user's email */}
                                 <Button type="submit" className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
                                     Get code
                                 </Button>

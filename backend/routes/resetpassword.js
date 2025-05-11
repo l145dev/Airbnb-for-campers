@@ -63,7 +63,7 @@ router.get("/", async (req, res, next) => {
 
 // send the code to user's email
 // IMPORTANT: PUT LIMITER BACK ON AFTER TESTING
-router.post("/code", async (req, res, next) => {
+router.post("/code", limiter, async (req, res, next) => {
     const { email } = req.body;
 
     if (!email) {
@@ -238,6 +238,20 @@ router.patch("/change", isAuthenticated, async (req, res, next) => {
         if (!user) {
             return res.status(400).json({ error: "Could not change password, try again." })
         }
+
+        // send the code to the user
+        const sendmail = await transporter.sendMail({
+            from: process.env.COMBELL_SMTP_USER_NOREPLY,
+            to: user.email,
+            subject: `Airbnb Camping: Password Reset Confirmed`,
+            html: `<p>You have recently changed your password.</p>
+                    <p>If this was not you, please contact us through the support page, or send us an email: <a href="mailto:support@l145.be">support@l145.be</a></p>`,
+            text: `You have recently changed your password. If this was not you, please contact us through the support page, or send us an email: support@l145.be` // Fallback for non-HTML email clients
+        })
+
+        // if (!sendmail) {
+        //     return res.status(400).json({ error: "Confirmation could not be sent." })
+        // }
 
         return res.status(200).json({ success: true });
     }
