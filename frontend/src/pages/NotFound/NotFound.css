@@ -1,0 +1,15 @@
+.notfound {
+    padding: 1rem;
+    padding-top: calc(80px + 1rem);
+    height: calc(100vh - 80px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.notfound .controls {
+    display: flex;
+    gap: 1rem;
+}
