@@ -4,14 +4,17 @@ import { EmailCodeComponent } from '@/components/EmailCodeComponent/EmailCodeCom
 import { EnterCodeComponent } from '@/components/EnterCodeComponent/EnterCodeComponent';
 import { ResetPasswordComponent } from '@/components/ResetPasswordComponent/ResetPasswordComponent';
 import { useNavigate } from 'react-router-dom';
+import { toast, Toaster } from 'sonner';
 
 const ResetPassword = () => {
-    const [step, setStep] = useState<number>(3);
+    const [step, setStep] = useState<number>(1);
     const [email, setEmail] = useState<string>("");
     const navigate = useNavigate();
 
     const handleResetSuccess = () => {
-        alert("reset password!");
+        toast("Password reset!", {
+            description: new Date().toLocaleString()
+        })
         // navigate back 
         navigate(-1);
     }
@@ -47,6 +50,7 @@ const ResetPassword = () => {
     }
     return (
         <>
+            <Toaster closeButton />
             <div className='resetpassword flex min-h-svh w-full items-center justify-center p-6 md:p-10'>
                 {/* render steps (in cards) here */}
                 <div className='min-w-[400px]'>
