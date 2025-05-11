@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 
 interface EmailCodeComponentProps {
     className?: string;
-    onEmailInput: () => void;
+    onEmailInput: (email: string) => void;
 }
 
 interface EmailInterface {
@@ -70,7 +70,7 @@ export function EmailCodeComponent({
                 toast.success("Code has been sent!", {
                     description: new Date().toLocaleString(),
                 });
-                onEmailInput(); // callback to ResetPassword.tsx
+                onEmailInput(email); // callback to ResetPassword.tsx
             }
             else if (response.status === 400) {
                 toast.error("Email not found.", {

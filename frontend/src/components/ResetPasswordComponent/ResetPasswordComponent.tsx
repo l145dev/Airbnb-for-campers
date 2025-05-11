@@ -12,6 +12,10 @@ import { Toaster, toast } from "sonner"
 import { Input } from "../ui/input";
 import { ChevronLeft } from "lucide-react";
 
+interface ResetPasswordComponentProps {
+
+}
+
 export function ResetPasswordComponent({
     className,
     ...props

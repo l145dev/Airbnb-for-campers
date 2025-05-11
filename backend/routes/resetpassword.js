@@ -98,7 +98,7 @@ router.post("/code", async (req, res, next) => {
         const sendmail = await transporter.sendMail({
             from: process.env.COMBELL_SMTP_USER_NOREPLY,
             to: email,
-            subject: `Password Reset Request`,
+            subject: `Airbnb Camping: Password Reset Request`,
             html: `<p>You have requested a password reset code to reset your password.</p>
             <p>Please use the following code to reset your password:</p>
             <h2>${randomInt}</h2>

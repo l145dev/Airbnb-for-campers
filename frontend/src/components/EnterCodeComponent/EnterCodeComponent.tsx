@@ -19,13 +19,58 @@ import {
     InputOTPSlot,
 } from "@/components/ui/input-otp"
 
-// continue here with designing back button in callback and core logic
+interface EnterCodeComponentProps {
+    className?: string;
+    email: string;
+    onCodeInput: () => void;
+}
 
 export function EnterCodeComponent({
     className,
+    email,
+    onCodeInput,
     ...props
-}: React.ComponentPropsWithoutRef<"div">) {
-    const [code, setCode] = useState<number>(0);
+}: EnterCodeComponentProps) {
+    // const [code, setCode] = useState<number>(0);
+    const [otpValues, setOtpValues] = useState(['', '', '', '', '', '']);
+
+    const verifyCode = async () => {
+        const otpNum = parseInt(otpValues.join(""));
+
+        if (email === "" || email === undefined) {
+            toast.error("Email not provided, please enter your email in the previous step.", {
+                description: new Date().toLocaleString(),
+            })
+        }
+
+        try {
+            const response = await axios.post("http://localhost:3000/resetpassword/email", {
+                email: email,
+                code: otpNum
+            }, {
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                withCredentials: true
+            })
+
+            if (response.status === 200) {
+                onCodeInput();
+            }
+
+            else if (response.status === 400) {
+                toast.error(response.data.error, {
+                    description: new Date().toLocaleString(),
+                })
+            }
+        }
+
+        catch (error) {
+            toast.error("An unexpected error occurred", {
+                description: new Date().toLocaleString(),
+            })
+        }
+    }
 
     return (
         <>
@@ -46,10 +91,10 @@ export function EnterCodeComponent({
                     <CardContent>
                         {/* save the changes that user may have made on submit */}
                         {/* inputs have disabled state when loading */}
-                        <form onSubmit={(e) => { e.preventDefault(); }}>
+                        <form onSubmit={(e) => { e.preventDefault(); verifyCode(); }}>
                             <div className="flex flex-col gap-6">
                                 <div className="flex justify-center">
-                                    <InputOTP maxLength={6}>
+                                    <InputOTP maxLength={6} onChange={(values) => setOtpValues(values.split(''))}>
                                         <InputOTPGroup>
                                             <InputOTPSlot index={0} />
                                             <InputOTPSlot index={1} />
@@ -65,7 +110,7 @@ export function EnterCodeComponent({
                                 </div>
                                 {/* triggers saveChanges() to update user details */}
                                 <Button type="submit" className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
-                                    Get code
+                                    Verify code
                                 </Button>
                             </div>
                         </form>

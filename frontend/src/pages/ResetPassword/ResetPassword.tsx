@@ -6,19 +6,20 @@ import { ResetPasswordComponent } from '@/components/ResetPasswordComponent/Rese
 
 const ResetPassword = () => {
     const [step, setStep] = useState<number>(1);
+    const [email, setEmail] = useState<string>("");
 
     const renderStep = () => {
         switch (step) {
             case 1:
                 return (
                     <>
-                        <EmailCodeComponent onEmailInput={() => setStep(2)} />
+                        <EmailCodeComponent onEmailInput={(email) => { setStep(2); setEmail(email) }} />
                     </>
                 )
             case 2:
                 return (
                     <>
-                        <EnterCodeComponent />
+                        <EnterCodeComponent email={email} onCodeInput={() => setStep(3)} />
                     </>
                 )
             case 3:
@@ -31,7 +32,7 @@ const ResetPassword = () => {
             default:
                 return (
                     <>
-                        <EmailCodeComponent onEmailInput={() => setStep(2)} />
+                        <EmailCodeComponent onEmailInput={(email) => { setStep(2); setEmail(email) }} />
                     </>
                 )
         }
