@@ -1,6 +1,4 @@
 import './Home.css';
-// hero section bg
-import homebackground from '../../assets/images/homebackground.jpg';
 import { Button } from '@/components/ui/button';
 import SearchBar from '@/components/SearchBar/SearchBar';
 import { Footer } from '@/components/Footer/Footer';
