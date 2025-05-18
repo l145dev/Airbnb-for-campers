@@ -2,7 +2,8 @@ import './Listings.css';
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
+import SkeletonComponent from '@/components/ListingsComponents/SkeletonComponent';
+import ListingComponent from '@/components/ListingsComponents/ListingComponent';
 // icons
 import cabinIcon from '../../assets/images/icons8-log-cabin-100.png';
 import tentIcon from '../../assets/images/icons8-tent-100.png';
@@ -76,172 +77,17 @@ const Listings = () => {
                 <Separator className='w-full mb-4' orientation='horizontal' />
 
                 {/* this is the skeleton (isLoading) */}
+                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+                    {[...Array(15)].map((_, index) => (
+                        <SkeletonComponent key={index} />
+                    ))}
+                </div> */}
+
+                {/* actual data goes here */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
-                    <div className="space-y-3">
-                        <Skeleton className="h-[200px] w-full rounded-lg" />
-                        <div className="space-y-2">
-                            <div className="flex justify-between">
-                                <Skeleton className="h-4 w-[140px]" />
-                                <Skeleton className="h-4 w-[30px]" />
-                            </div>
-                            <Skeleton className="h-4 w-[100px]" />
-                            <Skeleton className="h-4 w-[160px]" />
-                        </div>
-                    </div>
+                    {[...Array(15)].map((_, index) => (
+                        <ListingComponent key={index} propId={index} avgRating={3.7} city='Antwerp' country='Belgium' imgAlt='Cabin' imgSrc='cabin.png' owner='Aryan Shah' price={100} />
+                    ))}
                 </div>
             </div >
         </>
