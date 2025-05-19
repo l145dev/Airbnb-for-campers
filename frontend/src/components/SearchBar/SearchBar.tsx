@@ -7,12 +7,54 @@ import { Command, CommandInput, CommandItem } from "@/components/ui/command"
 import { format } from "date-fns"
 import { SearchIcon, MinusIcon, PlusIcon } from "lucide-react"
 import { useState } from "react"
+import { useNavigate, useSearchParams } from "react-router-dom"
 
 export default function SearchBar() {
-    const [fromDate, setFromDate] = useState<Date | undefined>()
-    const [toDate, setToDate] = useState<Date | undefined>()
-    const [location, setLocation] = useState("")
-    const [guests, setGuests] = useState(0)
+    const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+
+    // states which get initial values from params if available (qol)
+    const [fromDate, setFromDate] = useState<Date | undefined>(() => {
+        const dateParam = searchParams.get("checkin");
+        return dateParam ? new Date(dateParam) : undefined;
+    });
+    const [toDate, setToDate] = useState<Date | undefined>(() => {
+        const dateParam = searchParams.get("checkout");
+        return dateParam ? new Date(dateParam) : undefined;
+    });
+    const [location, setLocation] = useState<string>(searchParams.get("city") || "");
+    const [guests, setGuests] = useState<number>(() => {
+        const guestsParam = searchParams.get("guests");
+        return guestsParam ? parseInt(guestsParam, 10) : 0;
+    });
+
+    const handleSearch = () => {
+        const queryParams = new URLSearchParams();
+
+        // empty the value if not found (extra robust)
+        const formattedFromDate = fromDate ? format(fromDate, "yyyy-MM-dd") : "";
+        const formattedToDate = toDate ? format(toDate, "yyyy-MM-dd") : "";
+
+        // only append to params when available
+        if (location !== "") {
+            queryParams.append("city", location);
+        }
+
+        if (formattedFromDate !== "") {
+            queryParams.append("checkin", formattedFromDate);
+        }
+
+        if (formattedToDate !== "") {
+            queryParams.append("checkout", formattedToDate);
+        }
+
+        if (guests !== 0) {
+            queryParams.append("guests", guests.toString());
+        }
+
+        // go to listings (search)
+        navigate(`/listings?${queryParams.toString()}`);
+    };
 
     return (
         <div className="flex flex-wrap items-center justify-between gap-2 p-1 bg-white rounded-full shadow-sm border max-w-full">
@@ -83,7 +125,7 @@ export default function SearchBar() {
             </Popover>
 
             {/* Search button */}
-            <Button className="rounded-full bg-[#3D8B40] hover:bg-[#357A38]" size="icon">
+            <Button className="rounded-full bg-[#3D8B40] hover:bg-[#357A38]" size="icon" onClick={handleSearch}>
                 <SearchIcon className="w-5 h-5" />
             </Button>
         </div>

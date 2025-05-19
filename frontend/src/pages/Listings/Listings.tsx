@@ -1,4 +1,5 @@
 import './Listings.css';
+// components
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -13,57 +14,325 @@ import glampIcon from '../../assets/images/icons8-large-glamp-100.png';
 import uniqueIcon from '../../assets/images/icons8-unique-100.png';
 import farmIcon from '../../assets/images/icons8-farm-100.png';
 import yurtIcon from '../../assets/images/icons8-yurt-100.png';
+// lib imports
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+
+// object i will receive from backend
+interface Listing {
+    property_id: number;
+    property_type: string;
+    property_image: string;
+    city: string;
+    country: string;
+    average_rating: number;
+    owner: string;
+    price_per_night: number;
+}
+
+// search params from the url
+interface SearchParams {
+    checkin?: string;
+    checkout?: string;
+    city?: string;
+    country?: string; // for the future
+    guests?: string;
+    propType?: string;
+}
+
+const fetchListings = async (params: SearchParams): Promise<Listing[] | string> => {
+    const queryParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (value) {
+            queryParams.append(key, value);
+        }
+    }
+    const queryString = queryParams.toString();
+
+    const response = await fetch(`http://localhost:3000/listings?${queryString}`);
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+};
 
 const Listings = () => {
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+
+    // params handling
+    const queryParams: SearchParams = Object.fromEntries(searchParams.entries());
+
+    // active toggle for all prop filters -> not very clean, i know
+    const [currentActive, setCurrentActive] = useState<string | undefined>(queryParams.propType);
+
+    const [cabinActive, setCabinActive] = useState<boolean>(false);
+    const [tentActive, setTentActive] = useState<boolean>(false);
+    const [rvActive, setRvActive] = useState<boolean>(false);
+    const [treehouseActive, setTreehouseActive] = useState<boolean>(false);
+    const [glampActive, setGlampActive] = useState<boolean>(false);
+    const [uniqueActive, setUniqueActive] = useState<boolean>(false);
+    const [farmActive, setFarmActive] = useState<boolean>(false);
+    const [yurtActive, setYurtActive] = useState<boolean>(false);
+
+    // uhmmmm, ignore this
+    useEffect(() => {
+        if (currentActive === "cabins") {
+            setCabinActive(true);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+
+        else if (currentActive === "tents") {
+            setCabinActive(false);
+            setTentActive(true);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+
+        else if (currentActive === "rv") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(true);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+        else if (currentActive === "treehouses") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(true);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+        else if (currentActive === "glamping") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(true);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+        else if (currentActive === "unique") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(true);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+        else if (currentActive === "farms") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(true);
+            setYurtActive(false);
+        }
+        else if (currentActive === "yurts") {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(true);
+        }
+
+        else {
+            setCabinActive(false);
+            setTentActive(false);
+            setRvActive(false);
+            setTreehouseActive(false);
+            setGlampActive(false);
+            setUniqueActive(false);
+            setFarmActive(false);
+            setYurtActive(false);
+        }
+    }, [currentActive])
+
+    // fetching from react query
+    const { data, isLoading, isError, error } = useQuery({
+        queryKey: ['listings', queryParams],
+        queryFn: () => fetchListings(queryParams),
+    });
+
+    useEffect(() => {
+        // direct dom manipulation in react = bad -> but im too lazy to try anything else
+        if (isLoading) {
+            document.body.classList.add('hide-all-scrollbars-loading');
+        } else {
+            document.body.classList.remove('hide-all-scrollbars-loading');
+        }
+    }, [isLoading]);
+
+    // update query after adding proptype
+    const addPropTypeParam = (propType: string) => {
+        const updatedParams = new URLSearchParams(searchParams);
+        updatedParams.set('propType', propType);
+        navigate(`?${updatedParams.toString()}`);
+    }
+
+    // update query after removing proptyppe
+    const removePropTypeParam = () => {
+        const updatedParams = new URLSearchParams(searchParams);
+        updatedParams.delete('propType');
+        navigate(`?${updatedParams.toString()}`);
+    }
+
     return (
         <>
             <div className='listings'>
                 <div className='proptype-container'>
                     <ScrollArea className="w-full whitespace-nowrap">
                         <div className="flex w-full space-x-4 pb-4 justify-center">
-                            <Button variant={'ghost'} className='h-min'>
+                            {/* i regret choosing to take the easy way out and not making a seperate component for this now */}
+                            <Button variant={`${cabinActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!cabinActive) {
+                                    addPropTypeParam("cabins");
+                                    setCurrentActive("cabins");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={cabinIcon} alt="Cabin" className="w-8 h-8" />
                                     <span>Cabins</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${tentActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!tentActive) {
+                                    addPropTypeParam("tents");
+                                    setCurrentActive("tents");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={tentIcon} alt="Tent" className="w-8 h-8" />
                                     <span>Tents</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${rvActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!rvActive) {
+                                    addPropTypeParam("rv");
+                                    setCurrentActive("rv");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={rvIcon} alt="RV" className="w-8 h-8" />
                                     <span>RV</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${treehouseActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!treehouseActive) {
+                                    addPropTypeParam("treehouses");
+                                    setCurrentActive("treehouses");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={treehouseIcon} alt="Treehouse" className="w-8 h-8" />
                                     <span>Treehouses</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${glampActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!glampActive) {
+                                    addPropTypeParam("glamping");
+                                    setCurrentActive("glamping");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={glampIcon} alt="Glamping" className="w-8 h-8" />
                                     <span>Glamping</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${uniqueActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!uniqueActive) {
+                                    addPropTypeParam("unique");
+                                    setCurrentActive("unique");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={uniqueIcon} alt="Unique" className="w-8 h-8" />
                                     <span>Unique Stays</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${farmActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!farmActive) {
+                                    addPropTypeParam("farms");
+                                    setCurrentActive("farms");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={farmIcon} alt="Farm" className="w-8 h-8" />
                                     <span>Farms</span>
                                 </div>
                             </Button>
-                            <Button variant={'ghost'} className='h-min'>
+                            <Button variant={`${yurtActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                                if (!yurtActive) {
+                                    addPropTypeParam("yurts");
+                                    setCurrentActive("yurts");
+                                }
+
+                                else {
+                                    removePropTypeParam();
+                                    setCurrentActive("");
+                                }
+                            }}>
                                 <div className="flex items-center gap-2">
                                     <img src={yurtIcon} alt="Yurt" className="w-8 h-8" />
                                     <span>Yurts</span>
@@ -77,18 +346,59 @@ const Listings = () => {
                 <Separator className='w-full mb-4' orientation='horizontal' />
 
                 {/* this is the skeleton (isLoading) */}
-                {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
-                    {[...Array(15)].map((_, index) => (
-                        <SkeletonComponent key={index} />
-                    ))}
-                </div> */}
+                {isLoading && (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+                            {[...Array(15)].map((_, index) => (
+                                <SkeletonComponent key={index} />
+                            ))}
+                        </div>
+                    </>
+                )}
 
-                {/* actual data goes here */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
-                    {[...Array(15)].map((_, index) => (
-                        <ListingComponent key={index} propId={index} avgRating={3.7} city='Antwerp' country='Belgium' imgAlt='Cabin' imgSrc='cabin.png' owner='Aryan Shah' price={100} />
-                    ))}
-                </div>
+                {isError && (
+                    <>
+                        <div className='h-full w-full flex justify-center items-center flex-col gap-3'>
+                            <h1>
+                                Oops! An unexpected error occured!
+                            </h1>
+                            <h2 className='text-2xl'>
+                                {error.message}
+                            </h2>
+                        </div>
+                    </>
+                )}
+
+                {Array.isArray(data) && (
+                    <>
+                        {/* actual data goes here */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+                            {data.map((listing: Listing) => (
+                                <ListingComponent
+                                    key={listing.property_id}
+                                    propId={listing.property_id}
+                                    avgRating={listing.average_rating}
+                                    city={listing.city}
+                                    country={listing.country}
+                                    imgSrc={listing.property_image}
+                                    owner={listing.owner}
+                                    price={listing.price_per_night}
+                                    propType={listing.property_type}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )}
+
+                {data && data.length < 0 && (
+                    <>
+                        <div className='h-full w-full flex justify-center align-center'>
+                            <h1>
+                                No listings found! Try modifying your plans a little!
+                            </h1>
+                        </div>
+                    </>
+                )}
             </div >
         </>
     )

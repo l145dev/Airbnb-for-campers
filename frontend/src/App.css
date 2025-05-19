@@ -12,3 +12,8 @@ h1 {
     font-size: 32px;
     font-weight: 600;
 }
+
+/* for cleaner loading in listings page */
+body.hide-all-scrollbars-loading::-webkit-scrollbar {
+    width: 0px;
+}

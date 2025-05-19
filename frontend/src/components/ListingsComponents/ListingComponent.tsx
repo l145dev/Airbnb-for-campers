@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 
 interface ListingComponentProps {
     propId: number;
+    propType: string;
     imgSrc: string;
-    imgAlt: string;
     city: string;
     country: string;
     avgRating: number;
@@ -14,8 +14,8 @@ interface ListingComponentProps {
 
 const ListingComponent: React.FC<ListingComponentProps> = ({
     propId,
+    propType,
     imgSrc,
-    imgAlt,
     city,
     country,
     avgRating,
@@ -27,8 +27,8 @@ const ListingComponent: React.FC<ListingComponentProps> = ({
             <Link to={`/property?property_id=${propId}`}>
                 <div className="space-y-3">
                     <img
-                        src={imgSrc}
-                        alt={imgAlt}
+                        src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${imgSrc}`}
+                        alt="airbnb camping property"
                         className="h-[200px] w-full rounded-lg object-cover bg-[var(--border)]"
                     />
                     <div className="space-y-2">
