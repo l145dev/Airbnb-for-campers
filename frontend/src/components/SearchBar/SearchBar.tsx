@@ -112,7 +112,7 @@ export default function SearchBar() {
                     <div className="flex items-center justify-between p-2 gap-2">
                         <span>Guests</span>
                         <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" onClick={() => setGuests(Math.max(1, guests - 1))}>
+                            <Button variant="ghost" size="icon" onClick={() => setGuests(Math.max(0, guests - 1))}>
                                 <MinusIcon className="w-4 h-4" />
                             </Button>
                             <span>{guests}</span>

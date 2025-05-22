@@ -23,6 +23,7 @@ import { useEffect, useState } from 'react';
 interface Listing {
     property_id: number;
     property_type: string;
+    property_name: string;
     property_image: string;
     city: string;
     country: string;
@@ -372,11 +373,12 @@ const Listings = () => {
                 {Array.isArray(data) && (
                     <>
                         {/* actual data goes here */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 p-4">
                             {data.map((listing: Listing) => (
                                 <ListingComponent
                                     key={listing.property_id}
                                     propId={listing.property_id}
+                                    propName={listing.property_name}
                                     avgRating={listing.average_rating}
                                     city={listing.city}
                                     country={listing.country}

@@ -119,6 +119,7 @@ router.get('/', async (req, res, next) => {
             select: {
                 property_id: true,
                 property_type: true,
+                property_name: true,
                 city: true,
                 country: true,
                 owner_id: true,

@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import starIcon from '../../assets/images/icons8-star-filled-100.png';
 import { Link } from 'react-router-dom';
 
 interface ListingComponentProps {
     propId: number;
     propType: string;
+    propName: string;
     imgSrc: string;
     city: string;
     country: string;
@@ -15,6 +17,7 @@ interface ListingComponentProps {
 const ListingComponent: React.FC<ListingComponentProps> = ({
     propId,
     propType,
+    propName,
     imgSrc,
     city,
     country,
@@ -22,9 +25,12 @@ const ListingComponent: React.FC<ListingComponentProps> = ({
     owner,
     price
 }) => {
+    // state to manage hover -> if hover, show the city and country instead of the property name
+    const [hover, setHover] = useState<boolean>(false);
+
     return (
         <>
-            <Link to={`/property?property_id=${propId}`}>
+            <Link to={`/property?property_id=${propId}`} onMouseOver={() => setHover(true)} onMouseOut={() => setHover(false)} className={`${hover ? 'bg-[var(--secondary)]' : ''} rounded-lg transition-all duration-200 ease-out p-4`}>
                 <div className="space-y-3">
                     <img
                         src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${imgSrc}`}
@@ -33,7 +39,10 @@ const ListingComponent: React.FC<ListingComponentProps> = ({
                     />
                     <div className="space-y-2">
                         <div className="flex justify-between">
-                            <span className="font-medium">{city}, {country}</span>
+                            <span className="font-medium">
+                                <span className={`${hover ? 'opacity-0' : 'opacity-100'} transition-opacity duration-200 ease-out absolute`}>{propName}</span>
+                                <span className={`${hover ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200 ease-out absolute`}>{`${city}, ${country}`}</span>
+                            </span>
                             <div className="flex items-center gap-1">
                                 <img src={starIcon} alt="star icon" height={16} width={16} />
                                 <span>{avgRating}</span>
