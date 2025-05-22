@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import starIcon from '../../assets/images/icons8-star-filled-100.png';
+import { Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 interface ListingComponentProps {
@@ -44,7 +44,7 @@ const ListingComponent: React.FC<ListingComponentProps> = ({
                                 <span className={`${hover ? 'opacity-100' : 'opacity-0'} transition-opacity duration-200 ease-out absolute`}>{`${city}, ${country}`}</span>
                             </span>
                             <div className="flex items-center gap-1">
-                                <img src={starIcon} alt="star icon" height={16} width={16} />
+                                <Star fill='black' height={16} width={16} />
                                 <span>{avgRating}</span>
                             </div>
                         </div>

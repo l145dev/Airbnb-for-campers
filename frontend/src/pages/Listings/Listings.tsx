@@ -363,7 +363,7 @@ const Listings = () => {
                             <h1>
                                 Oops! An unexpected error occured!
                             </h1>
-                            <h2 className='text-2xl'>
+                            <h2>
                                 {error.message}
                             </h2>
                         </div>

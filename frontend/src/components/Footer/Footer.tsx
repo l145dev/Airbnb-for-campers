@@ -23,9 +23,9 @@ export const Footer = (): JSX.Element => {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
                     {/* Brand section */}
                     <div className="col-span-1 md:col-span-4">
-                        <h2 className="font-bold text-5xl md:text-6xl font-sans text-black">
+                        <h5 className="font-bold text-5xl md:text-6xl font-sans text-black">
                             Belong Anywhere
-                        </h2>
+                        </h5>
                     </div>
 
                     {/* Footer columns */}

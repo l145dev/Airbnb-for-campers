@@ -13,6 +13,11 @@ h1 {
     font-weight: 600;
 }
 
+h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
 /* for cleaner loading in listings page */
 body.hide-all-scrollbars-loading::-webkit-scrollbar {
     width: 0px;

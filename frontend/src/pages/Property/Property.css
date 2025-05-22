@@ -1,0 +1,6 @@
+.property {
+    padding: 1rem;
+    padding-top: calc(1rem + 80px);
+    max-width: 1200px;
+    margin: 0 auto;
+}
