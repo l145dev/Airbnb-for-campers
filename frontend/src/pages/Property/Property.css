@@ -4,3 +4,11 @@
     max-width: 1200px;
     margin: 0 auto;
 }
+
+/* leaflet */
+.leaflet-container {
+    height: 400px;
+    width: 100%;
+    border-radius: 20px;
+    margin: 0 auto;
+}
