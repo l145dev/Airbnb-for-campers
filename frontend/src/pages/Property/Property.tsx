@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useSearchParams } from 'react-router-dom';
 import PropertySkeleton from '@/components/PropertySkeleton/PropertySkeleton';
 import axios from 'axios';
+import PropertyImage from '@/components/PropertyImage/PropertyImage';
 
 // map
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -208,31 +209,8 @@ const Property = () => {
                     </div>
                 </div>
 
-                {/* property images */}
-                <div className='property-images grid grid-cols-2 gap-4'>
-                    <div className='main-property-image rounded-lg overflow-hidden'>
-                        <img src="https://placehold.co/600x400" alt="Property" className="w-full h-full object-cover" />
-                    </div>
-
-                    <div className='alt-property-images grid grid-cols-2 gap-4'>
-                        <div className='alt-property-images-top grid grid-rows-2 gap-4'>
-                            <div className='alt-property-image rounded-lg overflow-hidden'>
-                                <img src="https://placehold.co/600x400" alt="Property" className="w-full h-full object-cover" />
-                            </div>
-                            <div className='alt-property-image rounded-lg overflow-hidden'>
-                                <img src="https://placehold.co/600x400" alt="Property" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                        <div className='alt-property-images-bottom grid grid-rows-2 gap-4'>
-                            <div className='alt-property-image rounded-lg overflow-hidden'>
-                                <img src="https://placehold.co/600x400" alt="Property" className="w-full h-full object-cover" />
-                            </div>
-                            <div className='alt-property-image rounded-lg overflow-hidden'>
-                                <img src="https://placehold.co/600x400" alt="Property" className="w-full h-full object-cover" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* property images -> pass images through this*/}
+                <PropertyImage images={data?.allDetails.images ?? []} />
 
                 {/* details and payment grid*/}
                 <div className='property-details flex'>
