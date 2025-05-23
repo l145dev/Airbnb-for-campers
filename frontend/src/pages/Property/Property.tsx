@@ -148,7 +148,7 @@ const Property = () => {
     const queryParams: SearchParams = Object.fromEntries(searchParams.entries());
 
     // react query data retrieval, caching, set loading state
-    const { data, isLoading } = useQuery<ApiResponse>({
+    const { data, isLoading, isError, error } = useQuery<ApiResponse>({
         queryKey: ['property', queryParams],
         queryFn: () => fetchPropertyDetails(queryParams),
         enabled: true
@@ -191,6 +191,23 @@ const Property = () => {
         );
     }
 
+    if (isError) {
+        return (
+            <>
+                <div className='property'>
+                    <div className='h-full w-full flex justify-center items-center flex-col gap-3'>
+                        <h1>
+                            Oops! An unexpected error occured!
+                        </h1>
+                        <h2>
+                            {error.message}
+                        </h2>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
     return (
         <>
             <div className='property flex flex-col gap-4'>
@@ -216,8 +233,8 @@ const Property = () => {
                 <div className='property-details flex'>
                     <div className='property-info flex-[5]'>
                         <div className='property-info-main'>
-                            <h2>Property type in City, Country</h2>
-                            <p>Property type · Guests</p>
+                            <h2>Camp in {data?.allDetails.city}, {data?.allDetails.country}</h2>
+                            <p>{data?.allDetails.property_type} · {data?.allDetails.capacity} guests</p>
                             <div className="flex items-center gap-1 mt-4">
                                 <Star fill='black' height={16} width={16} />
                                 <span>4.7</span> · <a className='underline' href="#reviews">100 reviews</a>
@@ -231,8 +248,8 @@ const Property = () => {
                                 <img src="https://placehold.co/100x100" alt="Owner" className="w-full h-full object-cover" />
                             </div>
                             <div className='property-owner-details'>
-                                <h3>Hosted by Owner</h3>
-                                <p className='text-sm text-gray-500'>Superhost · 9 years hosting</p>
+                                <h3>{data?.allDetails.owner_full_name}</h3>
+                                <p className='text-sm text-gray-500'>Superhost · 1 year hosting</p>
                             </div>
                         </div>
 
@@ -240,7 +257,7 @@ const Property = () => {
 
                         <div className='property-description flex flex-col gap-4'>
                             <h2>Description</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                            <p>{data?.allDetails.property_description}</p>
                         </div>
 
                         <Separator orientation='horizontal' className='my-4' />
