@@ -1,15 +1,11 @@
-// AI made most of the styling for the footer, only changed a few things, dont blame me if it sucks, i didnt have enough time to make it myself properly, unfortunately
-
 import { Github, GlobeIcon, Linkedin, Mail } from "lucide-react";
-import React, { JSX, useState } from "react";
-import { Separator } from "../../components/ui/separator";
+import { JSX, useState } from "react";
 import { Link } from 'react-router-dom';
 
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -17,7 +13,8 @@ export const Footer = (): JSX.Element => {
     const [lang, setLang] = useState<string>("English");
 
     return (
-        <footer className="w-full bg-[#0000001a] py-10 px-4" data-model-id="67:306">
+        // idk what data model id is, but it looks cool so i keep
+        <footer className="w-full bg-border py-10 px-4 pb-4 border-t-1 border-t-gray-300" data-model-id="67:306">
             <div className="container mx-auto max-w-7xl">
                 {/* Main footer content */}
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
@@ -84,51 +81,53 @@ export const Footer = (): JSX.Element => {
                     </div>
                 </div>
 
-                <Separator className="my-8 bg-[var(--border)] w-full" orientation="horizontal" />
 
-                {/* Footer bottom section */}
-                <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                    <div className="text-sm md:text-base text-black text-center md:text-left">
-                        © 2025 Airbnb Camping · Terms · Sitemap · Privacy · Your Privacy
-                        Choices ✅/❌
+            </div>
+
+            {/* <Separator className="my-8 w-full" orientation="horizontal" /> */}
+
+            {/* Footer bottom section */}
+            <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0 border-t border-t-gray-300 pt-4 mt-4">
+                <div className="text-sm md:text-base text-black text-center md:text-left">
+                    © 2025 Airbnb Camping · Terms · Sitemap · Privacy · Your Privacy
+                    Choices ✅/❌
+                </div>
+
+                <div className="flex items-center space-x-6">
+                    <div className="flex items-center">
+                        <DropdownMenu modal={false}>
+                            <DropdownMenuTrigger>
+                                <div className="flex items-center">
+                                    <GlobeIcon className="w-5 h-5 mr-2" />
+                                    <span className="text-sm md:text-base text-black">{lang}</span>
+                                </div>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align='end'>
+                                <DropdownMenuItem onClick={() => setLang("English")}>
+                                    English
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setLang("Dutch")}>
+                                    Dutch
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setLang("French")}>
+                                    French 🤮
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setLang("German")}>
+                                    German
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-
-                    <div className="flex items-center space-x-6">
-                        <div className="flex items-center">
-                            <DropdownMenu modal={false}>
-                                <DropdownMenuTrigger>
-                                    <div className="flex items-center">
-                                        <GlobeIcon className="w-5 h-5 mr-2" />
-                                        <span className="text-sm md:text-base text-black">{lang}</span>
-                                    </div>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align='end'>
-                                    <DropdownMenuItem onClick={() => setLang("English")}>
-                                        English
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setLang("Dutch")}>
-                                        Dutch
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setLang("French")}>
-                                        French 🤮
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={() => setLang("German")}>
-                                        German
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <a href="https://github.com/legelff/" target="_blank" className="text-black hover:text-gray-600">
-                                <Github className="w-5 h-5" />
-                            </a>
-                            <a href="https://www.linkedin.com/in/aryan-shah-l145/" target="_blank" className="text-black hover:text-gray-600">
-                                <Linkedin className="w-5 h-5" />
-                            </a>
-                            <a href="mailto:aryan.shah@l145.be" target="_blank" className="text-black hover:text-gray-600">
-                                <Mail className="w-5 h-5" />
-                            </a>
-                        </div>
+                    <div className="flex items-center space-x-4">
+                        <a href="https://github.com/legelff/" target="_blank" className="text-black hover:text-gray-600">
+                            <Github className="w-5 h-5" />
+                        </a>
+                        <a href="https://www.linkedin.com/in/aryan-shah-l145/" target="_blank" className="text-black hover:text-gray-600">
+                            <Linkedin className="w-5 h-5" />
+                        </a>
+                        <a href="mailto:aryan.shah@l145.be" target="_blank" className="text-black hover:text-gray-600">
+                            <Mail className="w-5 h-5" />
+                        </a>
                     </div>
                 </div>
             </div>

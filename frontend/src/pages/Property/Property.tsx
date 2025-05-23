@@ -428,7 +428,7 @@ const Property = () => {
 
                 <Separator orientation='horizontal' className='my-0' />
 
-                <div className='things-to-know flex flex-col gap-4'>
+                <div className='things-to-know flex flex-col gap-4 mb-4'>
                     <h2>Things to know</h2>
                     <div className='grid grid-cols-3 gap-4'>
                         {/* checkin, checkout, rules */}
