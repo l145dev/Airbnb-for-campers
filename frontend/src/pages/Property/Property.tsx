@@ -4,19 +4,19 @@ import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from "react-day-picker";
 import { Share, Heart, Star, Key, DoorOpen, Book } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Footer } from '@/components/Footer/Footer';
 import PropertyReviewsOverview from '@/components/PropertyReviewsOverview/PropertyReviewsOverview';
 import PropertyReviews from '@/components/PropertyReviews/PropertyReviews';
 import PropertyAmenities from '@/components/PropertyAmenities/PropertyAmenities';
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useSearchParams } from 'react-router-dom';
-import { Skeleton } from '@/components/ui/skeleton';
 import PropertySkeleton from '@/components/PropertySkeleton/PropertySkeleton';
+import axios from 'axios';
 
 // map
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -126,11 +126,18 @@ const fetchPropertyDetails = async (params: SearchParams): Promise<ApiResponse> 
     }
     const queryString = queryParams.toString();
 
-    const response = await fetch(`http://localhost:3000/property?${queryString}`);
-    if (!response.ok) {
-        throw new Error('Network response was not ok');
+    const response = await axios.get(`http://localhost:3000/property?${queryString}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+    });
+
+    if (response.status !== 200) {
+        throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return response.json();
+
+    return response.data;
 };
 
 const Property = () => {
@@ -141,7 +148,7 @@ const Property = () => {
 
     // react query data retrieval, caching, set loading state
     const { data, isLoading } = useQuery<ApiResponse>({
-        queryKey: ['property'],
+        queryKey: ['property', queryParams],
         queryFn: () => fetchPropertyDetails(queryParams),
         enabled: true
     });
@@ -158,6 +165,13 @@ const Property = () => {
 
     // payment states
     const [guests, setGuests] = useState<number>(0);
+
+    // rerendering the state(s) when data changes
+    useEffect(() => {
+        if (data?.allDetails?.property_saved !== undefined) {
+            setSaved(data.allDetails.property_saved);
+        }
+    }, [data]);
 
     // custom icon for leaflet
     const customPin = new Icon({
@@ -181,7 +195,7 @@ const Property = () => {
             <div className='property flex flex-col gap-4'>
                 {/* property header */}
                 <div className='property-header flex flex-row justify-between items-center'>
-                    <h1>Property name</h1>
+                    <h1>{data?.allDetails.property_name}</h1>
                     <div className='action-buttons flex flex-row gap-2'>
                         <Button variant='ghost' onClick={() => setSaved(!saved)} onMouseEnter={() => setHoveredSaved(true)} onMouseLeave={() => setHoveredSaved(false)}>
                             <Heart fill={saved ? 'red' : hoverSaved ? 'pink' : 'none'} />
@@ -288,8 +302,8 @@ const Property = () => {
 
                     <Separator orientation='vertical' className='h-full mx-4' />
 
-                    <div className='property-payment flex-[3] bg-blue-100'>
-                        <div className='payment-card flex flex-col gap-4'>
+                    <div className='property-payment flex-[3] relative'>
+                        <div className='payment-card flex flex-col gap-4' style={{ position: 'sticky', top: 'calc(1rem + 80px)' }}>
                             <Card>
                                 <CardHeader>
                                     <CardTitle className='flex items-baseline gap-1'>

@@ -18,6 +18,7 @@ import yurtIcon from '../../assets/images/icons8-yurt-100.png';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 // object i will receive from backend
 interface Listing {
@@ -51,12 +52,17 @@ const fetchListings = async (params: SearchParams): Promise<Listing[] | string> 
     }
     const queryString = queryParams.toString();
 
-    const response = await fetch(`http://localhost:3000/listings?${queryString}`);
-    if (!response.ok) {
+    const response = await axios.get(`http://localhost:3000/listings?${queryString}`, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+    });
+    if (response.status !== 200) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    return response.json();
+    return response.data;
 };
 
 const Listings = () => {
