@@ -3,16 +3,23 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from "react-day-picker";
-import { Progress } from "@/components/ui/progress"
 import { Share, Heart, Star, Car, Bath, Dog, Flame, Mountain, ParkingMeter, UtensilsCrossed, ShowerHead, Bubbles, Target, Key, MessageSquare, MapPinned, Tag, DoorOpen, Book } from 'lucide-react';
 import { useState } from 'react';
 import { Footer } from '@/components/Footer/Footer';
+import PropertyReviewsOverview from '@/components/PropertyReviewsOverview/PropertyReviewsOverview';
+import PropertyReviews from '@/components/PropertyReviews/PropertyReviews';
+import PropertyAmenities from '@/components/PropertyAmenities/PropertyAmenities';
 
 // map
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Link } from 'react-router-dom';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const Property = () => {
     // save states
@@ -25,6 +32,9 @@ const Property = () => {
         to: new Date(2025, 4, 30), // replace with selected date
     });
 
+    // payment states
+    const [guests, setGuests] = useState<number>(0);
+
     // custom icon for leaflet
     const customPin = new Icon({
         iconUrl: marker,
@@ -32,13 +42,6 @@ const Property = () => {
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
     });
-
-    // progress bar states
-    const [progressFive, setProgressFive] = useState<number>(75); // replace with 5 star value
-    const [progressFour, setProgressFour] = useState<number>(10); // replace with 4 star value
-    const [progressThree, setProgressThree] = useState<number>(5); // replace with 3 star value
-    const [progressTwo, setProgressTwo] = useState<number>(0); // replace with 2 star value
-    const [progressOne, setProgressOne] = useState<number>(10); // replace with 1 star value
 
     return (
         <>
@@ -117,46 +120,8 @@ const Property = () => {
 
                         <Separator orientation='horizontal' className='my-4' />
 
-                        <div className='property-amenities flex flex-col gap-4'>
-                            <h2>Amenities</h2>
-                            <div className="grid grid-rows-2 grid-cols-4 gap-4">
-                                <div className="flex items-center gap-2">
-                                    <Car />
-                                    <span>Parking</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Dog />
-                                    <span>Pet friendly</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Flame />
-                                    <span>Campfire pit</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Bath />
-                                    <span>Private bathroom</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ShowerHead />
-                                    <span>Private shower</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <UtensilsCrossed />
-                                    <span>Kitchen</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ParkingMeter />
-                                    <span>Power sockets</span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Mountain />
-                                    <span>Scenic views</span>
-                                </div>
-                            </div>
-                            <Button variant="outline" className="w-full">
-                                Show all amenities
-                            </Button>
-                        </div>
+                        {/* Pass property amenities through here */}
+                        <PropertyAmenities />
 
                         <Separator orientation='horizontal' className='my-4' />
 
@@ -192,7 +157,78 @@ const Property = () => {
                     <Separator orientation='vertical' className='h-full mx-4' />
 
                     <div className='property-payment flex-[3] bg-blue-100'>
+                        <div className='payment-card flex flex-col gap-4'>
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className='flex items-baseline gap-1'>
+                                        <h2>$ 143</h2>
+                                        <span className='text-gray-500 font-normal'>/ night</span>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <form onSubmit={(e) => { e.preventDefault(); }}>
+                                        <div className="flex flex-col gap-6">
+                                            <div className="grid grid-cols-2 gap-3">
+                                                {/* Check-in */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="checkin">Check-in</Label>
+                                                    <Popover>
+                                                        <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
+                                                            {date?.from ? date.from.toLocaleDateString() : "24/05/2025"}
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="z-50 p-4 rounded-md shadow-lg bg-white">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={date?.from}
+                                                                onSelect={(newDate) => setDate({ ...date, from: newDate })}
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </div>
 
+                                                {/* Check-out */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="checkout">Check-out</Label>
+                                                    <Popover>
+                                                        <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
+                                                            {date?.to ? date.to.toLocaleDateString() : "28/05/2025"}
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="z-50 p-4 rounded-md shadow-lg bg-white">
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={date?.to}
+                                                                onSelect={(newDate) => date?.from && setDate({ from: date.from, to: newDate })}
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                </div>
+                                            </div>
+
+                                            <div className="grid gap-3">
+                                                <Label htmlFor="guests">Number of Guests</Label>
+                                                <Input
+                                                    id="guests"
+                                                    type="number"
+                                                    placeholder="0"
+                                                    required
+                                                    value={guests}
+                                                    onChange={(e) => setGuests(Number(e.target.value))}
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-3">
+                                                <Button type="submit" className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
+                                                    Reserve
+                                                </Button>
+                                            </div>
+                                        </div>
+                                        <div className="my-4 text-center text-sm text-gray-500">
+                                            You won't be charged yet.
+                                        </div>
+                                    </form>
+                                </CardContent>
+                            </Card>
+                        </div>
                     </div>
                 </div>
 
@@ -206,224 +242,14 @@ const Property = () => {
                         </h2>
                     </div>
 
-                    <div className='reviews-overview-details grid grid-cols-7 gap-4'>
-                        <div className='overall-rating flex flex-col gap-2'>
-                            <h3 className='text-sm font-semibold'>Overall rating</h3>
-                            <div className="rating-progresses flex flex-col items-center gap-1">
-                                <div className='rating-progress flex flex-row gap-2 items-center'>
-                                    <span className='text-xs'>5</span>
-                                    <Progress value={progressFive} className='w-32 h-1' />
-                                </div>
-                                <div className='rating-progress flex flex-row gap-2 items-center'>
-                                    <span className='text-xs'>4</span>
-                                    <Progress value={progressFour} className='w-32 h-1' />
-                                </div>
-                                <div className='rating-progress flex flex-row gap-2 items-center'>
-                                    <span className='text-xs'>3</span>
-                                    <Progress value={progressThree} className='w-32 h-1' />
-                                </div>
-                                <div className='rating-progress flex flex-row gap-2 items-center'>
-                                    <span className='text-xs'>2</span>
-                                    <Progress value={progressTwo} className='w-32 h-1' />
-                                </div>
-                                <div className='rating-progress flex flex-row gap-2 items-center'>
-                                    <span className='text-xs'>1</span>
-                                    <Progress value={progressOne} className='w-32 h-1' />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className='cleansiness-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='cleansiness-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Cleansiness</h3>
-                                <span className='text-xl font-semibold'>4.5</span>
-                            </div>
-
-                            <Bubbles width={32} height={32} />
-                        </div>
-
-                        <div className='accuracy-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='accuracy-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Accuracy</h3>
-                                <span className='text-xl font-semibold'>4.8</span>
-                            </div>
-
-                            <Target width={32} height={32} />
-                        </div>
-
-                        <div className='checking-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='checking-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Check-in</h3>
-                                <span className='text-xl font-semibold'>4.7</span>
-                            </div>
-
-                            <Key width={32} height={32} />
-                        </div>
-
-                        <div className='communication-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='communication-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Communication</h3>
-                                <span className='text-xl font-semibold'>4.9</span>
-                            </div>
-
-                            <MessageSquare width={32} height={32} />
-                        </div>
-
-                        <div className='location-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='location-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Location</h3>
-                                <span className='text-xl font-semibold'>4.6</span>
-                            </div>
-
-                            <MapPinned width={32} height={32} />
-                        </div>
-
-                        <div className='value-rating flex flex-col justify-between border-l border-border pl-4'>
-                            <div className='value-rating-header flex flex-col gap-2'>
-                                <h3 className='text-sm font-semibold'>Value</h3>
-                                <span className='text-xl font-semibold'>4.5</span>
-                            </div>
-
-                            <Tag width={32} height={32} />
-                        </div>
-                    </div>
+                    {/* Pass property reviews overview eg cleansiness, overall score, etc -> better readability */}
+                    <PropertyReviewsOverview />
                 </div>
 
                 <Separator orientation='horizontal' className='my-0' />
 
-                <div className='reviews grid grid-rows-3 gap-8'>
-                    <div className='reviews-top grid grid-cols-2 gap-8'>
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className='reviews-middle grid grid-cols-2 gap-8'>
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className='reviews-bottom grid grid-cols-2 gap-8'>
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-
-                        <div className='review-card flex flex-col gap-2'>
-                            <div className='review-card-header flex flex-row items-center gap-2'>
-                                <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                    <img src="https://placehold.co/100x100" alt="Reviewer" className="w-full h-full object-cover" />
-                                </div>
-                                <div className='reviewer-details'>
-                                    <h3>Reviewer name</h3>
-                                    <p className='text-sm text-gray-500'>City, Country</p>
-                                </div>
-                            </div>
-
-                            <div className='review-card-body'>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-                            </div>
-
-                            <div className='review-card-footer flex flex-row items-center gap-2'>
-                                <Star fill='black' height={16} width={16} />
-                                <span>4.7</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {/* place reviews here -> pass reviews through here */}
+                <PropertyReviews />
 
                 <Separator orientation='horizontal' className='my-0' />
 
