@@ -3,25 +3,149 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar } from '@/components/ui/calendar';
 import { DateRange } from "react-day-picker";
-import { Share, Heart, Star, Car, Bath, Dog, Flame, Mountain, ParkingMeter, UtensilsCrossed, ShowerHead, Bubbles, Target, Key, MessageSquare, MapPinned, Tag, DoorOpen, Book } from 'lucide-react';
+import { Share, Heart, Star, Key, DoorOpen, Book } from 'lucide-react';
 import { useState } from 'react';
 import { Footer } from '@/components/Footer/Footer';
 import PropertyReviewsOverview from '@/components/PropertyReviewsOverview/PropertyReviewsOverview';
 import PropertyReviews from '@/components/PropertyReviews/PropertyReviews';
 import PropertyAmenities from '@/components/PropertyAmenities/PropertyAmenities';
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useSearchParams } from 'react-router-dom';
+import { Skeleton } from '@/components/ui/skeleton';
+import PropertySkeleton from '@/components/PropertySkeleton/PropertySkeleton';
 
 // map
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Link } from 'react-router-dom';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
+interface Review {
+    review_id: number;
+    property_id: number;
+    guest_id: number;
+    rating: number;
+    comment: string;
+    review_date: string;
+}
+
+interface PropertyDetails {
+    property_detail_id: number;
+    property_id: number;
+    parking_available: boolean;
+    pet_friendly: boolean;
+    has_campfire_pit: boolean;
+    has_personal_restroom: boolean;
+    has_shared_restroom: boolean;
+    has_personal_shower: boolean;
+    has_shared_shower: boolean;
+    has_personal_kitchen: boolean;
+    has_shared_kitchen: boolean;
+    has_sockets: boolean;
+    has_views: boolean;
+    has_picnic_table: boolean;
+    has_grill: boolean;
+    has_safety_features: boolean;
+    has_personal_dryer: boolean;
+    has_shared_dryer: boolean;
+    has_wifi: boolean;
+    has_cell_service: boolean;
+    has_swimming_lake: boolean;
+    has_swimming_pool: boolean;
+    has_hiking_trail: boolean;
+    is_wheelchair_accessible: boolean;
+    has_fishing: boolean;
+}
+
+interface Image {
+    image_id: number;
+    property_id: number;
+    image_url: string;
+    alt_text: string;
+    is_main: boolean;
+}
+
+interface AllDetails {
+    dates_available: boolean;
+    guest_overflow: boolean;
+    property_id: number;
+    owner_id: number;
+    property_name: string;
+    property_description: string;
+    location_name: string;
+    latitude: string;
+    longitude: string;
+    property_type: string;
+    amenities: string;
+    rules: string;
+    check_in_time: string;
+    check_out_time: string;
+    price_per_night: string;
+    capacity: number;
+    number_of_reviews: number;
+    average_rating: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
+    note_from_owner: string;
+    city: string;
+    country: string;
+    checkin: string;
+    checkout: string;
+    guests: string;
+    owner_full_name: string;
+    property_saved: boolean;
+    reviews_count: number;
+    details: PropertyDetails;
+    images: Image[];
+    reviews: Review[];
+}
+
+interface ApiResponse {
+    success: boolean;
+    allDetails: AllDetails;
+}
+
+interface SearchParams {
+    property_id?: number;
+    guests?: number;
+    checkin?: string; // Assuming date string in 'YYYY-MM-DD' format
+    checkout?: string; // Assuming date string in 'YYYY-MM-DD' format
+}
+
+const fetchPropertyDetails = async (params: SearchParams): Promise<ApiResponse> => {
+    const queryParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (value) {
+            queryParams.append(key, value);
+        }
+    }
+    const queryString = queryParams.toString();
+
+    const response = await fetch(`http://localhost:3000/property?${queryString}`);
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response.json();
+};
 
 const Property = () => {
+    const [searchParams] = useSearchParams();
+
+    // params handling
+    const queryParams: SearchParams = Object.fromEntries(searchParams.entries());
+
+    // react query data retrieval, caching, set loading state
+    const { data, isLoading } = useQuery<ApiResponse>({
+        queryKey: ['property'],
+        queryFn: () => fetchPropertyDetails(queryParams),
+        enabled: true
+    });
+
     // save states
     const [saved, setSaved] = useState<boolean>(false);
     const [hoverSaved, setHoveredSaved] = useState<boolean>(false);
@@ -42,6 +166,15 @@ const Property = () => {
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
     });
+
+    // check if data is loading
+    if (isLoading) {
+        return (
+            <>
+                <PropertySkeleton />
+            </>
+        );
+    }
 
     return (
         <>
@@ -95,7 +228,7 @@ const Property = () => {
                             <p>Property type · Guests</p>
                             <div className="flex items-center gap-1 mt-4">
                                 <Star fill='black' height={16} width={16} />
-                                <span>4.7</span> · <span className='underline'>100 reviews</span>
+                                <span>4.7</span> · <a className='underline' href="#reviews">100 reviews</a>
                             </div>
                         </div>
 
@@ -141,7 +274,6 @@ const Property = () => {
 
                             <div className='date-picker'>
                                 <Calendar
-                                    initialFocus
                                     mode="range"
                                     defaultMonth={date?.from}
                                     selected={date}
@@ -161,7 +293,7 @@ const Property = () => {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className='flex items-baseline gap-1'>
-                                        <h2>$ 143</h2>
+                                        <h2>$143</h2>
                                         <span className='text-gray-500 font-normal'>/ night</span>
                                     </CardTitle>
                                 </CardHeader>
@@ -222,8 +354,31 @@ const Property = () => {
                                                 </Button>
                                             </div>
                                         </div>
-                                        <div className="my-4 text-center text-sm text-gray-500">
+                                        <div className="mt-4 text-center text-sm text-gray-500">
                                             You won't be charged yet.
+                                        </div>
+
+                                        <div className='price-details flex flex-col gap-2 mt-4'>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                <span>$143 x 2 nights</span>
+                                                <span>$286</span>
+                                            </div>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                <span>Service fee</span>
+                                                <span>$20</span>
+                                            </div>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                <span>Tax</span>
+                                                {/* tax always 0 because no one likes taxes */}
+                                                <span>$0</span>
+                                            </div>
+                                        </div>
+
+                                        <Separator orientation='horizontal' className='my-4' />
+
+                                        <div className='price-total flex flex-row justify-between'>
+                                            <h3 className='font-semibold text-xl'>Total</h3>
+                                            <h3 className='font-semibold text-xl'>$306</h3>
                                         </div>
                                     </form>
                                 </CardContent>
@@ -249,7 +404,9 @@ const Property = () => {
                 <Separator orientation='horizontal' className='my-0' />
 
                 {/* place reviews here -> pass reviews through here */}
-                <PropertyReviews />
+                <div id='reviews'>
+                    <PropertyReviews />
+                </div>
 
                 <Separator orientation='horizontal' className='my-0' />
 
