@@ -1,14 +1,30 @@
 import { Bubbles, Key, MapPinned, MessageSquare, Tag, Target } from "lucide-react";
 import { Progress } from "../ui/progress";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ratingDistribution } from "@/utils/ratingDistribution";
 
-const PropertyReviewsOverview = () => {
+interface PropertyReviewsOverviewProps {
+    averageRating: number;
+}
+
+const PropertyReviewsOverview: React.FC<PropertyReviewsOverviewProps> = ({ averageRating }) => {
     // progress bar states
-    const [progressFive, setProgressFive] = useState<number>(75); // replace with 5 star value
-    const [progressFour, setProgressFour] = useState<number>(10); // replace with 4 star value
-    const [progressThree, setProgressThree] = useState<number>(5); // replace with 3 star value
-    const [progressTwo, setProgressTwo] = useState<number>(0); // replace with 2 star value
-    const [progressOne, setProgressOne] = useState<number>(10); // replace with 1 star value
+    const [progressFive, setProgressFive] = useState<number>(0);
+    const [progressFour, setProgressFour] = useState<number>(0);
+    const [progressThree, setProgressThree] = useState<number>(0);
+    const [progressTwo, setProgressTwo] = useState<number>(0);
+    const [progressOne, setProgressOne] = useState<number>(0);
+
+    useEffect(() => {
+        // Calculate the rating distribution based on the average rating
+        const ratingDist = ratingDistribution(averageRating);
+
+        setProgressFive(ratingDist[5]);
+        setProgressFour(ratingDist[4]);
+        setProgressThree(ratingDist[3]);
+        setProgressTwo(ratingDist[2]);
+        setProgressOne(ratingDist[1]);
+    }, [averageRating]);
 
     return (
         <>

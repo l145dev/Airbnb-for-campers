@@ -407,7 +407,7 @@ const Property = () => {
                     </div>
 
                     {/* Pass property reviews overview eg cleansiness, overall score, etc -> better readability */}
-                    <PropertyReviewsOverview />
+                    <PropertyReviewsOverview averageRating={Number(data?.allDetails?.average_rating)} />
                 </div>
 
                 <Separator orientation='horizontal' className='my-0' />
