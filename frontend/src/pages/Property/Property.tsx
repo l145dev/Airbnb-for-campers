@@ -24,11 +24,14 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
+import { get } from 'http';
 
 interface Review {
     review_id: number;
     property_id: number;
     guest_id: number;
+    reviewer_full_name: string;
+    reviewer_url: string;
     rating: number;
     comment: string;
     review_date: string;
@@ -99,6 +102,7 @@ interface AllDetails {
     checkout: string;
     guests: string;
     owner_full_name: string;
+    owner_url: string;
     property_saved: boolean;
     reviews_count: number;
     details: PropertyDetails;
@@ -141,6 +145,21 @@ const fetchPropertyDetails = async (params: SearchParams): Promise<ApiResponse> 
     return response.data;
 };
 
+const saveProperty = async (propertyId: number): Promise<void> => {
+    const response = await axios.post(`http://localhost:3000/property/save`, {
+        property_id: propertyId,
+    }, {
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+    });
+
+    if (response.status !== 200) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+}
+
 const Property = () => {
     const [searchParams] = useSearchParams();
 
@@ -160,8 +179,8 @@ const Property = () => {
 
     // date picker states
     const [date, setDate] = useState<DateRange | undefined>({
-        from: new Date(2025, 4, 24), // replace with selected date -> remember months are 0-indexed
-        to: new Date(2025, 4, 30), // replace with selected date
+        from: undefined,
+        to: undefined,
     });
 
     // payment states
@@ -169,10 +188,50 @@ const Property = () => {
 
     // rerendering the state(s) when data changes
     useEffect(() => {
-        if (data?.allDetails?.property_saved !== undefined) {
+        if (data?.allDetails) {
             setSaved(data.allDetails.property_saved);
+            if (data?.allDetails.checkin && data.allDetails.checkout) {
+                setDate({
+                    from: new Date(data.allDetails.checkin),
+                    to: new Date(data.allDetails.checkout),
+                });
+            }
+            if (data?.allDetails.guests) {
+                setGuests(Number(data.allDetails.guests));
+            }
         }
     }, [data]);
+
+    useEffect(() => {
+        const updatedParams = new URLSearchParams(searchParams);
+
+        if (date?.from && date?.to) {
+            // date format: yyyy-m-dd
+            const formatDate = (date: Date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                return `${year}-${month}-${day}`;
+            };
+            updatedParams.set('checkin', formatDate(date.from));
+            updatedParams.set('checkout', formatDate(date.to));
+        }
+
+        else {
+            updatedParams.delete('checkin');
+            updatedParams.delete('checkout');
+        }
+
+        if (guests > 0) {
+            updatedParams.set('guests', guests.toString());
+        }
+
+        else {
+            updatedParams.delete('guests');
+        }
+
+        window.history.replaceState({}, '', `${window.location.pathname}?${updatedParams}`);
+    }, [date, guests]);
 
     // custom icon for leaflet
     const customPin = new Icon({
@@ -181,6 +240,37 @@ const Property = () => {
         iconAnchor: [24, 48],
         popupAnchor: [0, -48]
     });
+
+    // function to get the duration of stay
+    const getDuration = () => {
+        if (date?.from && date?.to && date.from instanceof Date && date.to instanceof Date) {
+            const fromDate = new Date(date.from);
+            const toDate = new Date(date.to);
+            const duration = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 3600 * 24));
+            return duration;
+        }
+        return 0;
+    };
+
+    const getNightsTotalPrice = (duration: number) => {
+        if (data?.allDetails && duration > 0) {
+            const pricePerNight = parseFloat(data.allDetails.price_per_night);
+            return (pricePerNight * duration);
+        }
+        return 0;
+    };
+
+    const getPropertyAddress = async () => {
+        if (data?.allDetails) {
+            const response = await axios.get(`https://nominatim.openstreetmap.org/reverse.php?lat=${data.allDetails.latitude}&lon=${data.allDetails.longitude}&zoom=18&format=jsonv2`)
+            if (response.status === 200) {
+                const formattedAddress = `${response.data.address.house_number !== undefined ? response.data.address.house_number : ''}${response.data.address.road}, ${response.data.address.postcode} ${response.data.address.city}, ${response.data.address.country}`;
+                return formattedAddress;
+            } else {
+                return `${data.allDetails.city}, ${data.allDetails.country}`;
+            }
+        }
+    }
 
     // check if data is loading
     if (isLoading) {
@@ -215,7 +305,14 @@ const Property = () => {
                 <div className='property-header flex flex-row justify-between items-center'>
                     <h1>{data?.allDetails.property_name}</h1>
                     <div className='action-buttons flex flex-row gap-2'>
-                        <Button variant='ghost' onClick={() => setSaved(!saved)} onMouseEnter={() => setHoveredSaved(true)} onMouseLeave={() => setHoveredSaved(false)}>
+                        <Button variant='ghost' onClick={() => {
+                            if (data?.allDetails.property_id) {
+                                setSaved(!saved);
+                                saveProperty(data?.allDetails.property_id);
+                            }
+                        }}
+                            onMouseEnter={() => setHoveredSaved(true)}
+                            onMouseLeave={() => setHoveredSaved(false)}>
                             <Heart fill={saved ? 'red' : hoverSaved ? 'pink' : 'none'} />
                             <p>Save</p>
                         </Button>
@@ -237,7 +334,7 @@ const Property = () => {
                             <p>{data?.allDetails.property_type} · {data?.allDetails.capacity} guests</p>
                             <div className="flex items-center gap-1 mt-4">
                                 <Star fill='black' height={16} width={16} />
-                                <span>4.7</span> · <a className='underline' href="#reviews">100 reviews</a>
+                                <span>{data?.allDetails.average_rating}</span> · <a className='underline' href="#reviews">{data?.allDetails.reviews_count} reviews</a>
                             </div>
                         </div>
 
@@ -245,7 +342,7 @@ const Property = () => {
 
                         <div className='property-owner-info flex flex-row gap-4'>
                             <div className='property-owner-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                <img src="https://placehold.co/100x100" alt="Owner" className="w-full h-full object-cover" />
+                                <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/avatar//" + data?.allDetails.owner_url} alt="Owner" className="w-full h-full object-cover bg-gray-200" />
                             </div>
                             <div className='property-owner-details'>
                                 <h3>{data?.allDetails.owner_full_name}</h3>
@@ -269,7 +366,15 @@ const Property = () => {
 
                         <div className='date-picker-section flex flex-col gap-4'>
                             <div>
-                                <h2>X nights in Country</h2>
+                                {(date?.from && date?.to) ? (
+                                    <>
+                                        <h2>{getDuration()} nights in {data?.allDetails?.city}, {data?.allDetails?.country}</h2>
+                                    </>
+                                ) : (
+                                    <>
+                                        <h2>Select dates to live in {data?.allDetails?.city}, {data?.allDetails?.country}</h2>
+                                    </>
+                                )}
                                 <p className='text-gray-500'>
                                     {(date?.from || date?.to) ? (
                                         <>
@@ -290,6 +395,7 @@ const Property = () => {
                                     numberOfMonths={3}
                                     className='p-0 justify-between'
                                     showOutsideDays={false}
+                                    disabled={{ before: new Date() }}
                                 />
                             </div>
                         </div>
@@ -302,7 +408,7 @@ const Property = () => {
                             <Card>
                                 <CardHeader>
                                     <CardTitle className='flex items-baseline gap-1'>
-                                        <h2>$143</h2>
+                                        <h2>${data?.allDetails?.price_per_night}</h2>
                                         <span className='text-gray-500 font-normal'>/ night</span>
                                     </CardTitle>
                                 </CardHeader>
@@ -315,13 +421,18 @@ const Property = () => {
                                                     <Label htmlFor="checkin">Check-in</Label>
                                                     <Popover>
                                                         <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
-                                                            {date?.from ? date.from.toLocaleDateString() : "24/05/2025"}
+                                                            {date?.from === undefined ? (
+                                                                <span className="text-gray-500">Select Check-in</span>
+                                                            ) : (
+                                                                <span>{date.from.toLocaleDateString()}</span>
+                                                            )}
                                                         </PopoverTrigger>
                                                         <PopoverContent className="z-50 p-4 rounded-md shadow-lg bg-white">
                                                             <Calendar
                                                                 mode="single"
                                                                 selected={date?.from}
                                                                 onSelect={(newDate) => setDate({ ...date, from: newDate })}
+                                                                disabled={{ before: new Date() }}
                                                             />
                                                         </PopoverContent>
                                                     </Popover>
@@ -332,13 +443,18 @@ const Property = () => {
                                                     <Label htmlFor="checkout">Check-out</Label>
                                                     <Popover>
                                                         <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
-                                                            {date?.to ? date.to.toLocaleDateString() : "28/05/2025"}
+                                                            {date?.to === undefined ? (
+                                                                <span className="text-gray-500">Select Check-out</span>
+                                                            ) : (
+                                                                <span>{date.to.toLocaleDateString()}</span>
+                                                            )}
                                                         </PopoverTrigger>
                                                         <PopoverContent className="z-50 p-4 rounded-md shadow-lg bg-white">
                                                             <Calendar
                                                                 mode="single"
                                                                 selected={date?.to}
                                                                 onSelect={(newDate) => date?.from && setDate({ from: date.from, to: newDate })}
+                                                                disabled={{ before: date?.from ? date?.from : new Date() }}
                                                             />
                                                         </PopoverContent>
                                                     </Popover>
@@ -348,17 +464,19 @@ const Property = () => {
                                             <div className="grid gap-3">
                                                 <Label htmlFor="guests">Number of Guests</Label>
                                                 <Input
+                                                    className={`${data?.allDetails?.capacity && guests > data?.allDetails?.capacity ? 'border-red-500 focus:border-red-500' : ''}`}
                                                     id="guests"
                                                     type="number"
-                                                    placeholder="0"
+                                                    placeholder="Select number of guests"
                                                     required
-                                                    value={guests}
-                                                    onChange={(e) => setGuests(Number(e.target.value))}
+                                                    min={0}
+                                                    value={guests === 0 ? '' : guests}
+                                                    onChange={(e) => { setGuests(Number(e.target.value)) }}
                                                 />
                                             </div>
 
                                             <div className="flex flex-col gap-3">
-                                                <Button type="submit" className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
+                                                <Button type="submit" disabled={date?.from === undefined || date?.to === undefined || guests === 0 || (data?.allDetails?.capacity !== undefined && guests > data?.allDetails?.capacity)} className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
                                                     Reserve
                                                 </Button>
                                             </div>
@@ -367,28 +485,33 @@ const Property = () => {
                                             You won't be charged yet.
                                         </div>
 
-                                        <div className='price-details flex flex-col gap-2 mt-4'>
-                                            <div className='price-details-item flex flex-row justify-between'>
-                                                <span>$143 x 2 nights</span>
-                                                <span>$286</span>
-                                            </div>
-                                            <div className='price-details-item flex flex-row justify-between'>
-                                                <span>Service fee</span>
-                                                <span>$20</span>
-                                            </div>
-                                            <div className='price-details-item flex flex-row justify-between'>
-                                                <span>Tax</span>
-                                                {/* tax always 0 because no one likes taxes */}
-                                                <span>$0</span>
-                                            </div>
-                                        </div>
+                                        {date?.from && date?.to && (
+                                            <>
+                                                <div className='price-details flex flex-col gap-2 mt-4'>
+                                                    <div className='price-details-item flex flex-row justify-between'>
+                                                        {/* dont care about optimization right now, would use useState for duration */}
+                                                        <span>${data?.allDetails?.price_per_night} x {getDuration()} nights</span>
+                                                        <span>${getNightsTotalPrice(getDuration())}</span>
+                                                    </div>
+                                                    <div className='price-details-item flex flex-row justify-between'>
+                                                        <span>Service fee</span>
+                                                        <span>$20</span>
+                                                    </div>
+                                                    <div className='price-details-item flex flex-row justify-between'>
+                                                        <span>Tax</span>
+                                                        {/* tax always 0 because no one likes taxes */}
+                                                        <span>$0</span>
+                                                    </div>
+                                                </div>
 
-                                        <Separator orientation='horizontal' className='my-4' />
+                                                <Separator orientation='horizontal' className='my-4' />
 
-                                        <div className='price-total flex flex-row justify-between'>
-                                            <h3 className='font-semibold text-xl'>Total</h3>
-                                            <h3 className='font-semibold text-xl'>$306</h3>
-                                        </div>
+                                                <div className='price-total flex flex-row justify-between'>
+                                                    <h3 className='font-semibold text-xl'>Total</h3>
+                                                    <h3 className='font-semibold text-xl'>${getNightsTotalPrice(getDuration()) + 20}</h3>
+                                                </div>
+                                            </>
+                                        )}
                                     </form>
                                 </CardContent>
                             </Card>
@@ -402,7 +525,7 @@ const Property = () => {
                     <div className='reviews-overview-header flex flex-row items-center gap-2'>
                         <Star fill='black' height={24} width={24} />
                         <h2>
-                            4.7 · 100 reviews
+                            {data?.allDetails?.average_rating} · {data?.allDetails?.reviews.length} reviews
                         </h2>
                     </div>
 
@@ -410,33 +533,37 @@ const Property = () => {
                     <PropertyReviewsOverview averageRating={Number(data?.allDetails?.average_rating)} />
                 </div>
 
-                <Separator orientation='horizontal' className='my-0' />
+                {data?.allDetails?.reviews && data.allDetails.reviews.length > 0 && (
+                    <>
+                        <Separator orientation='horizontal' className='my-0' />
 
-                {/* place reviews here -> pass reviews through here */}
-                <div id='reviews'>
-                    <PropertyReviews />
-                </div>
+                        {/* place reviews here -> pass reviews through here */}
+                        <div id='reviews'>
+                            <PropertyReviews reviews={data?.allDetails?.reviews ? data.allDetails.reviews : []} />
+                        </div>
+                    </>
+                )}
 
                 <Separator orientation='horizontal' className='my-0' />
 
                 <div className='your-stay-location flex flex-col gap-4'>
                     <div className='your-stay-location-header'>
                         <h2>Where you'll be staying</h2>
-                        <span className='text-gray-500'>City, Country</span>
+                        <span className='text-gray-500'>{data?.allDetails?.city}, {data?.allDetails?.country}</span>
                     </div>
 
                     <div className='map-container h-[400px] w-full'>
                         <MapContainer
-                            center={[51.505, -0.09]}
+                            center={[Number(data?.allDetails?.latitude), Number(data?.allDetails?.longitude)]}
                             zoom={13}
                             scrollWheelZoom={true}>
                             <TileLayer
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                             />
-                            <Marker position={[51.505, -0.09]} icon={customPin}>
+                            <Marker position={[Number(data?.allDetails?.latitude), Number(data?.allDetails?.longitude)]} icon={customPin}>
                                 <Popup>
-                                    Property location
+                                    {getPropertyAddress()}
                                 </Popup>
                             </Marker>
                         </MapContainer>
@@ -456,7 +583,7 @@ const Property = () => {
 
                             <div className='flex flex-col gap-1'>
                                 <h3 className='text-sm'>Check-in</h3>
-                                <span className='text-xl font-semibold'>10:00</span>
+                                <span className='text-xl font-semibold'>{data?.allDetails?.check_in_time ? new Date(data.allDetails.check_in_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
                             </div>
                         </div>
 
@@ -467,7 +594,7 @@ const Property = () => {
 
                             <div className='flex flex-col gap-1'>
                                 <h3 className='text-sm'>Check-out</h3>
-                                <span className='text-xl font-semibold'>16:00</span>
+                                <span className='text-xl font-semibold'>{data?.allDetails?.check_out_time ? new Date(data.allDetails.check_out_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
                             </div>
                         </div>
 
@@ -478,12 +605,12 @@ const Property = () => {
 
                             <div className='flex flex-col gap-1'>
                                 <h3 className='text-sm'>Rules</h3>
-                                <span className='text-xl font-semibold'>No loud music after 10 PM, respect wildlife.</span>
+                                <span className='text-xl font-semibold'>{data?.allDetails?.rules}</span>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
             <Footer />
         </>
     )
