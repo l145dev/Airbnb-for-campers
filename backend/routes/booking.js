@@ -182,8 +182,8 @@ router.post("/pay", isAuthenticated, async (req, res, next) => {
                     quantity: 1
                 }
             ],
-            success_url: `http://localhost:3000/booking/success?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`, //success page (booking confirmed page)
-            cancel_url: `http://localhost:3000/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+            success_url: `http://localhost:5173/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
+            cancel_url: `http://localhost:5173/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
         })
 
         return res.status(200).json({ success: true, url: session.url });
@@ -239,8 +239,8 @@ router.post("/pay/klarna", async (req, res, next) => {
                     quantity: 1
                 }
             ],
-            success_url: `http://localhost:3000/booking/success?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`, //success page (booking confirmed page)
-            cancel_url: `http://localhost:3000/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+            success_url: `http://localhost:5173/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
+            cancel_url: `http://localhost:5173/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
         })
 
         return res.status(200).json({ success: true, url: session.url });
@@ -250,7 +250,7 @@ router.post("/pay/klarna", async (req, res, next) => {
     }
 })
 
-// unsecure route, would not do this in a real project, only keeping this since it's not real and i have a deadline soon to submit this
+// unsecured route, would not do this in a real project, a db table with payment success token linked to user on success and checking if its correct here would be my way of solving this
 router.get("/success", isAuthenticated, async (req, res, next) => {
     const { property_id, guests } = req.query;
     let checkin = req.query.checkin;
@@ -382,6 +382,76 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         );
 
         res.status(200).json({ success: true, returnObj })
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+// get property details, but return only some details
+router.get("/pricecard", async (req, res, next) => {
+    const { property_id } = req.query;
+
+    if (!property_id) {
+        return res.status(404).json({ error: "Property not found!" });
+    }
+
+    try {
+        // get main property info
+        const property = await prisma.properties.findUnique({
+            where: {
+                property_id: parseInt(property_id),
+                is_active: true
+            }
+        })
+
+        if (!property) {
+            return res.status(404).json({ error: "Property not found!" });
+        }
+
+        // get property owner
+        const owner = await prisma.users.findUnique({
+            where: {
+                user_id: property.owner_id
+            }
+        })
+
+        if (!owner) {
+            return res.status(404).json({ error: "Owner not found!" });
+        }
+
+        const owner_full_name = owner.first_name + " " + owner.last_name;
+
+        // get reviews count
+        const reviews_count = await prisma.reviews.count({
+            where: {
+                property_id: parseInt(property_id)
+            }
+        })
+
+        // get property main image
+        const property_main_image = await prisma.property_images.findFirst({
+            where: {
+                property_id: parseInt(property_id),
+                is_main: true
+            }
+        })
+
+        const allDetails = {
+            property_id,
+            property_name: property.property_name,
+            average_rating: property.average_rating,
+            owner_full_name,
+            price: property.price,
+            reviews_count,
+            price_per_night: property.price_per_night,
+            main_image: property_main_image.image_url
+        }
+
+        return res.status(200).json({ allDetails });
     }
 
     catch (error) {

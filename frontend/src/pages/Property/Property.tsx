@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import PropertySkeleton from '@/components/PropertySkeleton/PropertySkeleton';
 import axios from 'axios';
 import PropertyImage from '@/components/PropertyImage/PropertyImage';
@@ -24,7 +24,6 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
-import { get } from 'http';
 
 interface Review {
     review_id: number;
@@ -162,6 +161,7 @@ const saveProperty = async (propertyId: number): Promise<void> => {
 
 const Property = () => {
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
     // params handling
     const queryParams: SearchParams = Object.fromEntries(searchParams.entries());
@@ -269,6 +269,21 @@ const Property = () => {
             } else {
                 return `${data.allDetails.city}, ${data.allDetails.country}`;
             }
+        }
+    }
+
+    const requestBooking = () => {
+        if (data?.allDetails.property_id && date?.from && date?.to && guests) {
+            // date format: yyyy-m-dd
+            const formatDate = (date: Date) => {
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                return `${year}-${month}-${day}`;
+            };
+            const checkin = formatDate(date.from);
+            const checkout = formatDate(date.to);
+            navigate(`/book?property_id=${data?.allDetails.property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
         }
     }
 
@@ -413,7 +428,7 @@ const Property = () => {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <form onSubmit={(e) => { e.preventDefault(); }}>
+                                    <form onSubmit={(e) => { e.preventDefault(); requestBooking(); }}>
                                         <div className="flex flex-col gap-6">
                                             <div className="grid grid-cols-2 gap-3">
                                                 {/* Check-in */}
