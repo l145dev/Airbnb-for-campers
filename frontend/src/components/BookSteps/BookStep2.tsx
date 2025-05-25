@@ -3,7 +3,7 @@ import { Separator } from "../ui/separator";
 import { CheckCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 import { Skeleton } from "../ui/skeleton";
 
 interface BookStep2Props {
@@ -67,6 +67,7 @@ const BookStep2: React.FC<BookStep2Props> = ({ property_id, checkin, checkout, g
 
     return (
         <>
+            <Toaster closeButton />
             <div className='your-trip flex flex-col gap-4'>
                 <h2>Your trip</h2>
                 <div className='your-trip-details flex flex-col gap-4'>

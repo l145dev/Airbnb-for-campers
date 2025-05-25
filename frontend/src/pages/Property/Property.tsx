@@ -24,7 +24,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 interface Review {
     review_id: number;
@@ -360,6 +360,7 @@ const Property = () => {
     if (isLoading) {
         return (
             <>
+                <Toaster closeButton />
                 <PropertySkeleton />
             </>
         );
@@ -368,6 +369,7 @@ const Property = () => {
     if (isError) {
         return (
             <>
+                <Toaster closeButton />
                 <div className='property'>
                     <div className='h-full w-full flex justify-center items-center flex-col gap-3'>
                         <h1>
@@ -384,6 +386,7 @@ const Property = () => {
 
     return (
         <>
+            <Toaster closeButton />
             <div className='property flex flex-col gap-4'>
                 {/* property header */}
                 <div className='property-header flex flex-row justify-between items-center'>

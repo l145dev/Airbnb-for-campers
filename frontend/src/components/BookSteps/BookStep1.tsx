@@ -6,7 +6,7 @@ import { Label } from "../ui/label";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import axios from "axios";
 import { Button } from "../ui/button";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 interface BookStep1Props {
     property_id: string;
@@ -125,6 +125,7 @@ const BookStep1: React.FC<BookStep1Props> = ({ property_id, checkin, checkout, g
 
     return (
         <>
+            <Toaster closeButton />
             <div className='your-trip flex flex-col gap-4'>
                 <h2>Your trip</h2>
                 <div className='your-trip-details flex flex-col gap-4'>

@@ -7,7 +7,7 @@ import BookStep1 from '@/components/BookSteps/BookStep1';
 import BookStep2 from '@/components/BookSteps/BookStep2';
 import { Separator } from '@/components/ui/separator';
 import axios from 'axios';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -141,6 +141,7 @@ const Book = () => {
 
     return (
         <>
+            <Toaster closeButton />
             <div className='book flex flex-col gap-4'>
                 <div className='book-header flex items-center gap-4'>
                     <Button variant='ghost' size='icon' onClick={navigateBack}>
