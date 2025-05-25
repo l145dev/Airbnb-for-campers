@@ -1,8 +1,7 @@
 import './Book.css';
-import { data, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { useEffect, useState } from 'react';
 import { ChevronLeft, Star } from 'lucide-react';
 import BookStep1 from '@/components/BookSteps/BookStep1';
 import BookStep2 from '@/components/BookSteps/BookStep2';
@@ -10,8 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Popover } from '@/components/ui/popover';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface PriceDetails {
     property_id: string;
@@ -132,11 +130,20 @@ const Book = () => {
         }
     }
 
+    const navigateBack = () => {
+        if (success && success === 'true') {
+            navigate(`/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
+        }
+        else {
+            navigate(`/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}`);
+        }
+    }
+
     return (
         <>
             <div className='book flex flex-col gap-4'>
                 <div className='book-header flex items-center gap-4'>
-                    <Button variant='ghost' size='icon' onClick={() => navigate(-1)}>
+                    <Button variant='ghost' size='icon' onClick={navigateBack}>
                         <ChevronLeft width={24} height={24} />
                     </Button>
                     <h1>
@@ -152,52 +159,107 @@ const Book = () => {
                     <Separator orientation='vertical' className='h-full mx-4' />
 
                     <div className='property-payment flex-[3] relative '>
-                        <div className='payment-card flex flex-col gap-4' style={{ position: 'sticky', top: 'calc(1rem + 80px)' }}>
-                            <Card>
-                                <CardContent className='flex flex-col gap-4'>
-                                    <div className='flex flex-row gap-4'>
-                                        <div className='aspect-square h-[150px] w-[150px] rounded-lg overflow-hidden'>
-                                            <img src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${data?.allDetails?.main_image}`} alt={data?.allDetails?.property_name} />
-                                        </div>
-                                        <div className='flex flex-col justify-between'>
-                                            <div>
-                                                <h3 className='font-semibold text-lg'>{data?.allDetails?.property_name}</h3>
-                                                <p className='text-sm text-gray-500'>{data?.allDetails?.owner_full_name}</p>
+                        <div className='payment-card flex flex-col gap-4'>
+                            {isLoading ? (
+                                <>
+                                    <Card>
+                                        <CardContent className="flex flex-col gap-4">
+                                            <div className="flex flex-row gap-4">
+                                                <div className="aspect-square h-[150px] w-[150px] rounded-lg overflow-hidden">
+                                                    <Skeleton className="h-full w-full rounded-lg" />
+                                                </div>
+                                                <div className="flex flex-col justify-between">
+                                                    <div>
+                                                        <Skeleton className="h-6 w-3/4" />
+                                                        <Skeleton className="h-4 w-1/2 mt-2" />
+                                                    </div>
+                                                    <div className="flex flex-row gap-1 items-center text-sm">
+                                                        <Star fill="currentColor" height={12} width={12} className="text-gray-400" />
+                                                        <Skeleton className="h-4 w-1/3 ml-1" />
+                                                    </div>
+                                                </div>
                                             </div>
 
-                                            <div className='flex flex-row gap-1 items-center text-sm'>
-                                                <Star fill='black' height={12} width={12} />
-                                                <span>{data?.allDetails?.average_rating} <span className='text-gray-500'>({data?.allDetails?.reviews_count} reviews)</span></span>
+                                            <h2>Price details</h2>
+                                            <div className="price-details flex flex-col gap-2">
+                                                <div className="price-details-item flex flex-row justify-between">
+                                                    <Skeleton className="h-4 w-1/2" />
+                                                    <Skeleton className="h-4 w-1/4" />
+                                                </div>
+                                                <div className="price-details-item flex flex-row justify-between">
+                                                    <Skeleton className="h-4 w-1/3" />
+                                                    <Skeleton className="h-4 w-1/5" />
+                                                </div>
+                                                <div className="price-details-item flex flex-row justify-between">
+                                                    <Skeleton className="h-4 w-1/4" />
+                                                    <Skeleton className="h-4 w-1/6" />
+                                                </div>
+                                            </div>
+
+                                            <Separator orientation="horizontal" className="my-0" />
+
+                                            <div className="price-total flex flex-row justify-between">
+                                                <Skeleton className="h-6 w-1/4" />
+                                                <Skeleton className="h-6 w-1/3" />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </>
+                            ) : isError ? (
+                                <>
+                                    <Card>
+                                        <CardHeader className='flex flex-col gap-4'>
+                                            <h2>Error fetching property details</h2>
+                                        </CardHeader>
+                                    </Card>
+                                </>
+                            ) : (
+                                <Card>
+                                    <CardContent className='flex flex-col gap-4'>
+                                        <div className='flex flex-row gap-4'>
+                                            <div className='aspect-square h-[150px] w-[150px] rounded-lg overflow-hidden'>
+                                                <img src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${data?.allDetails?.main_image}`} alt={data?.allDetails?.property_name} />
+                                            </div>
+                                            <div className='flex flex-col justify-between'>
+                                                <div>
+                                                    <h3 className='font-semibold text-lg'>{data?.allDetails?.property_name}</h3>
+                                                    <p className='text-sm text-gray-500'>{data?.allDetails?.owner_full_name}</p>
+                                                </div>
+
+                                                <div className='flex flex-row gap-1 items-center text-sm'>
+                                                    <Star fill='black' height={12} width={12} />
+                                                    <span>{data?.allDetails?.average_rating} <span className='text-gray-500'>({data?.allDetails?.reviews_count} reviews)</span></span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
 
-                                    <h2>Price details</h2>
-                                    <div className='price-details flex flex-col gap-2'>
-                                        <div className='price-details-item flex flex-row justify-between'>
-                                            {/* dont care about optimization right now, would use useState for duration */}
-                                            <span>${data?.allDetails?.price_per_night} x {getDuration()} nights</span>
-                                            <span>${getNightsTotalPrice(getDuration())}</span>
+                                        <h2>Price details</h2>
+                                        <div className='price-details flex flex-col gap-2'>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                {/* dont care about optimization right now, would use useState for duration */}
+                                                <span>${data?.allDetails?.price_per_night} x {getDuration()} nights</span>
+                                                <span>${getNightsTotalPrice(getDuration())}</span>
+                                            </div>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                <span>Service fee</span>
+                                                <span>$20</span>
+                                            </div>
+                                            <div className='price-details-item flex flex-row justify-between'>
+                                                <span>Tax</span>
+                                                {/* tax always 0 because no one likes taxes */}
+                                                <span>$0</span>
+                                            </div>
                                         </div>
-                                        <div className='price-details-item flex flex-row justify-between'>
-                                            <span>Service fee</span>
-                                            <span>$20</span>
-                                        </div>
-                                        <div className='price-details-item flex flex-row justify-between'>
-                                            <span>Tax</span>
-                                            {/* tax always 0 because no one likes taxes */}
-                                            <span>$0</span>
-                                        </div>
-                                    </div>
 
-                                    <Separator orientation='horizontal' className='my-0' />
+                                        <Separator orientation='horizontal' className='my-0' />
 
-                                    <div className='price-total flex flex-row justify-between'>
-                                        <h3 className='font-semibold text-xl'>Total</h3>
-                                        <h3 className='font-semibold text-xl'>${getNightsTotalPrice(getDuration()) + 20}</h3>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        <div className='price-total flex flex-row justify-between'>
+                                            <h3 className='font-semibold text-xl'>Total</h3>
+                                            <h3 className='font-semibold text-xl'>${getNightsTotalPrice(getDuration()) + 20}</h3>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                     </div>
                 </div>

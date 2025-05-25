@@ -22,7 +22,7 @@ const calcNights = (checkinDate, checkoutDate) => {
     const differenceInDays = Math.ceil(differenceInMilliseconds / (1000 * 60 * 60 * 24));
 
     // The number of nights is one less than the number of days between check-in and check-out
-    return differenceInDays - 1;
+    return differenceInDays;
 }
 
 // check if login/register needs to be shown or directly the payment info
@@ -174,7 +174,7 @@ router.post("/pay", isAuthenticated, async (req, res, next) => {
                 {
                     price_data: {
                         currency: 'eur',
-                        unit_amount: property.price_per_night * numberOfNights * 100, // convert amount eg 200 eur into cents -> 200000
+                        unit_amount: ((property.price_per_night * numberOfNights) + 20) * 100, // convert amount eg 200 eur into cents -> 200000
                         product_data: {
                             name: property.property_name,
                         },
@@ -231,7 +231,7 @@ router.post("/pay/klarna", async (req, res, next) => {
                 {
                     price_data: {
                         currency: 'eur',
-                        unit_amount: property.price_per_night * numberOfNights * 100, // convert amount eg 200 eur into cents -> 200000
+                        unit_amount: ((property.price_per_night * numberOfNights) + 20) * 100, // convert amount eg 200 eur into cents -> 200000
                         product_data: {
                             name: property.property_name,
                         },
@@ -267,31 +267,13 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
                 property_id: parseInt(property_id)
             },
             select: {
+                property_id: true,
                 property_name: true,
-                property_type: true,
-                price_per_night: true,
                 note_from_owner: true,
-                reviews: true,
-                average_rating: true,
                 owner_id: true,
+                price_per_night: true,
             }
         })
-
-        // get owner details
-        const owner = await prisma.users.findUnique({
-            where: {
-                user_id: property.owner_id
-            },
-
-            select: {
-                user_id: true,
-                first_name: true,
-                last_name: true
-            }
-        })
-
-        const owner_full_name = owner.first_name + " " + owner.last_name;
-        const owner_id = owner.user_id;
 
         // get user details
         const user = await prisma.users.findUnique({
@@ -300,15 +282,13 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
             },
 
             select: {
-                user_id: true,
                 email: true
             }
         })
 
-        const user_id = user.user_id;
         const user_email = user.email;
 
-        // process checkin and checkout
+        // process checkin and checkout -> overlapping bookings check
         const [ciyear, cimonth, cidate] = checkin.split("-");
         const checkinDate = new Date(ciyear, cimonth - 1, cidate);
 
@@ -321,7 +301,7 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         const overlappingBooking = await prisma.bookings.findFirst({
             where: {
                 property_id: parseInt(property_id),
-                guest_id: user_id,
+                guest_id: req.user.user_id,
                 OR: [
                     {
                         check_in_date: { lte: checkoutDate },
@@ -344,7 +324,7 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         const booking = await prisma.bookings.create({
             data: {
                 property_id: parseInt(property_id),
-                guest_id: user_id,
+                guest_id: req.user.user_id,
                 check_in_date: checkinDate,
                 check_out_date: checkoutDate,
                 total_price: numberOfNights * property.price_per_night,
@@ -358,9 +338,6 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         // object which will be returned in case success
         const returnObj = {
             ...property,
-            owner_full_name,
-            owner_id,
-            user_id,
             user_email,
             booking_id
         };
@@ -377,7 +354,7 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         createNotification(
             "booking_confirmation",
             `Your booking at ${property.property_name} from ${formattedCheckinDate} to ${formattedCheckoutDate} has been confirmed.`,
-            user_id,
+            req.user.user_id,
             prisma
         );
 

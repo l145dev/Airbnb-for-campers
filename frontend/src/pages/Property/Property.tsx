@@ -24,6 +24,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
+import { toast } from 'sonner';
 
 interface Review {
     review_id: number;
@@ -159,6 +160,38 @@ const saveProperty = async (propertyId: number): Promise<void> => {
     }
 }
 
+const checkDateError = async (checkin: string, checkout: string, property_id: number) => {
+    if (checkin && checkout) {
+        if (checkin > checkout) {
+            return true;
+        }
+
+        try {
+            const response = await axios.post(`http://localhost:3000/booking/update/dates`, {
+                property_id: property_id,
+                checkin: checkin,
+                checkout: checkout,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true,
+            });
+
+            if (response.status === 200) {
+                return false;
+            }
+
+            else {
+                return true;
+            }
+        }
+        catch (error) {
+            return true;
+        }
+    }
+}
+
 const Property = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -186,6 +219,12 @@ const Property = () => {
     // payment states
     const [guests, setGuests] = useState<number>(0);
 
+    // date error
+    const [dateError, setDateError] = useState<boolean>(false);
+
+    // property address
+    const [propAddress, setPropAddress] = useState<string>('');
+
     // rerendering the state(s) when data changes
     useEffect(() => {
         if (data?.allDetails) {
@@ -199,6 +238,9 @@ const Property = () => {
             if (data?.allDetails.guests) {
                 setGuests(Number(data.allDetails.guests));
             }
+
+            // get property address on data change/load
+            getPropertyAddress();
         }
     }, [data]);
 
@@ -206,6 +248,33 @@ const Property = () => {
         const updatedParams = new URLSearchParams(searchParams);
 
         if (date?.from && date?.to) {
+            const checkDate = async () => {
+                if (data?.allDetails.property_id) {
+                    // date format: yyyy-m-dd
+                    const formatDate = (date: Date) => {
+                        const year = date.getFullYear();
+                        const month = date.getMonth() + 1;
+                        const day = date.getDate();
+                        return `${year}-${month}-${day}`;
+                    };
+
+                    const checkin = date.from ? formatDate(date.from) : '';
+                    const checkout = date.to ? formatDate(date.to) : '';
+
+                    if (await checkDateError(checkin, checkout, data?.allDetails.property_id)) {
+                        setDateError(true);
+                        toast.error('Dates not available', {
+                            description: new Date().toLocaleString()
+                        });
+                    }
+                    else {
+                        setDateError(false);
+                    }
+                }
+            }
+
+            checkDate();
+
             // date format: yyyy-m-dd
             const formatDate = (date: Date) => {
                 const year = date.getFullYear();
@@ -265,9 +334,9 @@ const Property = () => {
             const response = await axios.get(`https://nominatim.openstreetmap.org/reverse.php?lat=${data.allDetails.latitude}&lon=${data.allDetails.longitude}&zoom=18&format=jsonv2`)
             if (response.status === 200) {
                 const formattedAddress = `${response.data.address.house_number !== undefined ? response.data.address.house_number : ''}${response.data.address.road}, ${response.data.address.postcode} ${response.data.address.city}, ${response.data.address.country}`;
-                return formattedAddress;
+                setPropAddress(formattedAddress);
             } else {
-                return `${data.allDetails.city}, ${data.allDetails.country}`;
+                setPropAddress(`${data.allDetails.city}, ${data.allDetails.country}`);
             }
         }
     }
@@ -435,7 +504,7 @@ const Property = () => {
                                                 <div className="space-y-3">
                                                     <Label htmlFor="checkin">Check-in</Label>
                                                     <Popover>
-                                                        <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
+                                                        <PopoverTrigger className={`w-full px-4 py-2 border rounded-md text-left ${dateError ? 'border-red-500 focus:border-red-500' : ''}`}>
                                                             {date?.from === undefined ? (
                                                                 <span className="text-gray-500">Select Check-in</span>
                                                             ) : (
@@ -457,7 +526,7 @@ const Property = () => {
                                                 <div className="space-y-3">
                                                     <Label htmlFor="checkout">Check-out</Label>
                                                     <Popover>
-                                                        <PopoverTrigger className="w-full px-4 py-2 border rounded-md text-left">
+                                                        <PopoverTrigger className={`w-full px-4 py-2 border rounded-md text-left ${dateError ? 'border-red-500 focus:border-red-500' : ''}`}>
                                                             {date?.to === undefined ? (
                                                                 <span className="text-gray-500">Select Check-out</span>
                                                             ) : (
@@ -491,7 +560,7 @@ const Property = () => {
                                             </div>
 
                                             <div className="flex flex-col gap-3">
-                                                <Button type="submit" disabled={date?.from === undefined || date?.to === undefined || guests === 0 || (data?.allDetails?.capacity !== undefined && guests > data?.allDetails?.capacity)} className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
+                                                <Button type="submit" disabled={date?.from === undefined || date?.to === undefined || guests === 0 || (data?.allDetails?.capacity !== undefined && guests > data?.allDetails?.capacity) || dateError} className="w-full bg-[#3D8B40] hover:bg-[#357A38]">
                                                     Reserve
                                                 </Button>
                                             </div>
@@ -578,7 +647,7 @@ const Property = () => {
                             />
                             <Marker position={[Number(data?.allDetails?.latitude), Number(data?.allDetails?.longitude)]} icon={customPin}>
                                 <Popup>
-                                    {getPropertyAddress()}
+                                    {propAddress}
                                 </Popup>
                             </Marker>
                         </MapContainer>
