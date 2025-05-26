@@ -2,6 +2,8 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import TripsDialogPatch from "../TripsDialog/TripsDialogPatch";
+import TripsDialogPost from "../TripsDialog/TripsDialogPost";
 
 interface TripDetails {
     property_id: number;
@@ -19,7 +21,7 @@ interface TripDetails {
     booking_status: string;
 }
 
-const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'reviewed' }> = ({ trip, type }) => {
+const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'reviewed', onDataRefresh: () => void }> = ({ trip, type, onDataRefresh }) => {
     return (
         <>
             <Card>
@@ -62,10 +64,10 @@ const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'r
                     </div>
 
                     <div className="trip-details-actions flex flex-row justify-between">
-                        {trip.booking_status === 'confirmed' ? (
+                        {type === 'confirmed' ? (
                             // confirmed
                             <>
-                                <Button size={'sm'} variant='destructive'>
+                                <Button size={'sm'} variant='destructive' disabled>
                                     Cancel
                                 </Button>
 
@@ -73,13 +75,14 @@ const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'r
                                     <span className="underline">View Property</span>
                                 </Link>
                             </>
-                        ) : trip.booking_status === 'passed' ? (
+                        ) : type === 'passed' ? (
                             // passed
                             <>
                                 {/* open dialog -> on dialog btn post review */}
-                                <Button size={'sm'} variant='default'>
+                                {/* <Button size={'sm'} variant='default'>
                                     Review
-                                </Button>
+                                </Button> */}
+                                <TripsDialogPost property_name={trip.property_name} property_id={trip.property_id} onReviewPosted={onDataRefresh} />
 
                                 <Link to={`/property?property_id=${trip.property_id}`}>
                                     <span className="underline">View Property</span>
@@ -89,9 +92,10 @@ const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'r
                             // reviewed
                             <>
                                 {/* open dialog, get review -> on dialog btn edit/delete review */}
-                                <Button size={'sm'} variant='default'>
+                                {/* <Button size={'sm'} variant='default'>
                                     Edit Review
-                                </Button>
+                                </Button> */}
+                                <TripsDialogPatch property_name={trip.property_name} property_id={trip.property_id} onReviewUpdated={onDataRefresh} />
 
                                 <Link to={`/property?property_id=${trip.property_id}`}>
                                     <span className="underline">View Property</span>

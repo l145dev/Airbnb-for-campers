@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import TripsCard from '@/components/TripsCard/TripsCard';
 import axios from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast, Toaster } from 'sonner';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -51,6 +51,8 @@ const fetchTrips = async (): Promise<ApiResponse> => {
 }
 
 const Trips = () => {
+    const queryClient = useQueryClient();
+
     const { data, isLoading, isError } = useQuery<ApiResponse>({
         queryKey: ['trips'],
         queryFn: fetchTrips,
@@ -77,6 +79,10 @@ const Trips = () => {
             setUpcomingTrips(upcoming);
         }
     }, [data]);
+
+    const refreshData = () => {
+        queryClient.invalidateQueries({ queryKey: ['trips'] });
+    }
 
     return (
         <>
@@ -188,7 +194,7 @@ const Trips = () => {
                                     {upcomingTrips.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
                                             {upcomingTrips.map((trip) => (
-                                                <TripsCard key={trip.booking_id} type="confirmed" trip={trip} />
+                                                <TripsCard key={trip.booking_id} type="confirmed" trip={trip} onDataRefresh={refreshData} />
                                             ))}
                                         </div>
                                     ) : (
@@ -317,6 +323,7 @@ const Trips = () => {
                                                     key={trip.booking_id}
                                                     type={trip.booking_status === "reviewed" ? "reviewed" : "passed"}
                                                     trip={trip}
+                                                    onDataRefresh={refreshData}
                                                 />
                                             ))}
                                         </div>

@@ -220,6 +220,32 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
             }
         })
 
+        // get booking id
+        const booking = await prisma.bookings.findFirst({
+            where: {
+                property_id: parseInt(property_id),
+                guest_id: req.user.user_id
+            },
+            select: {
+                booking_id: true
+            }
+        })
+
+        if (!booking) {
+            return res.status(400).json({ error: "Booking not found" });
+        }
+
+        // update booking status to reviewed
+        await prisma.bookings.update({
+            where: {
+                booking_id: parseInt(booking.booking_id)
+            },
+
+            data: {
+                booking_status: "reviewed"
+            }
+        })
+
         return res.status(200).json({ review });
     }
 
@@ -344,6 +370,29 @@ router.delete("/review", isAuthenticated, async (req, res, next) => {
         const deletedReview = await prisma.reviews.delete({
             where: {
                 review_id: parseInt(review.review_id)
+            }
+        })
+
+        // get booking id
+        const booking = await prisma.bookings.findFirst({
+            where: {
+                property_id: parseInt(property_id),
+                guest_id: req.user.user_id
+            },
+
+            select: {
+                booking_id: true
+            }
+        })
+
+        // update booking status to passed
+        await prisma.bookings.update({
+            where: {
+                booking_id: parseInt(booking.booking_id)
+            },
+
+            data: {
+                booking_status: "passed"
             }
         })
 
