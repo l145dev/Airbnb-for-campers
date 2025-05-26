@@ -12,6 +12,10 @@ router.get("/", isAuthenticated, async (req, res, next) => {
         const bookings = await prisma.bookings.findMany({
             where: {
                 guest_id: req.user.user_id
+            },
+
+            orderBy: {
+                booking_id: 'desc'
             }
         })
 
