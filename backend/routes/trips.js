@@ -27,8 +27,9 @@ router.get("/", isAuthenticated, async (req, res, next) => {
                 property_name: "N/A",
                 owner: "N/A",
                 owner_id: "N/A",
-                reviews_count: "N/A",
+                reviews_count: "0",
                 average_rating: "N/A",
+                image_url: "N/A",
                 booking_id: booking.booking_id,
                 checkin: booking.check_in_date,
                 checkout: booking.check_out_date,
@@ -74,6 +75,22 @@ router.get("/", isAuthenticated, async (req, res, next) => {
                 tempObj.owner = owner.first_name + " " + owner.last_name;
             }
 
+            // get property image
+            const mainImage = await prisma.property_images.findFirst({
+                where: {
+                    property_id: parseInt(property.property_id),
+                    is_main: true
+                },
+
+                select: {
+                    image_url: true
+                }
+            })
+
+            if (mainImage) {
+                tempObj.image_url = mainImage.image_url;
+            }
+
             // get review count
             const reviewCount = await prisma.reviews.count({
                 where: {
@@ -104,10 +121,10 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 
 // get review details if there are any
 router.get("/review", isAuthenticated, async (req, res, next) => {
-    const { review_id, property_id } = req.query;
+    const { property_id } = req.query;
 
     if (!property_id) {
-        return res.status(400).json({ success: false, error: "Cannot find property" });
+        return res.status(400).json({ error: "Cannot find property" });
     }
 
     try {
@@ -123,19 +140,16 @@ router.get("/review", isAuthenticated, async (req, res, next) => {
         })
 
         if (!property) {
-            return res.status(400).json({ success: false, error: "Property not found" })
+            return res.status(400).json({ error: "Property not found" })
         }
 
         const property_name = property.property_name;
 
-        if (!review_id) {
-            return res.status(200).json({ success: true, message: "new review", property_name: property_name });
-        }
-
         // get review details (editing review)
-        const review = await prisma.reviews.findUnique({
+        const review = await prisma.reviews.findFirst({
             where: {
-                review_id: parseInt(review_id)
+                property_id: parseInt(property_id),
+                guest_id: req.user.user_id
             },
 
             select: {
@@ -146,15 +160,21 @@ router.get("/review", isAuthenticated, async (req, res, next) => {
         })
 
         if (!review) {
-            return res.status(400).json({ success: false, error: "Review not found" })
+            const returnObj = {
+                property_name
+            }
+
+            return res.status(200).json({ returnObj })
         }
 
         const returnObj = {
             property_name,
-            ...review
+            review_id: review.review_id,
+            comment: review.comment,
+            rating: review.rating
         }
 
-        return res.status(200).json({ success: true, returnObj })
+        return res.status(200).json({ returnObj })
     }
 
     catch (error) {
@@ -170,11 +190,11 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
 
     // check for missing mandatory  details
     if (!rating) {
-        return res.status(400).json({ success: false, error: "Rating is mandatory" });
+        return res.status(400).json({ error: "Rating is mandatory" });
     }
 
     if (!property_id) {
-        return res.status(400).json({ success: false, error: "Property not found" });
+        return res.status(400).json({ error: "Property not found" });
     }
 
     try {
@@ -187,7 +207,7 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
         })
 
         if (dupe) {
-            return res.status(409).json({ success: false, error: "Cannot review same property multiple times." })
+            return res.status(409).json({ error: "Cannot review same property multiple times." })
         }
 
         // create the review
@@ -200,7 +220,7 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
             }
         })
 
-        return res.status(200).json({ success: true, review });
+        return res.status(200).json({ review });
     }
 
     catch (error) {
@@ -212,21 +232,23 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
 
 // edit a review
 router.patch("/review", isAuthenticated, async (req, res, next) => {
-    const review_id = req.body.review_id;
+    const property_id = req.body.property_id;
     const updates = req.body; // const { property_id, comment, rating } = req.body;
 
-    if (!review_id) {
-        return res.status(400).json({ success: false, error: "Review not found" })
+    if (!property_id) {
+        return res.status(400).json({ error: "Review not found" })
     }
 
     try {
         // get existing review
-        const oldReview = await prisma.reviews.findUnique({
+        const oldReview = await prisma.reviews.findFirst({
             where: {
-                review_id: parseInt(review_id)
+                property_id: parseInt(property_id),
+                guest_id: req.user.user_id
             },
 
             select: {
+                review_id: true,
                 property_id: true,
                 comment: true,
                 rating: true,
@@ -235,11 +257,11 @@ router.patch("/review", isAuthenticated, async (req, res, next) => {
         })
 
         if (!oldReview) {
-            return res.status(404).json({ success: false, error: "Review not found" });
+            return res.status(404).json({ error: "Review not found" });
         }
 
         if (oldReview.guest_id !== req.user.user_id) {
-            return res.status(400).json({ success: false, error: "You cannot edit this review" });
+            return res.status(400).json({ error: "You cannot edit this review" });
         }
 
         // new review storage
@@ -258,13 +280,13 @@ router.patch("/review", isAuthenticated, async (req, res, next) => {
         // check if nothing is updated
         if (Object.keys(newReview).length === 0) {
             // no db operation needed because nothing was updated
-            return res.status(200).json({ success: true, newReview });
+            return res.status(200).json({ newReview });
         }
 
         // update user with new details
         const updated = await prisma.reviews.update({
             where: {
-                review_id: parseInt(review_id)
+                review_id: parseInt(oldReview.review_id)
             },
 
             data: newReview,
@@ -277,7 +299,7 @@ router.patch("/review", isAuthenticated, async (req, res, next) => {
         })
 
         // return success with updated details
-        return res.status(200).json({ success: true, updated });
+        return res.status(200).json({ updated });
     }
 
     catch (error) {
@@ -289,41 +311,43 @@ router.patch("/review", isAuthenticated, async (req, res, next) => {
 
 // delete review
 router.delete("/review", isAuthenticated, async (req, res, next) => {
-    const { review_id } = req.body;
+    const { property_id } = req.body;
 
-    if (!review_id) {
-        return res.status(400).json({ success: false, error: "Review not found" })
+    if (!property_id) {
+        return res.status(400).json({ error: "Review not found" })
     }
 
     try {
         // get review to compare user ids
-        const review = await prisma.reviews.findUnique({
+        const review = await prisma.reviews.findFirst({
             where: {
-                review_id: parseInt(review_id)
+                property_id: parseInt(property_id),
+                guest_id: req.user.user_id
             },
 
             select: {
-                guest_id: true
+                guest_id: true,
+                review_id: true
             }
         })
 
         if (!review) {
-            return res.status(400).json({ success: false, error: "Review not found" })
+            return res.status(400).json({ error: "Review not found" })
         }
 
         // dont allow unauthorized deletions
         if (review.guest_id !== req.user.user_id) {
-            return res.status(400).json({ success: false, error: "You cannot delete this review" });
+            return res.status(400).json({ error: "You cannot delete this review" });
         }
 
         // delete the review
         const deletedReview = await prisma.reviews.delete({
             where: {
-                review_id: parseInt(review_id)
+                review_id: parseInt(review.review_id)
             }
         })
 
-        return res.status(200).json({ success: true, deletedReview })
+        return res.status(200).json({ deletedReview })
     }
 
     catch (error) {
