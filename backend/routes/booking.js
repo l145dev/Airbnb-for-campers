@@ -317,7 +317,13 @@ router.get("/success", isAuthenticated, async (req, res, next) => {
         });
 
         if (overlappingBooking) {
-            return res.status(409).json({ success: false, error: "You already made this booking." })
+            const returnObj = {
+                ...property,
+                user_email,
+                booking_id: overlappingBooking.booking_id
+            }
+
+            return res.status(200).json({ success: true, returnObj })
         }
 
         // create booking
