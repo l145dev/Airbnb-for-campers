@@ -18,13 +18,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import PropertySkeleton from '@/components/PropertySkeleton/PropertySkeleton';
 import axios from 'axios';
 import PropertyImage from '@/components/PropertyImage/PropertyImage';
+import { toast, Toaster } from 'sonner';
 
 // map
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
-import { toast, Toaster } from 'sonner';
 
 interface Review {
     review_id: number;

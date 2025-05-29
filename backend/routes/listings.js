@@ -125,6 +125,8 @@ router.get('/', async (req, res, next) => {
                 owner_id: true,
                 price_per_night: true,
                 average_rating: true,
+                latitude: true,
+                longitude: true
             }
         });
 

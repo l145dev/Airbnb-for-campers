@@ -6,3 +6,18 @@
 .listings .proptype-container {
     width: 100%;
 }
+
+.listings .custom-map-height {
+    height: calc(100vh - 185px);
+}
+
+/* leaflet map */
+.listings .leaflet-container {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.listings .leaflet-popup-content {
+    margin: 10px;
+}

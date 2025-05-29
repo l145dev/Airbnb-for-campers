@@ -14,12 +14,17 @@ import glampIcon from '../../assets/images/icons8-large-glamp-100.png';
 import uniqueIcon from '../../assets/images/icons8-unique-100.png';
 import farmIcon from '../../assets/images/icons8-farm-100.png';
 import yurtIcon from '../../assets/images/icons8-yurt-100.png';
-import { Heart, Map } from 'lucide-react';
+import { Heart, Map, Star } from 'lucide-react';
 // lib imports
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+// map
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Icon } from 'leaflet';
+import marker from '../../assets/images/Map-Marker-PNG-HD.png';
 
 // object i will receive from backend
 interface Listing {
@@ -32,6 +37,8 @@ interface Listing {
     average_rating: number;
     owner: string;
     price_per_night: number;
+    latitude: string;
+    longitude: string;
 }
 
 // search params from the url
@@ -73,6 +80,14 @@ const Listings = () => {
 
     // params handling
     const queryParams: SearchParams = Object.fromEntries(searchParams.entries());
+
+    // custom icon for leaflet
+    const customPin = new Icon({
+        iconUrl: marker,
+        iconSize: [48, 48],
+        iconAnchor: [24, 48],
+        popupAnchor: [0, -48]
+    });
 
     // active toggle for all prop filters -> not very clean, i know
     const [currentActive, setCurrentActive] = useState<string | undefined>(queryParams.propType);
@@ -421,22 +436,67 @@ const Listings = () => {
                 {Array.isArray(data) && (
                     <>
                         {/* actual data goes here */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-                            {data.map((listing: Listing) => (
-                                <ListingComponent
-                                    key={listing.property_id}
-                                    propId={listing.property_id}
-                                    propName={listing.property_name}
-                                    avgRating={listing.average_rating}
-                                    city={listing.city}
-                                    country={listing.country}
-                                    imgSrc={listing.property_image}
-                                    owner={listing.owner}
-                                    price={listing.price_per_night}
-                                    propType={listing.property_type}
-                                />
-                            ))}
-                        </div>
+                        {mapActive ? (
+                            <>
+                                <div className='custom-map-height w-full bg-gray-100 rounded-lg overflow-hidden'>
+                                    <MapContainer
+                                        center={[55.41569239101371, -1.7058667577187978]} // castle where harry potter was filmed
+                                        zoom={3}
+                                        scrollWheelZoom={true}>
+                                        <TileLayer
+                                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        />
+                                        {data.map((listing: Listing) => (
+                                            <Marker position={[Number(listing.latitude), Number(listing.longitude)]} icon={customPin} key={listing.property_id}>
+                                                <Popup>
+                                                    <div className='flex flex-row gap-4'>
+                                                        <div className='aspect-square min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] rounded-lg overflow-hidden'>
+                                                            <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + listing.property_image} alt="Property" className='h-full w-full object-cover' />
+                                                        </div>
+                                                        <div className='flex flex-col justify-between'>
+                                                            <div>
+                                                                <h3 className='font-semibold text-lg'>{listing.property_name}</h3>
+                                                                <p className='text-sm text-gray-500'>{listing.owner}</p>
+                                                            </div>
+
+                                                            <div className='flex flex-row gap-1 items-center text-sm'>
+                                                                <Star fill='black' height={12} width={12} />
+                                                                <span>{listing.average_rating} · <span className='text-gray-500'>{listing.property_type}</span></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <Link to={`/property?property_id=${listing.property_id}`}>
+                                                        <Button variant={'default'} className='w-full mt-2'>
+                                                            View Listing
+                                                        </Button>
+                                                    </Link>
+                                                </Popup>
+                                            </Marker>
+                                        ))}
+                                    </MapContainer>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+                                    {data.map((listing: Listing) => (
+                                        <ListingComponent
+                                            key={listing.property_id}
+                                            propId={listing.property_id}
+                                            propName={listing.property_name}
+                                            avgRating={listing.average_rating}
+                                            city={listing.city}
+                                            country={listing.country}
+                                            imgSrc={listing.property_image}
+                                            owner={listing.owner}
+                                            price={listing.price_per_night}
+                                            propType={listing.property_type}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </>
                 )}
 
