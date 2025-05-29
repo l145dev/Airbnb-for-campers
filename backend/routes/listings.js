@@ -11,7 +11,7 @@ const router = Router();
 
 /* get listings. */
 router.get('/', async (req, res, next) => {
-    const { propType, country, city, guests } = req.query;
+    const { propType, country, city, guests, saved } = req.query;
     let checkin = req.query.checkin;
     let checkout = req.query.checkout;
     // proptype options: Cabin, Tent, RV, Treehouse, Glamp, Unique, Farm, Yurt
@@ -124,7 +124,7 @@ router.get('/', async (req, res, next) => {
                 country: true,
                 owner_id: true,
                 price_per_night: true,
-                average_rating: true
+                average_rating: true,
             }
         });
 
@@ -172,14 +172,44 @@ router.get('/', async (req, res, next) => {
                 console.log("error: " + error);
             }
 
-            // filter booking checkin/checkout
 
+            // filter booking checkin/checkout
             // available by default
             let available = await checkPropertyAvailability(item.property_id, checkin, checkout, prisma);
 
             if (available) {
-                // return object (gets stored in promises array because of map usage)
-                return tempObj;
+                // check if saved only if user is logged in
+                if (req.session && req.session.userId) {
+                    // if saved only toggled
+                    if (saved) {
+                        try {
+                            const savedProps = await prisma.user_saves.findFirst({
+                                where: {
+                                    user_id: parseInt(req.session.userId),
+                                    property_id: item.property_id
+                                }
+                            })
+
+                            if (savedProps) {
+                                // return if save is found
+                                return tempObj;
+                            }
+                        }
+                        catch (error) {
+                            console.log("error: " + error);
+                        }
+                    }
+
+                    else {
+                        // return the object because not toggled
+                        return tempObj;
+                    }
+                }
+                else {
+                    // user isnt logged in -> cannot check saved
+                    // return object (gets stored in promises array because of map usage)
+                    return tempObj;
+                }
             }
         })
 

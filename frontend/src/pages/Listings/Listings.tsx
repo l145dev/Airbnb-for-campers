@@ -14,6 +14,7 @@ import glampIcon from '../../assets/images/icons8-large-glamp-100.png';
 import uniqueIcon from '../../assets/images/icons8-unique-100.png';
 import farmIcon from '../../assets/images/icons8-farm-100.png';
 import yurtIcon from '../../assets/images/icons8-yurt-100.png';
+import { Heart, Map } from 'lucide-react';
 // lib imports
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -41,6 +42,7 @@ interface SearchParams {
     country?: string; // for the future
     guests?: string;
     propType?: string;
+    saved?: boolean;
 }
 
 const fetchListings = async (params: SearchParams): Promise<Listing[] | string> => {
@@ -83,6 +85,9 @@ const Listings = () => {
     const [uniqueActive, setUniqueActive] = useState<boolean>(false);
     const [farmActive, setFarmActive] = useState<boolean>(false);
     const [yurtActive, setYurtActive] = useState<boolean>(false);
+
+    const [savedActive, setSavedActive] = useState<boolean | undefined>(queryParams.saved);
+    const [mapActive, setMapActive] = useState<boolean>(false);
 
     // uhmmmm, ignore this
     useEffect(() => {
@@ -210,12 +215,24 @@ const Listings = () => {
         navigate(`?${updatedParams.toString()}`);
     }
 
+    const addSavedParam = () => {
+        const updatedParams = new URLSearchParams(searchParams);
+        updatedParams.set('saved', 'true');
+        navigate(`?${updatedParams.toString()}`);
+    }
+
+    const removeSavedParam = () => {
+        const updatedParams = new URLSearchParams(searchParams);
+        updatedParams.delete('saved');
+        navigate(`?${updatedParams.toString()}`);
+    }
+
     return (
         <>
             <div className='listings'>
-                <div className='proptype-container'>
-                    <ScrollArea className="w-full whitespace-nowrap">
-                        <div className="flex w-full space-x-4 pb-4 justify-center">
+                <div className='proptype-container w-full flex flex-row justify-between'>
+                    <ScrollArea className="whitespace-nowrap">
+                        <div className="flex w-full space-x-2 pb-4">
                             {/* i regret choosing to take the easy way out and not making a seperate component for this now */}
                             <Button variant={`${cabinActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
                                 if (!cabinActive) {
@@ -229,8 +246,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={cabinIcon} alt="Cabin" className="w-8 h-8" />
-                                    <span>Cabins</span>
+                                    <img src={cabinIcon} alt="Cabin" className="w-6 h-6" />
+                                    <span className='text-base'>Cabins</span>
                                 </div>
                             </Button>
                             <Button variant={`${tentActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -245,8 +262,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={tentIcon} alt="Tent" className="w-8 h-8" />
-                                    <span>Tents</span>
+                                    <img src={tentIcon} alt="Tent" className="w-6 h-6" />
+                                    <span className='text-base'>Tents</span>
                                 </div>
                             </Button>
                             <Button variant={`${rvActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -261,8 +278,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={rvIcon} alt="RV" className="w-8 h-8" />
-                                    <span>RV</span>
+                                    <img src={rvIcon} alt="RV" className="w-6 h-6" />
+                                    <span className='text-base'>RV</span>
                                 </div>
                             </Button>
                             <Button variant={`${treehouseActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -277,8 +294,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={treehouseIcon} alt="Treehouse" className="w-8 h-8" />
-                                    <span>Treehouses</span>
+                                    <img src={treehouseIcon} alt="Treehouse" className="w-6 h-6" />
+                                    <span className='text-base'>Treehouses</span>
                                 </div>
                             </Button>
                             <Button variant={`${glampActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -293,8 +310,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={glampIcon} alt="Glamping" className="w-8 h-8" />
-                                    <span>Glamping</span>
+                                    <img src={glampIcon} alt="Glamping" className="w-6 h-6" />
+                                    <span className='text-base'>Glamping</span>
                                 </div>
                             </Button>
                             <Button variant={`${uniqueActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -309,8 +326,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={uniqueIcon} alt="Unique" className="w-8 h-8" />
-                                    <span>Unique Stays</span>
+                                    <img src={uniqueIcon} alt="Unique" className="w-6 h-6" />
+                                    <span className='text-base'>Unique Stays</span>
                                 </div>
                             </Button>
                             <Button variant={`${farmActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -325,8 +342,8 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={farmIcon} alt="Farm" className="w-8 h-8" />
-                                    <span>Farms</span>
+                                    <img src={farmIcon} alt="Farm" className="w-6 h-6" />
+                                    <span className='text-base'>Farms</span>
                                 </div>
                             </Button>
                             <Button variant={`${yurtActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
@@ -341,13 +358,38 @@ const Listings = () => {
                                 }
                             }}>
                                 <div className="flex items-center gap-2">
-                                    <img src={yurtIcon} alt="Yurt" className="w-8 h-8" />
-                                    <span>Yurts</span>
+                                    <img src={yurtIcon} alt="Yurt" className="w-6 h-6" />
+                                    <span className='text-base'>Yurts</span>
                                 </div>
                             </Button>
                         </div>
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>
+                    <div className='flex flex-row space-x-2'>
+                        <Button variant={`${savedActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => {
+                            if (!savedActive) {
+                                setSavedActive(true);
+                                addSavedParam();
+                            }
+
+                            else {
+                                setSavedActive(false);
+                                removeSavedParam();
+                            }
+                        }}>
+                            <div className="flex items-center gap-2">
+                                <Heart className='min-w-6 min-h-6' strokeWidth={1} />
+                                <span className='text-base'>Saved</span>
+                            </div>
+                        </Button>
+
+                        <Button variant={`${mapActive ? "secondary" : "ghost"}`} className='h-min' onClick={() => setMapActive(!mapActive)}>
+                            <div className="flex items-center gap-2">
+                                <Map className='min-w-6 min-h-6' strokeWidth={1} />
+                                <span className='text-base'>Map</span>
+                            </div>
+                        </Button>
+                    </div>
                 </div >
 
                 <Separator className='w-full mb-4' orientation='horizontal' />
@@ -355,7 +397,7 @@ const Listings = () => {
                 {/* this is the skeleton (isLoading) */}
                 {isLoading && (
                     <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 p-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                             {[...Array(15)].map((_, index) => (
                                 <SkeletonComponent key={index} />
                             ))}
@@ -379,7 +421,7 @@ const Listings = () => {
                 {Array.isArray(data) && (
                     <>
                         {/* actual data goes here */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 p-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
                             {data.map((listing: Listing) => (
                                 <ListingComponent
                                     key={listing.property_id}
