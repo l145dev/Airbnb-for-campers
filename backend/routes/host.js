@@ -2,6 +2,7 @@ import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 // import isAuthenticated from "../middleware/auth.js"; // probably dont need auth for this
 import isHost from "../utils/isHost.js";
+import isAuthenticated from "../middleware/auth.js";
 
 const router = Router();
 
@@ -63,7 +64,7 @@ router.get("/", async (req, res, next) => {
         }, 0);
 
         if (properties.length <= 0) {
-            return res.status(400).json({ success: true, message: "No properties in this city." });
+            return res.status(400).json({ message: "No properties in this city." });
         }
 
         const averageNightPrice = Math.round(totalSum / properties.length);
@@ -85,7 +86,30 @@ router.get("/", async (req, res, next) => {
             is_owner: is_owner
         }
 
-        return res.status(200).json({ success: true, returnObj })
+        return res.status(200).json({ returnObj })
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+router.post("/", isAuthenticated, async (req, res, next) => {
+    // become a host
+    try {
+        await prisma.users.update({
+            where: {
+                user_id: parseInt(req.user.user_id)
+            },
+
+            data: {
+                is_owner: true
+            }
+        })
+
+        return res.status(200).json({ message: "You are now a host." })
     }
 
     catch (error) {
