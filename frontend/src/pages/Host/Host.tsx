@@ -3,13 +3,19 @@ import './Host.css';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { LoaderCircle, MinusIcon, PlusIcon, Search } from 'lucide-react';
+import { LoaderCircle, MinusIcon, PlusIcon, Search, Star } from 'lucide-react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandInput, CommandItem } from '@/components/ui/command';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
+// map
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { Icon } from 'leaflet';
+import marker from '../../assets/images/Map-Marker-PNG-HD.png';
+import MarketClusterGroup from 'react-leaflet-cluster';
 
 interface PropertyImage {
     image_id: number;
@@ -65,6 +71,14 @@ const Host = () => {
     const { data, isLoading, isError, error } = useQuery({
         queryKey: ['host', searchParams.toString()],
         queryFn: () => fetchData(searchParams),
+    });
+
+    // custom icon for leaflet
+    const customPin = new Icon({
+        iconUrl: marker,
+        iconSize: [48, 48],
+        iconAnchor: [24, 48],
+        popupAnchor: [0, -48]
     });
 
     const [nights, setNights] = useState<number[]>([Number(searchParams.get("nights")) || 7]);
@@ -301,7 +315,44 @@ const Host = () => {
                     </div>
 
                     <div className='map-container h-[60%] w-auto aspect-square bg-blue-100 rounded-lg overflow-hidden'>
+                        <MapContainer
+                            center={[55.41569239101371, -1.7058667577187978]} // castle where harry potter was filmed
+                            zoom={3}
+                            scrollWheelZoom={true}>
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            />
+                            <MarketClusterGroup>
+                                {Array.isArray(data?.properties) && data.properties.map((property: Property) => (
+                                    <Marker position={[Number(property.latitude), Number(property.longitude)]} icon={customPin} key={property.property_id}>
+                                        <Popup>
+                                            <div className='flex flex-row gap-4'>
+                                                <div className='aspect-square min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] rounded-lg overflow-hidden'>
+                                                    <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + property.property_images[0].image_url} alt="Property" className='h-full w-full object-cover' />
+                                                </div>
+                                                <div className='flex flex-col justify-between'>
+                                                    <div>
+                                                        <h3 className='font-semibold text-lg'>{property.property_name}</h3>
+                                                        <p className='text-sm text-gray-500'>${property.price_per_night}/night</p>
+                                                    </div>
 
+                                                    <div className='flex flex-row gap-1 items-center text-sm'>
+                                                        <Star fill='black' height={12} width={12} />
+                                                        <span>{property.average_rating} · <span className='text-gray-500'>{property.capacity} Guests</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <Link to={`/property?property_id=${property.property_id}`}>
+                                                <Button variant={'default'} className='w-full mt-2'>
+                                                    View Listing
+                                                </Button>
+                                            </Link>
+                                        </Popup>
+                                    </Marker>
+                                ))}
+                            </MarketClusterGroup>
+                        </MapContainer>
                     </div>
                 </div>
             </div>

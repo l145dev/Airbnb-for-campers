@@ -25,6 +25,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
 import marker from '../../assets/images/Map-Marker-PNG-HD.png';
+import MarketClusterGroup from 'react-leaflet-cluster';
 
 // object i will receive from backend
 interface Listing {
@@ -447,33 +448,35 @@ const Listings = () => {
                                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                         />
-                                        {data.map((listing: Listing) => (
-                                            <Marker position={[Number(listing.latitude), Number(listing.longitude)]} icon={customPin} key={listing.property_id}>
-                                                <Popup>
-                                                    <div className='flex flex-row gap-4'>
-                                                        <div className='aspect-square min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] rounded-lg overflow-hidden'>
-                                                            <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + listing.property_image} alt="Property" className='h-full w-full object-cover' />
-                                                        </div>
-                                                        <div className='flex flex-col justify-between'>
-                                                            <div>
-                                                                <h3 className='font-semibold text-lg'>{listing.property_name}</h3>
-                                                                <p className='text-sm text-gray-500'>{listing.owner}</p>
+                                        <MarketClusterGroup>
+                                            {data.map((listing: Listing) => (
+                                                <Marker position={[Number(listing.latitude), Number(listing.longitude)]} icon={customPin} key={listing.property_id}>
+                                                    <Popup>
+                                                        <div className='flex flex-row gap-4'>
+                                                            <div className='aspect-square min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] rounded-lg overflow-hidden'>
+                                                                <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + listing.property_image} alt="Property" className='h-full w-full object-cover' />
                                                             </div>
+                                                            <div className='flex flex-col justify-between'>
+                                                                <div>
+                                                                    <h3 className='font-semibold text-lg'>{listing.property_name}</h3>
+                                                                    <p className='text-sm text-gray-500'>{listing.owner}</p>
+                                                                </div>
 
-                                                            <div className='flex flex-row gap-1 items-center text-sm'>
-                                                                <Star fill='black' height={12} width={12} />
-                                                                <span>{listing.average_rating} · <span className='text-gray-500'>{listing.property_type}</span></span>
+                                                                <div className='flex flex-row gap-1 items-center text-sm'>
+                                                                    <Star fill='black' height={12} width={12} />
+                                                                    <span>{listing.average_rating} · <span className='text-gray-500'>{listing.property_type}</span></span>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                    <Link to={`/property?property_id=${listing.property_id}`}>
-                                                        <Button variant={'default'} className='w-full mt-2'>
-                                                            View Listing
-                                                        </Button>
-                                                    </Link>
-                                                </Popup>
-                                            </Marker>
-                                        ))}
+                                                        <Link to={`/property?property_id=${listing.property_id}`}>
+                                                            <Button variant={'default'} className='w-full mt-2'>
+                                                                View Listing
+                                                            </Button>
+                                                        </Link>
+                                                    </Popup>
+                                                </Marker>
+                                            ))}
+                                        </MarketClusterGroup>
                                     </MapContainer>
                                 </div>
                             </>

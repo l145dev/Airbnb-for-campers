@@ -4,3 +4,14 @@
     width: 100%;
     height: 100vh;
 }
+
+/* leaflet map */
+.host .leaflet-container {
+    height: 100%;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.host .leaflet-popup-content {
+    margin: 10px;
+}
