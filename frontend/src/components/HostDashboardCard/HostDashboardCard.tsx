@@ -7,6 +7,8 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { toast, Toaster } from "sonner";
+import axios from "axios";
 
 interface HostDashboardDetails {
     property_id: number;
@@ -24,6 +26,36 @@ interface HostDashboardDetails {
 }
 
 const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, type: 'active' | 'inactive', onDataRefresh: () => void }> = ({ host_dashboard_card, type, onDataRefresh }) => {
+    const publish = async () => {
+        // unpublish/publish property
+        try {
+            const response = await axios.patch("http://localhost:3000/hostdashboard/publish", {
+                property_id: host_dashboard_card.property_id,
+                published: host_dashboard_card.is_active,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                withCredentials: true,
+            });
+
+            if (response.status === 200) {
+                toast.success(`Property ${host_dashboard_card.is_active ? "unpublished" : "published"} successfully.`, {
+                    description: new Date().toLocaleTimeString(),
+                });
+                // invalidate query (reload data)
+                onDataRefresh();
+            }
+
+        } catch (error) {
+            toast.error(`Failed to ${host_dashboard_card.is_active ? "unpublish" : "publish"} listing. Please refresh page to try again.`, {
+                description: new Date().toLocaleTimeString(),
+            });
+            console.error(`Error ${host_dashboard_card.is_active ? "unpublishing" : "publishing"} listings:`, error);
+            throw error;
+        }
+    }
+
     return (
         <>
             <Card>
@@ -73,7 +105,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                                     {/* toggle to unpublish */}
                                     <Tooltip >
                                         <TooltipTrigger asChild>
-                                            <Button size={'sm'} variant='default'>
+                                            <Button size={'sm'} variant='default' onClick={publish}>
                                                 Published
                                             </Button>
                                         </TooltipTrigger>
@@ -96,13 +128,9 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                         ) : type === 'inactive' && (
                             // inactive = not published
                             <>
-                                {/* open dialog -> on dialog btn post review */}
-                                {/* <Button size={'sm'} variant='default'>
-                                    Review
-                                </Button> */}
-                                {/* <TripsDialogPost property_name={trip.property_name} property_id={trip.property_id} onReviewPosted={onDataRefresh} /> */}
-
-                                {/* trigger open a dialog menu with modification */}
+                                <Button size={'sm'} variant='default' onClick={publish}>
+                                    Publish
+                                </Button>
 
                                 <span className="underline">Modify</span>
                             </>

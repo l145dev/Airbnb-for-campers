@@ -38,7 +38,16 @@ const fetchHostDashboardCards = async (): Promise<ApiResponse> => {
             withCredentials: true,
         });
 
-        return response.data;
+        if (response.status === 200) {
+            return response.data;
+        }
+
+        else {
+            toast.error("Failed to fetch listings. Please refresh page to try again.", {
+                description: new Date().toLocaleTimeString(),
+            });
+            return { success: false, resolvedPromise: [] };
+        }
     } catch (error) {
         toast.error("Failed to fetch listings. Please refresh page to try again.", {
             description: new Date().toLocaleTimeString(),
@@ -52,13 +61,13 @@ const HostDashboard = () => {
     const queryClient = useQueryClient();
 
     const { data, isLoading, isError } = useQuery<ApiResponse>({
-        queryKey: ['host_dashboard_cards'],
+        queryKey: ['host-dashboard'],
         queryFn: fetchHostDashboardCards,
         enabled: true,
     });
 
     const refreshData = () => {
-        queryClient.invalidateQueries({ queryKey: ['trips'] });
+        queryClient.invalidateQueries({ queryKey: ['host-dashboard'] });
     }
 
     return (
