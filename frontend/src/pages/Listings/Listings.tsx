@@ -103,6 +103,7 @@ const Listings = () => {
     const [yurtActive, setYurtActive] = useState<boolean>(false);
 
     const [savedActive, setSavedActive] = useState<boolean | undefined>(queryParams.saved);
+    const [hoverSaved, setHoverSaved] = useState<boolean>(false);
     const [mapActive, setMapActive] = useState<boolean>(false);
 
     // uhmmmm, ignore this
@@ -392,9 +393,11 @@ const Listings = () => {
                                 setSavedActive(false);
                                 removeSavedParam();
                             }
-                        }}>
+                        }}
+                            onMouseEnter={() => setHoverSaved(true)}
+                            onMouseLeave={() => setHoverSaved(false)}>
                             <div className="flex items-center gap-2">
-                                <Heart className='min-w-6 min-h-6' strokeWidth={1} />
+                                <Heart className='min-w-6 min-h-6' strokeWidth={1} fill={savedActive ? 'red' : hoverSaved ? 'pink' : 'none'} />
                                 <span className='text-base'>Saved</span>
                             </div>
                         </Button>
