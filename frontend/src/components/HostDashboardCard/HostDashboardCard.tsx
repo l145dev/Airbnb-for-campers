@@ -57,11 +57,11 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                         </div>
                         <div className='host-dashboard-card-details-total-revenue flex flex-row justify-between'>
                             <span>Total Revenue</span>
-                            <span>{host_dashboard_card.totalRevenue}</span>
+                            <span>${host_dashboard_card.totalRevenue}</span>
                         </div>
                         <div className="host-dashboard-card-details-total-bookings flex flex-row justify-between">
                             <span>Total Bookings</span>
-                            <span>${host_dashboard_card.totalBookings}</span>
+                            <span>{host_dashboard_card.totalBookings}</span>
                         </div>
                     </div>
 
