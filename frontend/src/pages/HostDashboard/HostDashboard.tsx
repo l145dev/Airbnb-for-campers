@@ -2,13 +2,68 @@ import { useState } from 'react';
 import './HostDashboard.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import axios from 'axios';
+import { toast, Toaster } from 'sonner';
+import HostDashboardCard from '@/components/HostDashboardCard/HostDashboardCard';
+import nolistings from '@/assets/images/notripshistory.jpg';
+import { Button } from '@/components/ui/button';
+
+interface HostDashboardDetails {
+    property_id: number;
+    property_name: string;
+    city: string;
+    country: string;
+    reviewCount: number;
+    average_rating: number;
+    is_active: boolean;
+    image_url: string;
+    nextBooking: string;
+    totalRevenue: number;
+    totalBookings: number;
+    adr: number;
+}
+
+interface ApiResponse {
+    success: boolean;
+    resolvedPromise: HostDashboardDetails[];
+}
+
+const fetchHostDashboardCards = async (): Promise<ApiResponse> => {
+    try {
+        const response = await axios.get('http://localhost:3000/hostdashboard', {
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+        });
+
+        return response.data;
+    } catch (error) {
+        toast.error("Failed to fetch listings. Please refresh page to try again.", {
+            description: new Date().toLocaleTimeString(),
+        });
+        console.error("Error fetching listings:", error);
+        throw error;
+    }
+}
 
 const HostDashboard = () => {
-    const [isLoading, setIsLoading] = useState(false);
-    const [isError, setIsError] = useState(false);
+    const queryClient = useQueryClient();
+
+    const { data, isLoading, isError } = useQuery<ApiResponse>({
+        queryKey: ['host_dashboard_cards'],
+        queryFn: fetchHostDashboardCards,
+        enabled: true,
+    });
+
+    const refreshData = () => {
+        queryClient.invalidateQueries({ queryKey: ['trips'] });
+    }
 
     return (
         <>
+            <Toaster closeButton />
             <div className='host-dashboard flex flex-col gap-4'>
                 <h1>Host Dashboard</h1>
                 {isError ? (
@@ -112,7 +167,35 @@ const HostDashboard = () => {
                                 </>
                             ) : (
                                 <>
-                                    {/* data here */}
+                                    {Array.isArray(data?.resolvedPromise) && data.resolvedPromise.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
+                                            {data.resolvedPromise.map((host_dashboard_card: HostDashboardDetails) => (
+                                                <HostDashboardCard
+                                                    key={host_dashboard_card.property_id}
+                                                    host_dashboard_card={host_dashboard_card}
+                                                    type={host_dashboard_card.is_active ? "active" : "inactive"}
+                                                    onDataRefresh={refreshData}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className='flex flex-row h-[300px] w-full rounded-lg items-center justify-center border'>
+                                            <div className='flex-[5] h-full overflow-hidden rounded-l-lg'>
+                                                <img src={nolistings} alt="Upcoming Trip" className='h-full w-full object-cover' />
+                                            </div>
+
+                                            <div className='flex flex-[3] flex-col p-8 h-full justify-between'>
+                                                <div>
+                                                    <h3 className='text-xl font-semibold'>No listings!</h3>
+                                                    <p className='text-gray-600'>Your listings will appear here once they are available.</p>
+                                                </div>
+
+                                                <Button variant={'default'} className='w-min'>
+                                                    Create listing
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
                                 </>
                             )}
                         </div>

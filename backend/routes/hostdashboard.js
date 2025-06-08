@@ -49,6 +49,7 @@ router.get("/", isAuthenticated, async (req, res, next) => {
                 ...property,
                 reviewCount: 0,
                 nextBooking: "N/A",
+                image_url: "default.jpg",
                 totalRevenue: 0,
                 totalBookings: 0,
                 adr: 0
@@ -126,6 +127,21 @@ router.get("/", isAuthenticated, async (req, res, next) => {
                 const adr = Math.round(totalRevenue / totalBookings);
 
                 tempObj.adr = adr;
+            }
+
+            // get image url
+            const image_url = await prisma.property_images.findFirst({
+                where: {
+                    property_id: parseInt(property.property_id)
+                },
+
+                select: {
+                    image_url: true
+                }
+            })
+
+            if (image_url) {
+                tempObj.image_url = image_url.image_url;
             }
 
             return tempObj;

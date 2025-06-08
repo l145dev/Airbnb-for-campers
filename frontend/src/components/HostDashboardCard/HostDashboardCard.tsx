@@ -2,13 +2,18 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface HostDashboardDetails {
     property_id: number;
     property_name: string;
     city: string;
     country: string;
-    reviewsCount: number;
+    reviewCount: number;
     average_rating: number;
     is_active: boolean;
     image_url: string;
@@ -35,7 +40,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
 
                             <div className='flex flex-row gap-1 items-center text-sm'>
                                 <Star fill='black' height={12} width={12} />
-                                <span>{host_dashboard_card.average_rating} <span className='text-gray-500'>({host_dashboard_card.reviewsCount} reviews)</span></span>
+                                <span>{host_dashboard_card.average_rating} <span className='text-gray-500'>({host_dashboard_card.reviewCount} reviews)</span></span>
                             </div>
                         </div>
                     </div>
@@ -64,11 +69,18 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                         {type === 'active' ? (
                             // active = published
                             <>
-                                <div className="host-dashboard-card-details-actions-leftcontrols">
+                                <div className="host-dashboard-card-details-actions-leftcontrols flex flex-row gap-4">
                                     {/* toggle to unpublish */}
-                                    <Button size={'sm'} variant='outline'>
-                                        Published
-                                    </Button>
+                                    <Tooltip >
+                                        <TooltipTrigger asChild>
+                                            <Button size={'sm'} variant='default'>
+                                                Published
+                                            </Button>
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Unpublish</p>
+                                        </TooltipContent>
+                                    </Tooltip>
                                     {/* view listing */}
                                     <Link to={`/property?property_id=${host_dashboard_card.property_id}`}>
                                         <Button size={'sm'} variant={'outline'}>
