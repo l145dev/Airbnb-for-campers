@@ -4,10 +4,21 @@ import checkPropertyAvailability from '../utils/availability.js';
 import isAuthenticated from '../middleware/auth.js';
 import isHost from '../utils/isHost.js';
 import axios from 'axios';
+import multer from 'multer';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const prisma = new PrismaClient();
 
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage() }); // store data in memory (RAM) instead of disk
+
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_KEY
+);
 
 /* get listings. */
 router.get('/', async (req, res, next) => {
@@ -113,6 +124,9 @@ router.get('/', async (req, res, next) => {
             checkin = `${checkinDate.getFullYear()}-${checkinDate.getMonth() + 1}-${checkinDate.getDate()}`
         }
 
+        // add to where clause where is_active is true
+        where_clause.is_active = true;
+
         // listings with props needed and filter applied
         listings = await prisma.properties.findMany({
             where: where_clause,
@@ -136,7 +150,7 @@ router.get('/', async (req, res, next) => {
             const tempObj = {
                 ...item,
                 owner: "N/A",
-                property_image: "N/A",
+                property_image: "default.jpg",
             }
 
             // get owner
@@ -234,10 +248,10 @@ router.get('/', async (req, res, next) => {
 });
 
 // add listing
-router.post("/", isAuthenticated, async (req, res, next) => {
+router.post("/", isAuthenticated, upload.array('images'), async (req, res, next) => {
+    const files = req.files; // received from multer's upload array
     const { is_active, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner } = req.body;
     const amenities_add = req.body.amenities; // object of booleans
-    const images_add = req.body.images; // array of images
 
     try {
         // save host id
@@ -255,7 +269,6 @@ router.post("/", isAuthenticated, async (req, res, next) => {
         const cleanedCity = city.replaceAll(" ", "+");
         const cleanedCountry = country.replaceAll(" ", "+")
         const url = `https://nominatim.openstreetmap.org/search.php?street=${cleanedAddress}&city=${cleanedCity}&country=${cleanedCountry}&postalcode=${parseInt(postcode)}&format=jsonv2`;
-        console.log(url);
         const locations = await axios.get(url);
 
         if (locations.data.length <= 0) {
@@ -327,13 +340,39 @@ router.post("/", isAuthenticated, async (req, res, next) => {
             return res.status(400).json({ success: false, error: "Could not create property. Issue: Adding amenities & facilities" });
         }
 
-        // check if images have been provided
-        if (images_add.length > 0) {
+        // check if files have been provided
+        if (files.length > 0) {
+            // save images to supabase
+            const uploadedImageUrls = [];
+
+            for (const file of files) {
+                // name unique
+                const filePath = `images/${Date.now()}_${file.originalname}`;
+
+                // error handling
+                const { error } = await supabase.storage
+                    .from('propertyimages')
+                    .upload(filePath, file.buffer, {
+                        contentType: file.mimetype,
+                    });
+
+                // return error if any
+                if (error) return res.status(500).json({ error: error.message });
+
+                // store file in bucket
+                const { data } = supabase.storage
+                    .from('propertyimages')
+                    .getPublicUrl(filePath);
+
+                // store url in array
+                uploadedImageUrls.push(data.publicUrl);
+            }
+
             // first image is main
             const image = await prisma.property_images.create({
                 data: {
                     property_id: parseInt(property.property_id),
-                    image_url: images_add[0],
+                    image_url: uploadedImageUrls[0],
                     is_main: true
                 }
             })
@@ -343,13 +382,13 @@ router.post("/", isAuthenticated, async (req, res, next) => {
             }
 
             // add rest of the images if there are more
-            if (images_add.length > 1) {
+            if (files.length > 1) {
                 // add rest of the images
-                for (let i = 1; i < images_add.length; i++) {
+                for (let i = 1; i < files.length; i++) {
                     const image = await prisma.property_images.create({
                         data: {
                             property_id: parseInt(property.property_id),
-                            image_url: images_add[i],
+                            image_url: uploadedImageUrls[i],
                             is_main: false
                         }
                     })

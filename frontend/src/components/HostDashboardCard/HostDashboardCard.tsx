@@ -7,7 +7,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import axios from "axios";
 
 interface HostDashboardDetails {
@@ -61,7 +61,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
             <Card>
                 <CardContent className='flex flex-col gap-4'>
                     <div className='flex flex-row gap-4'>
-                        <div className='aspect-square min-h-[150px] min-w-[150px] max-h-[150px] max-w-[150px] rounded-lg overflow-hidden bg-gray-500'>
+                        <div className='aspect-square min-h-[150px] min-w-[150px] max-h-[150px] max-w-[150px] rounded-lg overflow-hidden bg-gray-200'>
                             <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + host_dashboard_card.image_url} alt="Property" className='h-full w-full object-cover' />
                         </div>
                         <div className='flex flex-col justify-between'>
@@ -101,7 +101,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                         {type === 'active' ? (
                             // active = published
                             <>
-                                <div className="host-dashboard-card-details-actions-leftcontrols flex flex-row gap-4">
+                                <div className="host-dashboard-card-details-actions-leftcontrols flex flex-row gap-2">
                                     {/* toggle to unpublish */}
                                     <Tooltip >
                                         <TooltipTrigger asChild>

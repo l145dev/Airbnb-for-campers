@@ -8,6 +8,8 @@ import { toast, Toaster } from 'sonner';
 import HostDashboardCard from '@/components/HostDashboardCard/HostDashboardCard';
 import nolistings from '@/assets/images/notripshistory.jpg';
 import { Button } from '@/components/ui/button';
+import { Plus } from 'lucide-react';
+import HostDashboardPost from '@/components/HostDashboardDialog/HostDashboardPost';
 
 interface HostDashboardDetails {
     property_id: number;
@@ -83,7 +85,10 @@ const HostDashboard = () => {
                 ) : (
                     <>
                         <div className='your-listings flex flex-col gap-4'>
-                            <h2>Your Listings</h2>
+                            <div className='flex flex-row justify-between items-center'>
+                                <h2>Your Listings</h2>
+                                <HostDashboardPost />
+                            </div>
                             {isLoading ? (
                                 <>
                                     <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-4">
