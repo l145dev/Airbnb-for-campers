@@ -90,6 +90,65 @@ const HostDashboardPost: React.FC = () => {
         setImages(newImages);
     };
 
+    const submitListing = async (is_active: boolean) => {
+        try {
+            // ensure at least 1 image is there
+            if (images.length > 0) {
+                const formData = new FormData();
+
+                formData.append("is_active", String(is_active));
+                formData.append("property_name", property_name);
+                formData.append("property_description", property_description);
+                formData.append("street_address", street_address);
+                formData.append("postcode", postcode);
+                formData.append("city", city);
+                formData.append("country", country);
+                formData.append("property_type", property_type);
+                formData.append("check_in_time_raw", check_in_time_raw.split(":")[0].toString());
+                formData.append("check_out_time_raw", check_out_time_raw.split(":")[0].toString());
+                formData.append("price_per_night", price_per_night.toString());
+                formData.append("capacity", capacity.toString());
+                formData.append("note_from_owner", note_from_owner);
+
+                // json string amenities object
+                formData.append("amenities", JSON.stringify(amenities));
+
+                // Append images (files)
+                images.forEach((img) => {
+                    if (img) {
+                        formData.append("images", img);
+                    }
+                });
+
+                const response = await axios.post("http://localhost:3000/listings", formData,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                        withCredentials: true
+                    });
+
+                if (response.status === 200) {
+                    toast.success("Successfully posted listing.", {
+                        description: new Date().toLocaleTimeString(),
+                    });
+                }
+                else {
+                    toast.error("Failed to post listings. Please refresh page to try again.", {
+                        description: new Date().toLocaleTimeString(),
+                    });
+                }
+            }
+        }
+        catch (error) {
+            toast.error("Failed to post listings. Please refresh page to try again.", {
+                description: new Date().toLocaleTimeString(),
+            });
+            console.error("Error posting listings:", error);
+            throw error;
+        }
+    }
+
     return (
         <>
             <Dialog>
@@ -104,7 +163,10 @@ const HostDashboardPost: React.FC = () => {
                     <DialogHeader>
                         <DialogTitle>Create new listing</DialogTitle>
                     </DialogHeader>
-                    <form className="flex flex-col gap-4 mt-2">
+                    <form className="flex flex-col gap-4 mt-2" onSubmit={(e) => {
+                        e.preventDefault();
+                        submitListing(true);
+                    }}>
                         <div className="general-info flex flex-col gap-4">
                             <h3 className="text-xl font-semibold">
                                 General Information
@@ -241,16 +303,31 @@ const HostDashboardPost: React.FC = () => {
                                         <Input
                                             id="city"
                                             placeholder="New York City"
-                                            required />
+                                            required
+                                            value={city}
+                                            onChange={(e) => setCity(e.target.value)} />
                                     </div>
                                     <div className="space-y-3">
                                         <Label htmlFor="postcode">Postcode</Label>
                                         <Input
                                             id="postcode"
                                             placeholder="1000"
-                                            required />
+                                            required
+                                            value={postcode}
+                                            onChange={(e) => setPostcode(e.target.value)} />
                                     </div>
                                 </div>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Label htmlFor="country">Country</Label>
+                                <Input
+                                    id="country"
+                                    placeholder="United States"
+                                    required
+                                    value={country}
+                                    onChange={(e) => setCountry(e.target.value)}
+                                />
                             </div>
                         </div>
 
@@ -316,6 +393,30 @@ const HostDashboardPost: React.FC = () => {
                                             const time = i.toString().padStart(2, "0") + ":00";
                                             return (
                                                 <DropdownMenuItem key={time} onClick={() => setCheckinTime(time)}>
+                                                    {time}
+                                                </DropdownMenuItem>
+                                            );
+                                        })}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </div>
+
+                            <div className="space-y-3 w-full">
+                                <Label>Check-out</Label>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger className="w-full">
+                                        <div className="flex w-full flex-row justify-between items-center border rounded-md py-1.5 px-3">
+                                            <span className="text-sm md:text-sm text-black">
+                                                {check_out_time_raw ? check_out_time_raw : "Select check-out time"}
+                                            </span>
+                                            <ChevronDown strokeWidth={1} />
+                                        </div>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="max-h-[250px] overflow-y-auto">
+                                        {[...Array(24)].map((_, i) => {
+                                            const time = i.toString().padStart(2, "0") + ":00";
+                                            return (
+                                                <DropdownMenuItem key={time} onClick={() => setCheckoutTime(time)}>
                                                     {time}
                                                 </DropdownMenuItem>
                                             );
@@ -393,8 +494,8 @@ const HostDashboardPost: React.FC = () => {
 
                         {/* controls */}
                         <div className="controls w-full flex flex-row justify-between mt-2">
-                            <Button variant="outline">Save for later</Button>
-                            <Button variant={"default"}>Publish</Button>
+                            <Button variant="outline" type="button" onClick={() => submitListing(false)}>Save for later</Button>
+                            <Button variant={"default"} type="submit">Publish</Button>
                         </div>
                     </form>
                 </DialogContent>

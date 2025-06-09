@@ -303,17 +303,17 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
             property_name,
             property_description,
             owner_id,
-            longitude,
-            latitude,
+            longitude: parseFloat(longitude),
+            latitude: parseFloat(latitude),
             check_in_time,
             check_out_time,
             city,
             country,
             property_type,
-            price_per_night,
-            capacity,
+            price_per_night: parseInt(price_per_night),
+            capacity: parseInt(capacity),
             note_from_owner,
-            is_active // if true, instantly publish, if not, save for later
+            is_active: is_active === "true" // if true, instantly publish, if not, save for later
         }
 
         // add values
@@ -324,6 +324,8 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
         if (!property) {
             return res.status(400).json({ success: false, error: "Could not create property. Issue: Adding property" });
         }
+
+        console.log(amenities_add)
 
         // object with values to add for property details
         const amenities_data = {
