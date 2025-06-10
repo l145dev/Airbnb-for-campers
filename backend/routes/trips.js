@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { PrismaClient } from "@prisma/client";
 import isAuthenticated from '../middleware/auth.js';
+import updateRating from '../utils/updateRating.js';
 
 const prisma = new PrismaClient();
 
@@ -250,6 +251,9 @@ router.post("/review", isAuthenticated, async (req, res, next) => {
             }
         })
 
+        // update average rating
+        await updateRating(parseInt(property_id), prisma);
+
         return res.status(200).json({ review });
     }
 
@@ -328,6 +332,9 @@ router.patch("/review", isAuthenticated, async (req, res, next) => {
             }
         })
 
+        // update average rating
+        await updateRating(parseInt(property_id), prisma);
+
         // return success with updated details
         return res.status(200).json({ updated });
     }
@@ -399,6 +406,9 @@ router.delete("/review", isAuthenticated, async (req, res, next) => {
                 booking_status: "passed"
             }
         })
+
+        // update average rating
+        await updateRating(parseInt(property_id), prisma);
 
         return res.status(200).json({ deletedReview })
     }

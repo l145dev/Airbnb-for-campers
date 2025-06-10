@@ -308,6 +308,7 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
             check_in_time,
             check_out_time,
             city,
+            average_rating: 0,
             country,
             property_type,
             price_per_night: parseInt(price_per_night),
