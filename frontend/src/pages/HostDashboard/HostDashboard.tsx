@@ -213,9 +213,9 @@ const HostDashboard = () => {
                                                     <p className='text-gray-600'>Your listings will appear here once they are available.</p>
                                                 </div>
 
-                                                <Button variant={'default'} className='w-min'>
-                                                    Create listing
-                                                </Button>
+                                                <div className='w-min'>
+                                                    <HostDashboardPost onDataRefresh={refreshData} />
+                                                </div>
                                             </div>
                                         </div>
                                     )}

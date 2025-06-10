@@ -18,12 +18,12 @@ router.get("/", async (req, res, next) => {
     // to speed up dev time
     if (!city) {
         // could use geolocation
-        whereClause.city = "Antwerp";
+        whereClause.city = "Hogsmeade";
     }
 
     if (!country) {
         // could use geolocation
-        whereClause.country = "Belgium";
+        whereClause.country = "United Kingdom";
     }
 
     if (!nights) {

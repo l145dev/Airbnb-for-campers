@@ -207,7 +207,7 @@ const Host = () => {
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button variant={'ghost'}>
-                                            {location || "Antwerp"}
+                                            {location || "Hogsmeade"}
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-64">
@@ -218,13 +218,22 @@ const Host = () => {
                                                 onValueChange={(value) => setLocation(value)}
                                             />
                                             <CommandItem onSelect={(value) => setLocation(value)}>
-                                                Brussels
+                                                Devon
                                             </CommandItem>
                                             <CommandItem onSelect={(value) => setLocation(value)}>
-                                                Antwerp
+                                                Cornwall
                                             </CommandItem>
                                             <CommandItem onSelect={(value) => setLocation(value)}>
-                                                Ghent
+                                                Wiltshire
+                                            </CommandItem>
+                                            <CommandItem onSelect={(value) => setLocation(value)}>
+                                                Hogsmeade
+                                            </CommandItem>
+                                            <CommandItem onSelect={(value) => setLocation(value)}>
+                                                The Midlands
+                                            </CommandItem>
+                                            <CommandItem onSelect={(value) => setLocation(value)}>
+                                                Gloucestershire
                                             </CommandItem>
                                         </Command>
                                     </PopoverContent>

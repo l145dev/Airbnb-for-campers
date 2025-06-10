@@ -26,7 +26,7 @@ const PropertyReviews = ({ reviews }: PropertyReviewsProps) => {
                                 <div className='review-card-header flex flex-row items-center gap-2'>
                                     <div className='reviewer-image rounded-full overflow-hidden h-[48px] w-[48px]'>
                                         <img
-                                            src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/avatar//" + review.reviewer_url}
+                                            src={review.reviewer_url}
                                             alt="Reviewer"
                                             className="w-full h-full object-cover"
                                         />

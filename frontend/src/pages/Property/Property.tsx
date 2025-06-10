@@ -429,7 +429,7 @@ const Property = () => {
 
                         <div className='property-owner-info flex flex-row gap-4'>
                             <div className='property-owner-image rounded-full overflow-hidden h-[48px] w-[48px]'>
-                                <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/avatar//" + data?.allDetails.owner_url} alt="Owner" className="w-full h-full object-cover bg-gray-200" />
+                                <img src={data?.allDetails.owner_url} alt="Owner" className="w-full h-full object-cover bg-gray-200" />
                             </div>
                             <div className='property-owner-details'>
                                 <h3>{data?.allDetails.owner_full_name}</h3>
