@@ -30,7 +30,7 @@ const PropertyImage: React.FC<PropertyImageProps> = ({ images }) => {
                 return (
                     <>
                         <div className='property-images grid max-h-[400px]'>
-                            <div className="alt-property-image rounded-lg overflow-hidden">
+                            <div className="alt-property-image rounded-lg overflow-hidden max-h-[400px]">
                                 <img src={mainImage[0]?.image_url} alt="Property" className="w-full h-full object-cover" />
                             </div>
                         </div>
@@ -53,7 +53,7 @@ const PropertyImage: React.FC<PropertyImageProps> = ({ images }) => {
                 return (
                     <>
                         <div className='property-images grid grid-cols-2 gap-4 max-h-[400px]'>
-                            <div className='main-property-image rounded-lg overflow-hidden'>
+                            <div className='main-property-image rounded-lg overflow-hidden max-h-[400px]'>
                                 <img src={mainImage[0]?.image_url} alt="Property" className="w-full h-full object-cover" />
                             </div>
 
@@ -100,8 +100,8 @@ const PropertyImage: React.FC<PropertyImageProps> = ({ images }) => {
                                 <img src={mainImage[0]?.image_url} alt="Property" className="w-full h-full object-cover" />
                             </div>
 
-                            <div className='alt-property-images grid grid-cols-2 gap-4'>
-                                <div className='alt-property-images-top grid grid-rows-2 gap-4'>
+                            <div className='alt-property-images grid grid-cols-2 gap-4 max-h-[400px]'>
+                                <div className='alt-property-images-top grid grid-rows-2 gap-4 max-h-[400px]' >
                                     <div className='alt-property-image rounded-lg overflow-hidden max-h-[400px]'>
                                         <img src={otherImages[0]?.image_url} alt="Property" className="w-full h-full object-cover" />
                                     </div>
@@ -109,7 +109,7 @@ const PropertyImage: React.FC<PropertyImageProps> = ({ images }) => {
                                         <img src={otherImages[1]?.image_url} alt="Property" className="w-full h-full object-cover" />
                                     </div>
                                 </div>
-                                <div className='alt-property-images-bottom grid grid-rows-2 gap-4'>
+                                <div className='alt-property-images-bottom grid grid-rows-2 gap-4 max-h-[400px]'>
                                     <div className='alt-property-image rounded-lg overflow-hidden max-h-[400px]'>
                                         <img src={otherImages[2]?.image_url} alt="Property" className="w-full h-full object-cover" />
                                     </div>

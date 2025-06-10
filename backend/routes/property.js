@@ -105,7 +105,7 @@ router.get("/", async (req, res, next) => {
         })
 
         const owner_full_name = owner.first_name + " " + owner.last_name;
-        const owner_url = owner.profile_picture ? owner.profile_picture : "default.png";
+        const owner_url = owner.profile_picture ? owner.profile_picture : "https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/avatar/default.png";
 
         // get property reviews
         const reviews = await prisma.reviews.findMany({
@@ -130,7 +130,7 @@ router.get("/", async (req, res, next) => {
 
             // add reviewer details to review
             reviews[i].reviewer_full_name = reviewer.first_name + " " + reviewer.last_name;
-            reviews[i].reviewer_url = reviewer.profile_picture ? reviewer.profile_picture : "default.png";
+            reviews[i].reviewer_url = reviewer.profile_picture ? reviewer.profile_picture : "https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/avatar/default.png";
         }
 
         let property_saved = false;

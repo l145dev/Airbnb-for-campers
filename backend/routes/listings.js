@@ -268,7 +268,8 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
         const cleanedAddress = street_address.replaceAll(" ", "+");
         const cleanedCity = city.replaceAll(" ", "+");
         const cleanedCountry = country.replaceAll(" ", "+")
-        const url = `https://nominatim.openstreetmap.org/search.php?street=${cleanedAddress}&city=${cleanedCity}&country=${cleanedCountry}&postalcode=${parseInt(postcode)}&format=jsonv2`;
+        const url = `https://nominatim.openstreetmap.org/search.php?street=${cleanedAddress}&city=${cleanedCity}&country=${cleanedCountry}&postalcode=${postcode}&format=jsonv2`;
+        console.log(url);
         const locations = await axios.get(url);
 
         if (locations.data.length <= 0) {
