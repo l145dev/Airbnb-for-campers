@@ -28,7 +28,7 @@ const TripsCard: React.FC<{ trip: TripDetails, type: 'confirmed' | 'passed' | 'r
                 <CardContent className='flex flex-col gap-4'>
                     <div className='flex flex-row gap-4'>
                         <div className='aspect-square min-h-[150px] min-w-[150px] max-h-[150px] max-w-[150px] rounded-lg overflow-hidden bg-gray-200'>
-                            <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + trip.image_url} alt="Property" className='h-full w-full object-cover' />
+                            <img src={trip.image_url} alt="Property" className='h-full w-full object-cover' />
                         </div>
                         <div className='flex flex-col justify-between'>
                             <div>

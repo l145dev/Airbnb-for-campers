@@ -10,7 +10,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Textarea } from "../ui/textarea"
 import { useEffect, useState } from "react"
-import { ChevronDown, Plus, Star, Upload, X } from "lucide-react"
+import { ChevronDown, Loader2Icon, Plus, Star, Upload, X } from "lucide-react"
 import { toast } from "sonner"
 import axios from "axios"
 import { Input } from "../ui/input"
@@ -25,7 +25,11 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const HostDashboardPost: React.FC = () => {
+interface HostDashboardPostProps {
+    onDataRefresh: () => void;
+}
+
+const HostDashboardPost: React.FC<HostDashboardPostProps> = ({ onDataRefresh }) => {
     // form payload
     const [property_name, setPropertyName] = useState<string>("")
     const [property_description, setPropertyDescription] = useState<string>("")
@@ -70,6 +74,10 @@ const HostDashboardPost: React.FC = () => {
     // for previews
     const [imagesPreview, setImagesPreview] = useState<(string | null)[]>([null, null, null, null, null]); // contains image urls as blobs for previews
 
+    // listing is posting loading
+    const [isPostingSave, setIsPostingSave] = useState<boolean>(false);
+    const [isPostingPublish, setIsPostingPublish] = useState<boolean>(false);
+
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         const file = e.target.files?.[0];
         if (file) {
@@ -86,12 +94,21 @@ const HostDashboardPost: React.FC = () => {
     };
 
     const removeImage = (index: number) => {
+        // remove image from preview images
+        const newImagesPreview = [...imagesPreview];
+        newImagesPreview[index] = null;
+        setImagesPreview(newImagesPreview);
+
+        // remove image from file images
         const newImages = [...images];
         newImages[index] = null;
         setImages(newImages);
     };
 
     const submitListing = async (is_active: boolean) => {
+        // request being sent, loading state on
+        is_active ? setIsPostingPublish(true) : setIsPostingSave(true);
+
         try {
             // ensure at least 1 image is there
             if (images.length > 0) {
@@ -130,8 +147,60 @@ const HostDashboardPost: React.FC = () => {
                         withCredentials: true
                     });
 
+                // response received, loading state off
+                is_active ? setIsPostingPublish(false) : setIsPostingSave(false);
+
                 if (response.status === 200) {
                     toast.success("Successfully posted listing.", {
+                        description: new Date().toLocaleTimeString(),
+                    });
+                    // reset form
+                    setPropertyName("");
+                    setPropertyDescription("");
+                    setImages([null, null, null, null, null]);
+                    setImagesPreview([null, null, null, null, null]);
+                    setStreetAddress("");
+                    setCity("");
+                    setPostcode("");
+                    setCountry("");
+                    setPropertyType("");
+                    setCheckinTime("");
+                    setCheckoutTime("");
+                    setPricePerNight(0);
+                    setCapacity(0);
+                    setNoteFromOwner("");
+                    setRules("");
+                    setAmenities({
+                        parking_available: false,
+                        pet_friendly: false,
+                        has_campfire_pit: false,
+                        has_personal_restroom: false,
+                        has_shared_restroom: false,
+                        has_personal_shower: false,
+                        has_shared_shower: false,
+                        has_personal_kitchen: false,
+                        has_shared_kitchen: false,
+                        has_sockets: false,
+                        has_views: false,
+                        has_picnic_table: false,
+                        has_grill: false,
+                        has_safety_features: false,
+                        has_personal_dryer: false,
+                        has_shared_dryer: false,
+                        has_wifi: false,
+                        has_cell_service: false,
+                        has_swimming_lake: false,
+                        has_swimming_pool: false,
+                        has_hiking_trail: false,
+                        is_wheelchair_accessible: false,
+                        has_fishing: false
+                    });
+
+                    // invalidate query (reload data)
+                    onDataRefresh();
+                }
+                else if (response.data && response.data.error) {
+                    toast.error(response.data.error, { // Display the specific error message
                         description: new Date().toLocaleTimeString(),
                     });
                 }
@@ -141,9 +210,28 @@ const HostDashboardPost: React.FC = () => {
                     });
                 }
             }
+
+            else {
+                // response received, loading state off
+                is_active ? setIsPostingPublish(false) : setIsPostingSave(false);
+
+                toast.error("Please provide at least one image for the property.", {
+                    description: new Date().toLocaleTimeString(),
+                });
+            }
         }
         catch (error) {
-            toast.error("Failed to post listings. Please refresh page to try again.", {
+            // response received, loading state off
+            is_active ? setIsPostingPublish(false) : setIsPostingSave(false);
+
+            let errorMessage = "Failed to post listings. Please refresh page to try again.";
+
+            // Check if the error is an AxiosError and has a response with data and an error message
+            if (axios.isAxiosError(error) && error.response && error.response.data && error.response.data.error) {
+                errorMessage = error.response.data.error;
+            }
+
+            toast.error(errorMessage, {
                 description: new Date().toLocaleTimeString(),
             });
             console.error("Error posting listings:", error);
@@ -487,7 +575,6 @@ const HostDashboardPost: React.FC = () => {
                                 <Textarea
                                     id="rules"
                                     placeholder="No smoking, pets allowed"
-                                    required
                                     value={rules}
                                     onChange={(e) => setRules(e.target.value)}
                                 />
@@ -498,7 +585,6 @@ const HostDashboardPost: React.FC = () => {
                                 <Textarea
                                     id="note_from_owner"
                                     placeholder="Turn on the fireplace, bring a blanket, etc."
-                                    required
                                     value={note_from_owner}
                                     onChange={(e) => setNoteFromOwner(e.target.value)}
                                 />
@@ -507,8 +593,28 @@ const HostDashboardPost: React.FC = () => {
 
                         {/* controls */}
                         <div className="controls w-full flex flex-row justify-between mt-2">
-                            <Button variant="outline" type="button" onClick={() => submitListing(false)}>Save for later</Button>
-                            <Button variant={"default"} type="submit">Publish</Button>
+                            {isPostingSave ? (
+                                <>
+                                    <Button variant="outline" type="button" onClick={() => submitListing(false)} disabled>
+                                        <Loader2Icon className="animate-spin" />
+                                        Saving...
+                                    </Button>
+                                    <Button variant={"default"} type="submit" disabled>Publish</Button>
+                                </>
+                            ) : isPostingPublish ? (
+                                <>
+                                    <Button variant="outline" type="button" onClick={() => submitListing(false)} disabled>Save for later</Button>
+                                    <Button variant={"default"} type="submit" disabled>
+                                        <Loader2Icon className="animate-spin" />
+                                        Publishing...
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button variant="outline" type="button" onClick={() => { submitListing(false); }}>Save for later</Button>
+                                    <Button variant={"default"} type="submit">Publish</Button>
+                                </>
+                            )}
                         </div>
                     </form>
                 </DialogContent>

@@ -150,7 +150,7 @@ router.get('/', async (req, res, next) => {
             const tempObj = {
                 ...item,
                 owner: "N/A",
-                property_image: "default.jpg",
+                property_image: "https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages/default.jpg",
             }
 
             // get owner
@@ -251,7 +251,7 @@ router.get('/', async (req, res, next) => {
 router.post("/", isAuthenticated, upload.array('images'), async (req, res, next) => {
     const files = req.files; // received from multer's upload array
     const { is_active, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner, rules } = req.body;
-    const amenities_add = req.body.amenities; // object of booleans
+    const amenities_add = JSON.parse(req.body.amenities); // object of booleans
 
     try {
         // save host id
@@ -327,8 +327,6 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
             return res.status(400).json({ success: false, error: "Could not create property. Issue: Adding property" });
         }
 
-        console.log(amenities_add)
-
         // object with values to add for property details
         const amenities_data = {
             property_id: parseInt(property.property_id),
@@ -351,7 +349,7 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
 
             for (const file of files) {
                 // name unique
-                const filePath = `images/${Date.now()}_${file.originalname}`;
+                const filePath = `${Date.now()}_${file.originalname}`;
 
                 // error handling
                 const { error } = await supabase.storage

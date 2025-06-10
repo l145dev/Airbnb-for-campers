@@ -219,7 +219,7 @@ const Book = () => {
                                     <CardContent className='flex flex-col gap-4'>
                                         <div className='flex flex-row gap-4'>
                                             <div className='aspect-square h-[150px] w-[150px] rounded-lg overflow-hidden'>
-                                                <img src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${data?.allDetails?.main_image}`} alt={data?.allDetails?.property_name} />
+                                                <img src={data?.allDetails?.main_image} alt={data?.allDetails?.property_name} />
                                             </div>
                                             <div className='flex flex-col justify-between'>
                                                 <div>

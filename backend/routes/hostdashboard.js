@@ -49,7 +49,7 @@ router.get("/", isAuthenticated, async (req, res, next) => {
                 ...property,
                 reviewCount: 0,
                 nextBooking: "N/A",
-                image_url: "default.jpg",
+                image_url: "https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages/default.jpg",
                 totalRevenue: 0,
                 totalBookings: 0,
                 adr: 0

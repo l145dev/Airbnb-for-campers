@@ -87,7 +87,7 @@ const HostDashboard = () => {
                         <div className='your-listings flex flex-col gap-4'>
                             <div className='flex flex-row justify-between items-center'>
                                 <h2>Your Listings</h2>
-                                <HostDashboardPost />
+                                <HostDashboardPost onDataRefresh={refreshData} />
                             </div>
                             {isLoading ? (
                                 <>

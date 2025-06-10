@@ -457,7 +457,7 @@ const Listings = () => {
                                                     <Popup>
                                                         <div className='flex flex-row gap-4'>
                                                             <div className='aspect-square min-h-[100px] min-w-[100px] max-h-[100px] max-w-[100px] rounded-lg overflow-hidden'>
-                                                                <img src={"https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//" + listing.property_image} alt="Property" className='h-full w-full object-cover' />
+                                                                <img src={listing.property_image} alt="Property" className='h-full w-full object-cover' />
                                                             </div>
                                                             <div className='flex flex-col justify-between'>
                                                                 <div>

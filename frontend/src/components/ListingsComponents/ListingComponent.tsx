@@ -33,7 +33,7 @@ const ListingComponent: React.FC<ListingComponentProps> = ({
             <Link to={`/property?property_id=${propId}`} onMouseOver={() => setHover(true)} onMouseOut={() => setHover(false)} className={`${hover ? 'bg-[var(--secondary)]' : ''} rounded-lg transition-all duration-200 ease-out p-4`}>
                 <div className="space-y-3">
                     <img
-                        src={`https://zbvrvsunueqynzhgmmdt.supabase.co/storage/v1/object/public/propertyimages//${imgSrc}`}
+                        src={imgSrc}
                         alt="airbnb camping property"
                         className="h-[200px] w-full rounded-lg object-cover bg-[var(--border)]"
                     />
