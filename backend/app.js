@@ -37,8 +37,8 @@ const app = express();
 const PgStore = connectPgSimple(session);
 
 app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true, // Allow cookies to be sent
+  origin: ['http://localhost:5173', 'https://l145.be'],
+  credentials: true,
 }));
 
 app.use(logger('dev'));
