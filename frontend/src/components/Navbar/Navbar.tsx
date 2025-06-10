@@ -132,11 +132,6 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, onLogoutSuccess }) => {
                                     </Link>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem asChild>
-                                    <Link to={"/saved"}>
-                                        Saved
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
                                     <Link to={"/notifications"}>
                                         Notifications
                                     </Link>

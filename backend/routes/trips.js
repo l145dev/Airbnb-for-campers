@@ -22,7 +22,8 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 
         // no bookings
         if (bookings.length <= 0) {
-            return res.status(404).json({ success: true, message: "No bookings found!" });
+            let resolvedDetails = [];
+            return res.status(200).json({ success: true, resolvedDetails });
         }
 
         // gives back an array of objects (bookings)

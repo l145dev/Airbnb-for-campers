@@ -78,6 +78,11 @@ const Trips = () => {
             setPastTrips(past);
             setUpcomingTrips(upcoming);
         }
+
+        else {
+            setPastTrips([]);
+            setUpcomingTrips([]);
+        }
     }, [data]);
 
     const refreshData = () => {
