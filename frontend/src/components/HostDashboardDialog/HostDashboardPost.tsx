@@ -65,6 +65,7 @@ const HostDashboardPost: React.FC = () => {
         has_fishing: false
     });
     const [note_from_owner, setNoteFromOwner] = useState<string>("");
+    const [rules, setRules] = useState<string>("");
 
     // for previews
     const [imagesPreview, setImagesPreview] = useState<(string | null)[]>([null, null, null, null, null]); // contains image urls as blobs for previews
@@ -109,6 +110,7 @@ const HostDashboardPost: React.FC = () => {
                 formData.append("price_per_night", price_per_night.toString());
                 formData.append("capacity", capacity.toString());
                 formData.append("note_from_owner", note_from_owner);
+                formData.append("rules", rules);
 
                 // json string amenities object
                 formData.append("amenities", JSON.stringify(amenities));
@@ -479,6 +481,17 @@ const HostDashboardPost: React.FC = () => {
                             <h3 className="text-xl font-semibold">
                                 Additional Details
                             </h3>
+
+                            <div className="space-y-3">
+                                <Label htmlFor="rules">Rules</Label>
+                                <Textarea
+                                    id="rules"
+                                    placeholder="No smoking, pets allowed"
+                                    required
+                                    value={rules}
+                                    onChange={(e) => setRules(e.target.value)}
+                                />
+                            </div>
 
                             <div className="space-y-3">
                                 <Label htmlFor="note_from_owner">Note from owner</Label>

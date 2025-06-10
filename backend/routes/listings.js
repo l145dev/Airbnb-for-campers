@@ -250,7 +250,7 @@ router.get('/', async (req, res, next) => {
 // add listing
 router.post("/", isAuthenticated, upload.array('images'), async (req, res, next) => {
     const files = req.files; // received from multer's upload array
-    const { is_active, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner } = req.body;
+    const { is_active, property_name, property_description, street_address, postcode, city, country, property_type, check_in_time_raw, check_out_time_raw, price_per_night, capacity, note_from_owner, rules } = req.body;
     const amenities_add = req.body.amenities; // object of booleans
 
     try {
@@ -314,6 +314,7 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
             price_per_night: parseInt(price_per_night),
             capacity: parseInt(capacity),
             note_from_owner,
+            rules,
             is_active: is_active === "true" // if true, instantly publish, if not, save for later
         }
 
@@ -422,6 +423,31 @@ router.post("/", isAuthenticated, upload.array('images'), async (req, res, next)
         }
 
         return res.status(200).json({ success: true, returnObj });
+    }
+
+    catch (error) {
+        // unexpected error, log error
+        console.log(error);
+        return res.status(500).json({ error: "An error occured, please try again." })
+    }
+})
+
+router.delete("/", isAuthenticated, async (req, res, next) => {
+    const { property_id } = req.query;
+
+    try {
+        // delete the property
+        const property = await prisma.properties.delete({
+            where: {
+                property_id: parseInt(property_id)
+            }
+        })
+
+        if (!property) {
+            return res.status(400).json({ error: "Could not delete property." });
+        }
+
+        return res.status(200).json(property);
     }
 
     catch (error) {

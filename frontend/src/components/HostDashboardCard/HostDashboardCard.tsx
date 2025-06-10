@@ -56,6 +56,34 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
         }
     }
 
+    const deleteProperty = async () => {
+        // delete property
+        try {
+            const response = await axios.delete(`http://localhost:3000/listings?property_id=${host_dashboard_card.property_id}`, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                withCredentials: true,
+            })
+
+            if (response.status === 200) {
+                toast.success(`Property deleted successfully.`, {
+                    description: new Date().toLocaleTimeString(),
+                });
+                // invalidate query (reload data)
+                onDataRefresh();
+            }
+        }
+
+        catch (error) {
+            toast.error(`Failed to delete listing. Please refresh page to try again.`, {
+                description: new Date().toLocaleTimeString(),
+            });
+            console.error(`Error deleting listings:`, error);
+            throw error;
+        }
+    }
+
     return (
         <>
             <Card>
@@ -121,9 +149,9 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                                     </Link>
                                 </div>
 
-                                {/* trigger open a dialog menu with modification */}
-
-                                <span className="underline">Modify</span>
+                                <Button variant={'destructive'} size={'sm'} onClick={deleteProperty}>
+                                    Delete
+                                </Button>
                             </>
                         ) : type === 'inactive' && (
                             // inactive = not published
@@ -132,7 +160,9 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
                                     Publish
                                 </Button>
 
-                                <span className="underline">Modify</span>
+                                <Button variant={'destructive'} size={'sm'} onClick={deleteProperty}>
+                                    Delete
+                                </Button>
                             </>
                         )}
                     </div>
