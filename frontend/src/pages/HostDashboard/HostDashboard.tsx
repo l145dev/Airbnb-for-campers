@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './HostDashboard.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -10,6 +10,7 @@ import nolistings from '@/assets/images/notripshistory.jpg';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import HostDashboardPost from '@/components/HostDashboardDialog/HostDashboardPost';
+import { useNavigate } from 'react-router-dom';
 
 interface HostDashboardDetails {
     property_id: number;
@@ -29,6 +30,7 @@ interface HostDashboardDetails {
 interface ApiResponse {
     success: boolean;
     resolvedPromise: HostDashboardDetails[];
+    error?: string;
 }
 
 const fetchHostDashboardCards = async (): Promise<ApiResponse> => {
@@ -42,6 +44,13 @@ const fetchHostDashboardCards = async (): Promise<ApiResponse> => {
 
         if (response.status === 200) {
             return response.data;
+        }
+
+        else if (response.status === 401) {
+            toast.error("You are not authorized. Redirecting to host login.", {
+                description: new Date().toLocaleTimeString(),
+            });
+            return { success: false, resolvedPromise: [], error: "Unauthorized" };
         }
 
         else {

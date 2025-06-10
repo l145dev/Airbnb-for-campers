@@ -16,7 +16,6 @@ import Settings from './pages/Settings/Settings.tsx';
 import Support from './pages/Support/Support.tsx';
 import Trips from './pages/Trips/Trips.tsx';
 import NotFound from './pages/NotFound/NotFound.tsx';
-import Saved from './pages/Saved/Saved.tsx';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -88,7 +87,6 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/support" element={<Support />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/saved" element={<Saved />} />
         </Routes>
       </div>
     </>

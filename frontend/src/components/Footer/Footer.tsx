@@ -119,7 +119,7 @@ export const Footer = (): JSX.Element => {
                         </DropdownMenu>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <a href="https://github.com/legelff/" target="_blank" className="text-black hover:text-gray-600">
+                        <a href="https://github.com/l145dev/" target="_blank" className="text-black hover:text-gray-600">
                             <Github className="w-5 h-5" />
                         </a>
                         <a href="https://www.linkedin.com/in/aryan-shah-l145/" target="_blank" className="text-black hover:text-gray-600">

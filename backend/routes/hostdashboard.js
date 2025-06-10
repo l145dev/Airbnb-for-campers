@@ -23,7 +23,7 @@ router.get("/", isAuthenticated, async (req, res, next) => {
         const is_owner = await isHost(host_id, prisma);
 
         if (!is_owner) {
-            return res.status(401).json({ success: false, error: "You are not registered as a host" });
+            return res.status(401).json({ success: false, error: "You are not a host" });
         }
 
         // get properties
