@@ -7,5 +7,5 @@ IN DEVELOPMENT
 3. ~~Backend~~
 4. ~~Frontend~~
 5. ~~Final touches & Testing~~
-6. ~~Deploy **FAILED**~~
+6. ~~Deploy~~
 7. Create documentation (unplanned)
