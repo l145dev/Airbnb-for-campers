@@ -68,6 +68,8 @@ router.post('/', limiter, async (req, res, next) => {
             req.session.email = user.email;
             req.session.loggedIn = true;
 
+            console.log('Session after login:', req.session);
+
             return res.status(200).json(
                 {
                     message: "User successfully logged in!",
