@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "vercel build": "echo hello"
+    "dev": "nodemon ./bin/www"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
