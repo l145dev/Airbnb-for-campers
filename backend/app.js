@@ -62,7 +62,7 @@ app.use(session({
   cookie: {
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
     httpOnly: true,
-    secure: false, // conditionally secure, insecure in development (for speed) -> process.env.NODE_ENV === 'production'
+    secure: process.env.NODE_ENV === 'production', // conditionally secure, insecure in development (for speed) -> process.env.NODE_ENV === 'production'
     domain: process.env.NODE_ENV === 'development' ? 'localhost' : '.l145.be', // in development -> localhost, in production -> .l145.be
     path: '/', // try to change to /airbnb-camping/
   },
