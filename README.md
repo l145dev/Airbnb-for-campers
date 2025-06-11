@@ -1,5 +1,7 @@
 # Airbnb for campers
-IN DEVELOPMENT
+DEVELOPED
+
+Available at: https://l145.be/airbnb-camping/
 
 **Development phases**:
 1. ~~Design~~
