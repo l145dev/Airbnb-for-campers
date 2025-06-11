@@ -1,6 +1,4 @@
 const isAuthenticated = (req, res, next) => {
-    console.log('Session on /settings:', req.session);
-
     if (req.session && req.session.loggedIn && req.session.userId) {
         // Session is valid, attach user information to the request
         req.user = {
