@@ -33,6 +33,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
+// trust proxy for render
+app.set('trust proxy', 1);
 // session store for postgresql
 const PgStore = connectPgSimple(session);
 
