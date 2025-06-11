@@ -62,7 +62,7 @@ const fetchListings = async (params: SearchParams): Promise<Listing[] | string> 
     }
     const queryString = queryParams.toString();
 
-    const response = await axios.get(`http://localhost:3000/listings?${queryString}`, {
+    const response = await axios.get(`https://airbnb-for-campers.onrender.com/listings?${queryString}`, {
         headers: {
             'Content-Type': 'application/json',
         },

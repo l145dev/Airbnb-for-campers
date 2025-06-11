@@ -27,7 +27,7 @@ const TripsDialogPost: React.FC<TripsDialogPostProps> = ({ property_name, proper
 
     const submitReview = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/trips/review', {
+            const response = await axios.post('https://airbnb-for-campers.onrender.com/trips/review', {
                 property_id: property_id,
                 comment,
                 rating

@@ -23,7 +23,7 @@ interface EmailInterface {
 }
 
 const getEmail = async () => {
-    const response = await axios.get('http://localhost:3000/resetpassword', {
+    const response = await axios.get('https://airbnb-for-campers.onrender.com/resetpassword', {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -56,7 +56,7 @@ export function EmailCodeComponent({
     const sendCode = async () => {
         try {
             const response = await axios.post(
-                "http://localhost:3000/resetpassword/code",
+                "https://airbnb-for-campers.onrender.com/resetpassword/code",
                 { email: email },
                 {
                     headers: {

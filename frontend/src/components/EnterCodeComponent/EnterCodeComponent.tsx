@@ -43,7 +43,7 @@ export function EnterCodeComponent({
         }
 
         try {
-            const response = await axios.post("http://localhost:3000/resetpassword/email", {
+            const response = await axios.post("https://airbnb-for-campers.onrender.com/resetpassword/email", {
                 email: email,
                 code: otpNum
             }, {

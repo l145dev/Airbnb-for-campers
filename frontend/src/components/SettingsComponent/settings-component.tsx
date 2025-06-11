@@ -45,7 +45,7 @@ interface UserSettings {
 
 // get the user details
 const fetchSettings = async () => {
-  const response = await axios.get('http://localhost:3000/settings', {
+  const response = await axios.get('https://airbnb-for-campers.onrender.com/settings', {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -95,7 +95,7 @@ export function SettingsComponent({
   const saveChanges = async () => {
     try {
       const response = await axios.patch(
-        'http://localhost:3000/settings/update',
+        'https://airbnb-for-campers.onrender.com/settings/update',
         {
           first_name: fn === '' ? null : fn,
           last_name: ln === '' ? null : ln,
@@ -127,7 +127,7 @@ export function SettingsComponent({
   const handleLogout = async () => {
     try {
       const response = await axios.post(
-        'http://localhost:3000/logout',
+        'https://airbnb-for-campers.onrender.com/logout',
         {},
         {
           headers: {
@@ -154,7 +154,7 @@ export function SettingsComponent({
   const handleDelete = async () => {
     try {
       const response = await axios.delete(
-        'http://localhost:3000/settings/delete',
+        'https://airbnb-for-campers.onrender.com/settings/delete',
         {
           headers: {
             'Content-Type': 'application/json',

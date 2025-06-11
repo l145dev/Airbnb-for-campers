@@ -1,6 +1,5 @@
 import './Login.css';
 import { LoginForm } from "@/components/Login-form/login-form.tsx";
-import { Link } from 'react-router-dom';
 
 interface LoginFormPropsFromPage {
     onLoginSuccess: () => void; // callback to app.tsx

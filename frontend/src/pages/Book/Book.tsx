@@ -8,7 +8,7 @@ import BookStep2 from '@/components/BookSteps/BookStep2';
 import { Separator } from '@/components/ui/separator';
 import axios from 'axios';
 import { toast, Toaster } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface PriceDetails {
@@ -28,7 +28,7 @@ interface ApiResponse {
 
 const fetchPropertyDetails = async (property_id: string | null): Promise<ApiResponse | undefined> => {
     try {
-        const response = await axios.get(`http://localhost:3000/booking/pricecard?property_id=${property_id}`, {
+        const response = await axios.get(`https://airbnb-for-campers.onrender.com/booking/pricecard?property_id=${property_id}`, {
             headers: {
                 'Content-Type': 'application/json'
             },

@@ -34,7 +34,7 @@ interface ApiResponse {
 
 const fetchTrips = async (): Promise<ApiResponse> => {
     try {
-        const response = await axios.get('http://localhost:3000/trips', {
+        const response = await axios.get('https://airbnb-for-campers.onrender.com/trips', {
             headers: {
                 'Content-Type': 'application/json',
             },

@@ -32,7 +32,7 @@ export function SupportComponent({
 
       // send 
       const response = await axios.post(
-        'http://localhost:3000/support',
+        'https://airbnb-for-campers.onrender.com/support',
         supportData,
         {
           headers: {

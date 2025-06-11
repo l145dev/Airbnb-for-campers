@@ -16,7 +16,6 @@ interface ListingComponentProps {
 
 const ListingComponent: React.FC<ListingComponentProps> = ({
     propId,
-    propType,
     propName,
     imgSrc,
     city,

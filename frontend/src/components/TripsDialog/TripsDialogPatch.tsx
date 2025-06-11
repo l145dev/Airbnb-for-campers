@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -35,7 +34,7 @@ interface ApiResponse {
 
 const fetchReview = async (property_id: number): Promise<ApiResponse | null> => {
     try {
-        const response = await axios.get(`http://localhost:3000/trips/review?property_id=${property_id}`, {
+        const response = await axios.get(`https://airbnb-for-campers.onrender.com/trips/review?property_id=${property_id}`, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -75,7 +74,7 @@ const TripsDialogPatch: React.FC<TripsDialogPatchProps> = ({ property_name, prop
         // update review here
         // onReviewUpdated();
         try {
-            const response = await axios.patch('http://localhost:3000/trips/review', {
+            const response = await axios.patch('https://airbnb-for-campers.onrender.com/trips/review', {
                 property_id: property_id,
                 comment,
                 rating
@@ -111,7 +110,7 @@ const TripsDialogPatch: React.FC<TripsDialogPatchProps> = ({ property_name, prop
     const deleteReview = async () => {
         // delete review here
         try {
-            const response = await axios.delete('http://localhost:3000/trips/review', {
+            const response = await axios.delete('https://airbnb-for-campers.onrender.com/trips/review', {
                 data: {
                     property_id: property_id,
                 },

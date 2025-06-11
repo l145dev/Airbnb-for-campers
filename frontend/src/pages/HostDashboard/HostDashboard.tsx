@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import './HostDashboard.css';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -7,10 +6,7 @@ import axios from 'axios';
 import { toast, Toaster } from 'sonner';
 import HostDashboardCard from '@/components/HostDashboardCard/HostDashboardCard';
 import nolistings from '@/assets/images/notripshistory.jpg';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
 import HostDashboardPost from '@/components/HostDashboardDialog/HostDashboardPost';
-import { useNavigate } from 'react-router-dom';
 
 interface HostDashboardDetails {
     property_id: number;
@@ -35,7 +31,7 @@ interface ApiResponse {
 
 const fetchHostDashboardCards = async (): Promise<ApiResponse> => {
     try {
-        const response = await axios.get('http://localhost:3000/hostdashboard', {
+        const response = await axios.get('https://airbnb-for-campers.onrender.com/hostdashboard', {
             headers: {
                 'Content-Type': 'application/json',
             },

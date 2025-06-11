@@ -46,7 +46,7 @@ export function RegisterForm({
 
       // create the user
       axios.post(
-        'http://localhost:3000/register',
+        'https://airbnb-for-campers.onrender.com/register',
         {
           fn: fn,
           ln: ln,

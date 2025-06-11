@@ -40,7 +40,7 @@ const Navbar: React.FC<NavbarProps> = ({ loggedIn, onLogoutSuccess }) => {
     const tryLogout = async () => {
         try {
             const response = await axios.post(
-                'http://localhost:3000/logout',
+                'https://airbnb-for-campers.onrender.com/logout',
                 {},
                 {
                     headers: {

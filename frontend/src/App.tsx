@@ -37,7 +37,7 @@ function App() {
     // on mount, check if user has a session and is logged in
     const checkSession = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/auth/session', {
+        const response = await axios.get('https://airbnb-for-campers.onrender.com/auth/session', {
           headers: {
             'Content-Type': 'application/json',
           },

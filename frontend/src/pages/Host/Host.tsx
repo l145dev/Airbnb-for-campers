@@ -45,7 +45,7 @@ interface ReturnObject {
 
 async function fetchData(searchParams: URLSearchParams): Promise<ReturnObject> {
     try {
-        const response = await axios.get(`http://localhost:3000/host?${searchParams.toString()}`, {
+        const response = await axios.get(`https://airbnb-for-campers.onrender.com/host?${searchParams.toString()}`, {
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -126,7 +126,7 @@ const Host = () => {
 
     const becomeHost = async () => {
         try {
-            const response = await axios.post("http://localhost:3000/host", {}, {
+            const response = await axios.post("https://airbnb-for-campers.onrender.com/host", {}, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

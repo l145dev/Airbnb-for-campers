@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Separator } from "../ui/separator";
 import { CheckCircle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -28,7 +28,7 @@ interface ApiResponse {
 }
 
 const fetchSuccessDetails = async (BookStep2Props: BookStep2Props): Promise<ApiResponse | undefined> => {
-    const response = await axios.get(`http://localhost:3000/booking/success?property_id=${BookStep2Props.property_id}&checkin=${BookStep2Props.checkin}&checkout=${BookStep2Props.checkout}&guests=${BookStep2Props.guests}`, {
+    const response = await axios.get(`https://airbnb-for-campers.onrender.com/booking/success?property_id=${BookStep2Props.property_id}&checkin=${BookStep2Props.checkin}&checkout=${BookStep2Props.checkout}&guests=${BookStep2Props.guests}`, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -46,9 +46,8 @@ const fetchSuccessDetails = async (BookStep2Props: BookStep2Props): Promise<ApiR
 }
 
 const BookStep2: React.FC<BookStep2Props> = ({ property_id, checkin, checkout, guests }) => {
-    const navigate = useNavigate();
 
-    const { data, isLoading, isError, error } = useQuery<ApiResponse, Error>({
+    const { data, isLoading, isError } = useQuery<ApiResponse, Error>({
         queryKey: ['booking-confirmation', property_id, checkin, checkout, guests],
         queryFn: async () => {
             const result = await fetchSuccessDetails({ property_id, checkin, checkout, guests });

@@ -2,15 +2,14 @@ import { Button } from "@/components/ui/button"
 import {
     Dialog,
     DialogContent,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "../ui/textarea"
-import { useEffect, useState } from "react"
-import { ChevronDown, Loader2Icon, Plus, Star, Upload, X } from "lucide-react"
+import { useState } from "react"
+import { ChevronDown, Loader2Icon, Plus, Upload, X } from "lucide-react"
 import { toast } from "sonner"
 import axios from "axios"
 import { Input } from "../ui/input"
@@ -18,10 +17,6 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuRadioGroup,
-    DropdownMenuRadioItem,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
@@ -139,7 +134,7 @@ const HostDashboardPost: React.FC<HostDashboardPostProps> = ({ onDataRefresh }) 
                     }
                 });
 
-                const response = await axios.post("http://localhost:3000/listings", formData,
+                const response = await axios.post("https://airbnb-for-campers.onrender.com/listings", formData,
                     {
                         headers: {
                             "Content-Type": "multipart/form-data",

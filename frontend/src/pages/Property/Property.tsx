@@ -131,7 +131,7 @@ const fetchPropertyDetails = async (params: SearchParams): Promise<ApiResponse> 
     }
     const queryString = queryParams.toString();
 
-    const response = await axios.get(`http://localhost:3000/property?${queryString}`, {
+    const response = await axios.get(`https://airbnb-for-campers.onrender.com/property?${queryString}`, {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -146,7 +146,7 @@ const fetchPropertyDetails = async (params: SearchParams): Promise<ApiResponse> 
 };
 
 const saveProperty = async (propertyId: number): Promise<void> => {
-    const response = await axios.post(`http://localhost:3000/property/save`, {
+    const response = await axios.post(`https://airbnb-for-campers.onrender.com/property/save`, {
         property_id: propertyId,
     }, {
         headers: {
@@ -167,7 +167,7 @@ const checkDateError = async (checkin: string, checkout: string, property_id: nu
         }
 
         try {
-            const response = await axios.post(`http://localhost:3000/booking/update/dates`, {
+            const response = await axios.post(`https://airbnb-for-campers.onrender.com/booking/update/dates`, {
                 property_id: property_id,
                 checkin: checkin,
                 checkout: checkout,

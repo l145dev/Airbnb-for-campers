@@ -13,7 +13,7 @@ interface Notification {
 }
 
 const fetchNotifications = async () => {
-    const response = await axios.get('http://localhost:3000/notifications', {
+    const response = await axios.get('https://airbnb-for-campers.onrender.com/notifications', {
         headers: {
             'Content-Type': 'application/json',
         },
@@ -23,7 +23,7 @@ const fetchNotifications = async () => {
 };
 
 const deleteNotification = async (notificationId: number) => {
-    return axios.delete(`http://localhost:3000/notifications`, {
+    return axios.delete(`https://airbnb-for-campers.onrender.com/notifications`, {
         headers: {
             'Content-Type': 'application/json'
         },

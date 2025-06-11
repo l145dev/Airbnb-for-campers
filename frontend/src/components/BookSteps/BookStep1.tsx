@@ -26,7 +26,7 @@ const BookStep1: React.FC<BookStep1Props> = ({ property_id, checkin, checkout, g
     useEffect(() => {
         const getAuthenticated = async () => {
             try {
-                const response = await axios.get('http://localhost:3000/auth/session', {
+                const response = await axios.get('https://airbnb-for-campers.onrender.com/auth/session', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
@@ -59,7 +59,7 @@ const BookStep1: React.FC<BookStep1Props> = ({ property_id, checkin, checkout, g
 
     const stripePayment = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/booking/pay', {
+            const response = await axios.post('https://airbnb-for-campers.onrender.com/booking/pay', {
                 property_id,
                 checkin,
                 checkout,
@@ -92,7 +92,7 @@ const BookStep1: React.FC<BookStep1Props> = ({ property_id, checkin, checkout, g
 
     const stripePaymentKlarna = async () => {
         try {
-            const response = await axios.post('http://localhost:3000/booking/pay/klarna', {
+            const response = await axios.post('https://airbnb-for-campers.onrender.com/booking/pay/klarna', {
                 property_id,
                 checkin,
                 checkout,

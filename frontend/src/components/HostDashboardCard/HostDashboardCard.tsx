@@ -29,7 +29,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
     const publish = async () => {
         // unpublish/publish property
         try {
-            const response = await axios.patch("http://localhost:3000/hostdashboard/publish", {
+            const response = await axios.patch("https://airbnb-for-campers.onrender.com/hostdashboard/publish", {
                 property_id: host_dashboard_card.property_id,
                 published: host_dashboard_card.is_active,
             }, {
@@ -59,7 +59,7 @@ const HostDashboardCard: React.FC<{ host_dashboard_card: HostDashboardDetails, t
     const deleteProperty = async () => {
         // delete property
         try {
-            const response = await axios.delete(`http://localhost:3000/listings?property_id=${host_dashboard_card.property_id}`, {
+            const response = await axios.delete(`https://airbnb-for-campers.onrender.com/listings?property_id=${host_dashboard_card.property_id}`, {
                 headers: {
                     "Content-Type": "application/json",
                 },

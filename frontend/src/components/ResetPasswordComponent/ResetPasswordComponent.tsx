@@ -37,7 +37,7 @@ export function ResetPasswordComponent({
         }
 
         try {
-            const response = await axios.patch("http://localhost:3000/resetpassword/change", {
+            const response = await axios.patch("https://airbnb-for-campers.onrender.com/resetpassword/change", {
                 pwd: pwd
             }, {
                 headers: {

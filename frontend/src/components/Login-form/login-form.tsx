@@ -36,7 +36,7 @@ export function LoginForm({
     try {
       // login the user
       axios.post(
-        'http://localhost:3000/login',
+        'https://airbnb-for-campers.onrender.com/login',
         {
           email: email,
           pwd: pwd
