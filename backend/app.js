@@ -61,7 +61,8 @@ app.use(session({
     maxAge: 1000 * 60 * 60 * 24, // 24 hours
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production', // conditionally secure, insecure in development (for speed)
-    domain: process.env.NODE_ENV === 'development' ? 'localhost' : '.l145.be' // in development -> localhost, in production -> .l145.be
+    domain: process.env.NODE_ENV === 'development' ? 'localhost' : '.l145.be', // in development -> localhost, in production -> .l145.be
+    path: '/airbnb-camping/',
   },
   rolling: true, // when user makes request to backend, maxAge resets (keeps user logged in if active in the past 24 hours, for UX)
 }));

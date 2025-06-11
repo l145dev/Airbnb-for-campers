@@ -182,8 +182,8 @@ router.post("/pay", isAuthenticated, async (req, res, next) => {
                     quantity: 1
                 }
             ],
-            success_url: `http://localhost:5173/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
-            cancel_url: `http://localhost:5173/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+            success_url: `https://l145.be/airbnb-camping/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
+            cancel_url: `https://l145.be/airbnb-camping/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
         })
 
         return res.status(200).json({ success: true, url: session.url });
@@ -239,8 +239,8 @@ router.post("/pay/klarna", async (req, res, next) => {
                     quantity: 1
                 }
             ],
-            success_url: `http://localhost:5173/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
-            cancel_url: `http://localhost:5173/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
+            success_url: `https://l145.be/airbnb-camping/book?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}&success=true`, //success page (booking confirmed page)
+            cancel_url: `https://l145.be/airbnb-camping/property?property_id=${property_id}&checkin=${checkin}&checkout=${checkout}&guests=${guests}` // canceled page (back to propertydetails)
         })
 
         return res.status(200).json({ success: true, url: session.url });
