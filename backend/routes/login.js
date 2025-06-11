@@ -63,6 +63,9 @@ router.post('/', limiter, async (req, res, next) => {
         const pwdMatch = await bcrypt.compare(pwd, user.pwd);
 
         if (pwdMatch) {
+            // check if session exists
+            console.log("req.session:", req.session);
+
             // store details in session, toggle session logged in state
             req.session.userId = user.user_id;
             req.session.email = user.email;
