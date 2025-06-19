@@ -1,15 +1,7 @@
 # Airbnb for Campers
 
-**Development phases**:
-1. ~~Design~~
-2. ~~Database~~
-3. ~~Backend~~
-4. ~~Frontend~~
-5. ~~Final touches & Testing~~
-6. ~~Deploy **FAILED**~~
-7. ~~Create documentation (unplanned)~~
-
 Available Online: https://www.l145.be/airbnb-camping/
+
 A full-stack web application inspired by Airbnb, tailored for campers and hosts to list, discover, and book unique camping properties. The platform supports both regular users (guests) and property owners (hosts), providing a seamless experience for booking, hosting, and managing camping stays.
 
 > [!IMPORTANT]  
@@ -22,7 +14,7 @@ A full-stack web application inspired by Airbnb, tailored for campers and hosts 
 ## Table of Contents
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Installation](#installation)
+- [Installation](#local-installation)
 - [Usage](#usage)
 - [API Overview](#api-overview)
 - [Database](#database)
@@ -97,19 +89,27 @@ A full-stack web application inspired by Airbnb, tailored for campers and hosts 
 ## Access Online
 https://www.l145.be/airbnb-camping
 
-> [!NOTE]  
-> Navigation contains bugs due to current frontend host set up.
-
-## Installation
+## Local Installation 
 
 ### Prerequisites
 - Node.js (v18+ recommended)
 - npm
 - PostgreSQL
 
+### Clone & Branch
+1. Clone the repository
+   ```bash
+   git clone "https://github.com/l145dev/Airbnb-for-campers.git"
+   cd Airbnb-for-campers
+   ```
+2. Navigate to development branch (local only)
+   ```bash
+   git checkout development
+   ```
+
 ### Backend Setup
 
-1. Clone the repository and navigate to `/backend`:
+1. Navigate to `/backend`:
    ```bash
    cd backend
    npm install
