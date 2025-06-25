@@ -89,9 +89,6 @@ A full-stack web application inspired by Airbnb, tailored for campers and hosts 
 ## Access Online
 https://www.l145.be/airbnb-camping
 
-> [!NOTE]  
-> Navigation contains bugs due to current frontend host set up.
-
 ## Local Installation 
 
 ### Prerequisites
