@@ -28,6 +28,7 @@ import notificationsRouter from './routes/notifications.js';
 import hostRouter from './routes/host.js';
 import hostDashboardRouter from './routes/hostdashboard.js';
 import authRouter from './routes/auth.js';
+import wakeupRouter from './routes/wakeup.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -117,6 +118,7 @@ app.use('/notifications', notificationsRouter);
 app.use('/host', hostRouter);
 app.use('/hostdashboard', hostDashboardRouter);
 app.use('/auth', authRouter);
+app.use('/wake-up', wakeupRouter);
 
 // catch 404 and forward to error handler
 app.use((req, res, next) => {
