@@ -3,7 +3,7 @@ name: Ping Supabase to Prevent Pausing
 on:
   schedule:
     - cron: '0 9 * * 1,4' # 9 AM UTC on Monday and Thursday
-  workflow_dispatch: # Allows manual triggering
+  workflow_dispatch:
 
 jobs:
   ping:
@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm install @supabase/supabase-js
