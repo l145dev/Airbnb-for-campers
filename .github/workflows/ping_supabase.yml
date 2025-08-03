@@ -21,7 +21,7 @@ jobs:
         run: npm install @supabase/supabase-js
 
       - name: Run Node script to ping Supabase
-        run: node ping_supabase.js
+        run: node ping_supabase.mjs
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
